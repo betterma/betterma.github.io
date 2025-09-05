@@ -115,6 +115,24 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     });
     
+    // 加载所有用户数据
+    async function loadAllUsersData() {
+        try {
+            // 获取所有记录
+            const allRecords = await storage.getAllSleepRecords();
+            // 分离用户数据
+            sleepRecords.user1 = allRecords.filter(r => r.user === 'user1' || !r.user);
+            sleepRecords.user2 = allRecords.filter(r => r.user === 'user2');
+            console.log('加载的所有用户睡眠记录:', sleepRecords);
+        } catch (error) {
+            console.error('加载用户数据失败:', error);
+            // 只在真正的异常时才清空数据
+            sleepRecords.user1 = [];
+            sleepRecords.user2 = [];
+            // 不抛出异常，不提示错误
+        }
+    }
+    
     // 初始化应用
     async function initializeApp() {
         try {
@@ -126,29 +144,13 @@ document.addEventListener('DOMContentLoaded', async function() {
             updateBedTimeChart();
             updateRecentRecords();
             toggleViewMode();
+            // 不要因为没有数据而报错
         } catch (error) {
             console.error('初始化失败:', error);
+            // 只有真正的异常才提示
             showError('加载数据失败，请检查网络连接');
         } finally {
             hideLoading();
-        }
-    }
-    
-    // 加载所有用户数据
-    async function loadAllUsersData() {
-        try {
-            // 获取所有记录
-            const allRecords = await storage.getAllSleepRecords();
-            
-            // 分离用户数据
-            sleepRecords.user1 = allRecords.filter(r => r.user === 'user1' || !r.user);
-            sleepRecords.user2 = allRecords.filter(r => r.user === 'user2');
-            
-            console.log('加载的所有用户睡眠记录:', sleepRecords);
-        } catch (error) {
-            console.error('加载用户数据失败:', error);
-            sleepRecords.user1 = [];
-            sleepRecords.user2 = [];
         }
     }
     
