@@ -197,20 +197,20 @@
           </div>
           <div class="form-group">
             <label for="bedTime">上床时间</label>
-            <input type="time" id="bedTime" required>
+            <input type="time" id="bedTime" name="bedTime" required>
           </div>
           <div class="form-group">
             <label for="sleepTime">睡着时间</label>
-            <input type="time" id="sleepTime" required>
+            <input type="time" id="sleepTime" name="sleepTime" required>
           </div>
           <div class="form-group">
             <label for="wakeTime">起床时间</label>
-            <input type="time" id="wakeTime" required>
+            <input type="time" id="wakeTime" name="wakeTime" required>
           </div>
           <div class="form-group">
             <label for="physicalScore">身体状态评分</label>
             <div class="score-input">
-              <input type="range" id="physicalScore" min="1" max="10" value="7" class="score-slider">
+              <input type="range" id="physicalScore" name="physicalScore" min="1" max="10" value="7" class="score-slider">
               <span class="score-value" id="physicalScoreValue">7</span>
               <div class="score-labels">
                 <span>1 (很差)</span>
@@ -221,7 +221,7 @@
           <div class="form-group">
             <label for="mentalScore">心理状态评分</label>
             <div class="score-input">
-              <input type="range" id="mentalScore" min="1" max="10" value="7" class="score-slider">
+              <input type="range" id="mentalScore" name="mentalScore" min="1" max="10" value="7" class="score-slider">
               <span class="score-value" id="mentalScoreValue">7</span>
               <div class="score-labels">
                 <span>1 (很差)</span>
@@ -231,7 +231,7 @@
           </div>
           <div class="form-group">
             <label for="notes">备注</label>
-            <textarea id="notes" rows="3" placeholder="记录一下睡眠质量、感受等..."></textarea>
+            <textarea id="notes" name="notes" rows="3" placeholder="记录一下睡眠质量、感受等..."></textarea>
           </div>
           <div class="form-actions">
             <button type="button" class="btn btn-secondary" id="cancelBtn">取消</button>

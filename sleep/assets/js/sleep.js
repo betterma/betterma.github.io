@@ -270,6 +270,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // 更新图表
     function updateChart() {
+        const records = sleepRecords[currentUser] || [];
+        const chartWrapper = document.querySelector('.chart-wrapper');
+        if (records.length === 0) {
+            chartWrapper.innerHTML = '<div class="no-data-tip">暂无数据</div>';
+            return;
+        }
         const filteredRecords = filterRecordsByTimeRange();
         const chartData = prepareChartData(filteredRecords);
         
@@ -842,63 +848,50 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // 更新最近记录
     function updateRecentRecords() {
-        const container = document.getElementById('recentRecordsList');
-        const userRecords = sleepRecords[currentUser] || [];
-        const recentRecords = userRecords.slice(0, 5);
-        
-        if (recentRecords.length === 0) {
-            container.innerHTML = '<div class="empty">还没有睡眠记录，开始记录吧！</div>';
+        const records = sleepRecords[currentUser] || [];
+        const list = document.getElementById('recentRecordsList');
+        list.innerHTML = '';
+        if (records.length === 0) {
+            list.innerHTML = '<div class="no-data-tip">暂无最近记录</div>';
             return;
         }
         
-        container.innerHTML = '';
+        const recentRecords = records.slice(0, 5);
         
         recentRecords.forEach(record => {
             const recordEl = createRecordElement(record);
-            container.appendChild(recordEl);
+            list.appendChild(recordEl);
         });
     }
     
-    // 创建记录元素
-    function createRecordElement(record) {
-        const recordEl = document.createElement('div');
-        recordEl.className = 'record-item';
-        
-        const duration = record.sleepDuration ? `${record.sleepDuration.toFixed(1)}小时` : '未记录';
-        const sleepTime = record.sleepTime ? formatTime(record.sleepTime) : '未记录';
-        const wakeTime = record.wakeTime ? formatTime(record.wakeTime) : '未记录';
-        const physicalScore = record.physicalScore ? `${record.physicalScore}分` : '未评分';
-        const mentalScore = record.mentalScore ? `${record.mentalScore}分` : '未评分';
-        
-        recordEl.innerHTML = `
-            <div class="record-info">
-                <div class="record-date">${formatDate(record.date)}</div>
-                <div class="record-details">
-                    睡眠时长: ${duration} | 入睡: ${sleepTime} | 起床: ${wakeTime}
-                </div>
-                <div class="record-scores">
-                    身体状态: ${physicalScore} | 心理状态: ${mentalScore}
-                </div>
-            </div>
-            <div class="record-actions">
-                <button class="edit-btn" title="编辑" data-date="${record.date}">✏️</button>
-                <button class="delete-btn" title="删除" data-date="${record.date}">🗑️</button>
-            </div>
-        `;
-        
-        // 绑定事件
-        recordEl.querySelector('.edit-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            editRecord(record.date);
+    function escapeHTML(str) {
+        return str.replace(/[&<>"']/g, function (m) {
+            return ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[m];
         });
-        
-        recordEl.querySelector('.delete-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            deleteRecord(record.date);
-        });
-        
-        return recordEl;
-    }
+}
+
+function createRecordElement(record) {
+    const el = document.createElement('div');
+    el.className = 'record-item';
+    el.innerHTML = `
+        <div class="record-date">${record.date}</div>
+        <div class="record-info">
+            <span>上床: ${record.bedTime}</span>
+            <span>入睡: ${record.sleepTime}</span>
+            <span>起床: ${record.wakeTime}</span>
+            <span>身体评分: ${record.physicalScore}</span>
+            <span>心理评分: ${record.mentalScore}</span>
+        </div>
+        <div class="record-notes">${escapeHTML(record.notes || '')}</div>
+    `;
+    return el;
+}
     
     // 显示模态框
     function showModal() {
@@ -909,8 +902,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     // 隐藏模态框
     function hideModal() {
         modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
         form.reset();
+        // 如果有自定义分数显示，也重置
+        document.getElementById('physicalScoreValue').textContent = '7';
+        document.getElementById('mentalScoreValue').textContent = '7';
     }
     
     // 设置默认日期
@@ -922,42 +917,60 @@ document.addEventListener('DOMContentLoaded', async function() {
     // 处理表单提交
     async function handleFormSubmit(e) {
         e.preventDefault();
-        
+
         const formData = new FormData(form);
-        const record = {
-            date: formData.get('recordDate'),
-            bedTime: formData.get('bedTime'),
-            sleepTime: formData.get('sleepTime'),
-            wakeTime: formData.get('wakeTime'),
-            physicalScore: parseInt(formData.get('physicalScore')) || 7,
-            mentalScore: parseInt(formData.get('mentalScore')) || 7,
-            notes: formData.get('notes')
-        };
-        
-        // 数据验证
-        if (!record.date) {
+        const date = formData.get('recordDate');
+        const bedTime = formData.get('bedTime');
+        const sleepTime = formData.get('sleepTime');
+        const wakeTime = formData.get('wakeTime');
+        const physicalScore = Number(formData.get('physicalScore'));
+        const mentalScore = Number(formData.get('mentalScore'));
+        const notes = formData.get('notes') || '';
+
+        // 基本校验
+        if (!date) {
             showError('请选择日期');
             return;
         }
-        
-        if (!record.sleepTime || !record.wakeTime) {
-            showError('请填写入睡时间和起床时间');
+        if (!bedTime || !sleepTime || !wakeTime) {
+            showError('请填写完整的时间信息');
             return;
         }
-        
+        if (isNaN(physicalScore) || physicalScore < 1 || physicalScore > 10) {
+            showError('身体评分需在1~10之间');
+            return;
+        }
+        if (isNaN(mentalScore) || mentalScore < 1 || mentalScore > 10) {
+            showError('心理评分需在1~10之间');
+            return;
+        }
+        // 日期唯一性校验
+        const exists = sleepRecords[currentUser]?.some(r => r.date === date);
+        if (exists) {
+            showError('该日期已存在记录，请勿重复提交');
+            return;
+        }
+
         // 计算睡眠时长和上床时间
-        if (record.sleepTime && record.wakeTime) {
-            record.sleepDuration = calculateSleepDuration(record.sleepTime, record.wakeTime);
-            record.sleepTimeHour = parseTimeToHour(record.sleepTime);
-            record.wakeTimeHour = parseTimeToHour(record.wakeTime);
+        let sleepDuration = 0;
+        if (sleepTime && wakeTime) {
+            sleepDuration = calculateSleepDuration(sleepTime, wakeTime);
         }
-        if (record.bedTime) {
-            record.bedTimeHour = parseTimeToHour(record.bedTime);
-        }
+        
+        const record = {
+            date: date,
+            bedTime: bedTime,
+            sleepTime: sleepTime,
+            wakeTime: wakeTime,
+            sleepDuration: sleepDuration,
+            physicalScore: physicalScore,
+            mentalScore: mentalScore,
+            notes: notes
+        };
         
         try {
             showLoading('保存中...');
-            await storage.saveSleepRecord(record.date, record, currentUser);
+            await storage.saveSleepRecord(date, record, currentUser);
             
             // 更新本地数据
             if (!sleepRecords[currentUser]) {
@@ -967,7 +980,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             // 确保记录包含用户信息
             const recordWithUser = { ...record, user: currentUser };
             
-            const existingIndex = sleepRecords[currentUser].findIndex(r => r.date === record.date);
+            const existingIndex = sleepRecords[currentUser].findIndex(r => r.date === date);
             if (existingIndex >= 0) {
                 sleepRecords[currentUser][existingIndex] = recordWithUser;
             } else {
