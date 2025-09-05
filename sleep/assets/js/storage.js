@@ -6,7 +6,7 @@ const storage = (function() {
       if (!token) throw new Error('未认证');
       
       const GITHUB_USERNAME = 'betterma';
-      const GITHUB_REPO = 'mazha';
+      const GITHUB_REPO = 'betterma.github.io';
       
       const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/${endpoint}`;
       
