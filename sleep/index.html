@@ -13,6 +13,22 @@
   <header class="app-header">
     <div class="container header-flex">
       <h1 class="logo">睡眠统计</h1>
+      <div class="user-controls">
+        <div class="user-selector">
+          <label for="userSelect">选择用户：</label>
+          <select id="userSelect" class="user-select">
+            <option value="user1">用户1</option>
+            <option value="user2">用户2</option>
+          </select>
+        </div>
+        <div class="view-mode">
+          <label for="viewMode">视图模式：</label>
+          <select id="viewMode" class="view-select">
+            <option value="single">个人视图</option>
+            <option value="compare">对比视图</option>
+          </select>
+        </div>
+      </div>
       <div class="actions">
         <button id="addSleepRecord" class="btn btn-primary">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -65,6 +81,16 @@
         <div class="stat-value" id="totalDays">--</div>
         <div class="stat-unit">天</div>
       </div>
+      <div class="stat-card">
+        <div class="stat-title">平均身体状态</div>
+        <div class="stat-value" id="avgPhysicalScore">--</div>
+        <div class="stat-unit">分</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">平均心理状态</div>
+        <div class="stat-value" id="avgMentalScore">--</div>
+        <div class="stat-unit">分</div>
+      </div>
     </div>
 
     <!-- 主要趋势图表 -->
@@ -77,6 +103,8 @@
             <option value="sleepTime">入睡时间</option>
             <option value="wakeTime">起床时间</option>
             <option value="efficiency">睡眠效率</option>
+            <option value="physicalScore">身体状态</option>
+            <option value="mentalScore">心理状态</option>
           </select>
           <select id="timeRange" class="chart-select">
             <option value="7">最近7天</option>
@@ -127,6 +155,24 @@
       </div>
     </div>
 
+    <!-- 用户对比图表 -->
+    <div class="chart-container compare-view" style="display: none;">
+      <div class="chart-header">
+        <h2>用户睡眠对比分析</h2>
+        <div class="chart-controls">
+          <select id="compareTimeRange" class="chart-select">
+            <option value="7">最近7天</option>
+            <option value="30">最近30天</option>
+            <option value="90">最近90天</option>
+            <option value="all">全部记录</option>
+          </select>
+        </div>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="userCompareChart"></canvas>
+      </div>
+    </div>
+
     <!-- 最近记录 -->
     <div class="recent-records">
       <h2>最近记录</h2>
@@ -162,6 +208,28 @@
             <input type="time" id="wakeTime" required>
           </div>
           <div class="form-group">
+            <label for="physicalScore">身体状态评分</label>
+            <div class="score-input">
+              <input type="range" id="physicalScore" min="1" max="10" value="7" class="score-slider">
+              <span class="score-value" id="physicalScoreValue">7</span>
+              <div class="score-labels">
+                <span>1 (很差)</span>
+                <span>10 (很好)</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="mentalScore">心理状态评分</label>
+            <div class="score-input">
+              <input type="range" id="mentalScore" min="1" max="10" value="7" class="score-slider">
+              <span class="score-value" id="mentalScoreValue">7</span>
+              <div class="score-labels">
+                <span>1 (很差)</span>
+                <span>10 (很好)</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
             <label for="notes">备注</label>
             <textarea id="notes" rows="3" placeholder="记录一下睡眠质量、感受等..."></textarea>
           </div>
@@ -174,6 +242,7 @@
     </div>
   </div>
 
+  <script src="assets/js/auth.js"></script>
   <script src="assets/js/storage.js"></script>
   <script src="assets/js/sleep.js"></script>
   <div id="globalLoading" class="loading-mask" style="display:none;">

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>****租赁信息管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        header {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        h1 svg {
+            margin-right: 12px;
+        }
+        h2 {
+            font-size: 22px;
+            padding: 12px 0;
+            border-bottom: 2px solid #3498db;
+            margin: 25px 0 15px;
+            color: #2c3e50;
+        }
+        h3 {
+            font-size: 18px;
+            color: #3498db;
+            margin: 15px 0 10px;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .info-card {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .copy-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .copy-btn:hover {
+            background: #2980b9;
+        }
+        .copy-btn svg {
+            margin-right: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f7fd;
+            color: #2c3e50;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        .alert {
+            background: #fff9e6;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .image-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .image-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .image-item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .image-caption {
+            text-align: center;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="white" stroke-width="2"/>
+                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="white" stroke-width="2"/>
+                <path d="M12 6V8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 16V18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7.05078 7.05078L8.46078 8.46078" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <path d="M15.5391 15.5391L16.9491 16.9491" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <path d="M6 12H8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <path d="M16 12H18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7.05078 16.9492L8.46078 15.5392" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                <path d="M15.5391 8.46094L16.9491 7.05094" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            ****租赁信息管理
+        </h1>
+        <p>赤岗路181号802房 · 最后更新：2025年9月5日</p>
+    </header>
+
+    <div class="container">
+        <h2>基本信息</h2>
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>地址信息</h3>
+                <div class="info-item">
+                    <span>用电地址</span>
+                    <span>赤岗路181号802房</span>
+                </div>
+                <div class="info-item">
+                    <span>水费用址</span>
+                    <span>****赤岗南路小区181号802</span>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <h3>用户信息</h3>
+                <div class="info-item">
+                    <span>电费户名</span>
+                    <span>潘俊宏</span>
+                </div>
+                <div class="info-item">
+                    <span>水费户名</span>
+                    <span>张晓欣</span>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <h3>表编号</h3>
+                <div class="info-item">
+                    <span>水表编号</span>
+                    <div>
+                        <span id="water-meter">0016087170</span>
+                        <button class="copy-btn" onclick="copyText('water-meter')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            复制
+                        </button>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span>电表编号</span>
+                    <div>
+                        <span id="electric-meter">0800050025556360</span>
+                        <button class="copy-btn" onclick="copyText('electric-meter')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            复制
+                        </button>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <span>燃气表编号</span>
+                    <div>
+                        <span id="gas-meter">1300617140</span>
+                        <button class="copy-btn" onclick="copyText('gas-meter')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            复制
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>费用及读数记录</h2>
+        
+        <div class="alert">
+            <strong>注意：</strong>房东已结清2025年9月5日前的水、电、燃气、物业费，后续费用需自行缴纳。
+        </div>
+        
+        <h3>水费信息</h3>
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-item">
+                    <span>最新读数</span>
+                    <span>729</span>
+                </div>
+                <div class="info-item">
+                    <span>上期读数</span>
+                    <span>727 (已缴清)</span>
+                </div>
+                <div class="info-item">
+                    <span>未缴水量</span>
+                    <span>2吨</span>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-item">
+                    <span>缴费方式</span>
+                    <span>微信/支付宝生活缴费</span>
+                </div>
+                <div class="info-item">
+                    <span>小区名称</span>
+                    <div>
+                        <span id="estate-name">****</span>
+                        <button class="copy-btn" onclick="copyText('estate-name')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            复制
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h3>电费信息</h3>
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-item">
+                    <span>用电量</span>
+                    <span>224.77 千瓦时</span>
+                </div>
+                <div class="info-item">
+                    <span>计费周期</span>
+                    <span>2025年8月1日-31日</span>
+                </div>
+                <div class="info-item">
+                    <span>违约金起始日</span>
+                    <span>2025年9月21日</span>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-item">
+                    <span>缴费方式</span>
+                    <span>微信/南网在线APP/支付宝</span>
+                </div>
+                <div class="info-item">
+                    <span>最新读数</span>
+                    <span>19082</span>
+                </div>
+            </div>
+        </div>
+        
+        <h3>燃气费信息</h3>
+        <div class="info-card">
+            <div class="info-item">
+                <span>最新读数</span>
+                <span>226 (截至2025年9月5日)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>家具家电清单</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>名称</th>
+                    <th>数量</th>
+                    <th>品牌/备注</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>电视机</td>
+                    <td>1台</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>热水器</td>
+                    <td>1个</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>冰箱</td>
+                    <td>1台</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>消毒碗柜</td>
+                    <td>1台</td>
+                    <td>康宝</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>洗衣机</td>
+                    <td>1台</td>
+                    <td>志高</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>厨具</td>
+                    <td>1套</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>抽油烟机</td>
+                    <td>1台</td>
+                    <td>康宝</td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td>卫生间洗脸柜</td>
+                    <td>1个</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>9</td>
+                    <td>燃气灶</td>
+                    <td>1个</td>
+                    <td>荣事达</td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>餐桌、茶几</td>
+                    <td>1套</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>11</td>
+                    <td>床</td>
+                    <td>1张</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td>衣柜</td>
+                    <td>1个</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>13</td>
+                    <td>空调</td>
+                    <td>2台</td>
+                    <td>松下、海尔各1台，各配遥控器</td>
+                </tr>
+                <tr>
+                    <td>14</td>
+                    <td>沙发</td>
+                    <td>1套</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>15</td>
+                    <td>窗帘</td>
+                    <td>2套</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>16</td>
+                    <td>电视柜</td>
+                    <td>1个</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>17</td>
+                    <td>钥匙+门禁卡+电梯卡</td>
+                    <td>2套</td>
+                    <td>共5张卡</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container">
+        <h2>相关图片</h2>
+        <div class="image-gallery">
+            <div class="image-item">
+                <img src="img/微信图片_20250905123626_45_10.jpg" alt="水费聊天记录" loading="lazy">
+                <div class="image-caption">水费聊天记录</div>
+            </div>
+            <div class="image-item">
+                <img src="img/微信图片_20250905123626_46_10.jpg" alt="电费通知单" loading="lazy">
+                <div class="image-caption">电费通知单</div>
+            </div>
+            <div class="image-item">
+                <img src="img/微信图片_20250905124107_56_10.jpg" alt="水费账单" loading="lazy">
+                <div class="image-caption">水费账单</div>
+            </div>
+            <div class="image-item">
+                <img src="img/捕获.PNG" alt="其他相关图片" loading="lazy">
+                <div class="image-caption">其他相关图片</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 ****租赁信息管理 | 最后更新: 2025-09-05</p>
+    </footer>
+
+    <script>
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('已复制: ' + text);
+            }).catch(err => {
+                console.error('复制失败: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

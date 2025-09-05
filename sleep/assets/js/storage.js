@@ -2,7 +2,9 @@
 const storage = (function() {
     // 私有方法
     async function request(endpoint, options = {}) {
-      // 使用公开的GitHub API，不需要认证
+      const token = auth.getToken();
+      if (!token) throw new Error('未认证');
+      
       const GITHUB_USERNAME = 'betterma';
       const GITHUB_REPO = 'mazha';
       
@@ -12,6 +14,8 @@ const storage = (function() {
         const response = await fetch(`${url}?t=${Date.now()}`, {
           ...options,
           headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json',
             'Accept': 'application/vnd.github.v3+json',
             ...(options.headers || {})
           }
@@ -31,60 +35,131 @@ const storage = (function() {
     
     // 公共接口
     return {
-             // 保存睡眠记录
-       saveSleepRecord: async function(date, record) {
+                    // 保存睡眠记录
+       saveSleepRecord: async function(date, record, user = 'user1') {
+         const filePath = `sleep/records/${date}.json`;
+         const message = `${user} ${date} 睡眠记录已更新`;
+         
+         // 在记录中添加用户标识
+         const recordWithUser = { ...record, user: user };
+         
          try {
-           // 使用本地存储
-           const records = JSON.parse(localStorage.getItem('sleepRecords') || '{}');
-           records[date] = record;
-           localStorage.setItem('sleepRecords', JSON.stringify(records));
-           return { success: true };
-         } catch (error) {
-           console.error('保存睡眠记录失败:', error);
-           throw error;
+           // 检查文件是否存在
+           const { sha } = await request(`contents/${filePath}`);
+           // 更新现有文件
+           return request(`contents/${filePath}`, {
+             method: 'PUT',
+             body: JSON.stringify({
+               message,
+               content: btoa(unescape(encodeURIComponent(JSON.stringify(recordWithUser, null, 2)))),
+               sha
+             })
+           });
+         } catch {
+           // 创建新文件
+           return request(`contents/${filePath}`, {
+             method: 'PUT',
+             body: JSON.stringify({
+               message,
+               content: btoa(unescape(encodeURIComponent(JSON.stringify(recordWithUser, null, 2))))
+             })
+           });
          }
        },
       
-             // 获取睡眠记录
-       getSleepRecord: async function(date) {
+                    // 获取睡眠记录
+       getSleepRecord: async function(date, user = 'user1') {
+         const filePath = `sleep/records/${date}.json`;
+         
          try {
-           const records = JSON.parse(localStorage.getItem('sleepRecords') || '{}');
-           return records[date] || null;
+           const file = await request(`contents/${filePath}`);
+           const record = JSON.parse(decodeURIComponent(escape(atob(file.content))));
+           // 如果记录属于指定用户，则返回
+           if (record.user === user) {
+             return record;
+           }
+           return null;
          } catch (error) {
            console.log(`没有找到${date}的睡眠记录`);
            return null;
          }
        },
       
-             // 获取所有睡眠记录
-       getSleepRecords: async function() {
+                    // 获取所有睡眠记录
+       getSleepRecords: async function(user = 'user1') {
          try {
-           const records = JSON.parse(localStorage.getItem('sleepRecords') || '{}');
-           const recordsList = Object.values(records);
-           return recordsList.sort((a, b) => new Date(b.date) - new Date(a.date));
+           const data = await request('contents/sleep/records');
+           const records = [];
+           
+           for (const item of data) {
+             if (item.type === 'file' && item.name.endsWith('.json')) {
+               try {
+                 const record = await this.getSleepRecord(item.name.replace('.json', ''), user);
+                 if (record) {
+                   records.push(record);
+                 }
+               } catch (error) {
+                 console.error(`读取记录失败: ${item.name}`, error);
+               }
+             }
+           }
+           
+           return records.sort((a, b) => new Date(b.date) - new Date(a.date));
          } catch (error) {
-           console.error('获取睡眠记录列表失败:', error);
+           console.error(`获取${user}睡眠记录列表失败:`, error);
+           return [];
+         }
+       },
+       
+       // 获取所有睡眠记录（不分用户）
+       getAllSleepRecords: async function() {
+         try {
+           const data = await request('contents/sleep/records');
+           const records = [];
+           
+           for (const item of data) {
+             if (item.type === 'file' && item.name.endsWith('.json')) {
+               try {
+                 const filePath = `sleep/records/${item.name}`;
+                 const file = await request(`contents/${filePath}`);
+                 const record = JSON.parse(decodeURIComponent(escape(atob(file.content))));
+                 records.push(record);
+               } catch (error) {
+                 console.error(`读取记录失败: ${item.name}`, error);
+               }
+             }
+           }
+           
+           return records.sort((a, b) => new Date(b.date) - new Date(a.date));
+         } catch (error) {
+           console.error('获取所有睡眠记录失败:', error);
            return [];
          }
        },
 
-             // 删除睡眠记录
-       deleteSleepRecord: async function(date) {
+                    // 删除睡眠记录
+       deleteSleepRecord: async function(date, user = 'user1') {
+         const filePath = `sleep/records/${date}.json`;
          try {
-           const records = JSON.parse(localStorage.getItem('sleepRecords') || '{}');
-           delete records[date];
-           localStorage.setItem('sleepRecords', JSON.stringify(records));
-           return { success: true };
+           // 先获取 sha
+           const { sha } = await request(`contents/${filePath}`);
+           return request(`contents/${filePath}`, {
+             method: 'DELETE',
+             body: JSON.stringify({
+               message: `${user} ${date} 睡眠记录已删除`,
+               sha
+             })
+           });
          } catch (error) {
-           console.error('删除睡眠记录失败:', error);
+           console.error(`删除${user}睡眠记录失败:`, error);
            throw error;
          }
        },
 
              // 获取睡眠统计数据
-       getSleepStats: async function() {
+       getSleepStats: async function(user = 'user1') {
          try {
-           const records = await this.getSleepRecords();
+           const records = await this.getSleepRecords(user);
            if (records.length === 0) {
              return {
                totalDays: 0,

@@ -1,10 +1,13 @@
 // sleep.js - 睡眠统计主逻辑
 document.addEventListener('DOMContentLoaded', async function() {
     // 全局变量
-    let sleepRecords = [];
+    let sleepRecords = {};
+    let currentUser = 'user1';
+    let viewMode = 'single';
     let sleepChart = null;
     let comparisonChart = null;
     let bedTimeChart = null;
+    let userCompareChart = null;
     let currentChartType = 'duration';
     let currentTimeRange = 'all';
     let currentComparisonRange = 'all';
@@ -18,10 +21,13 @@ document.addEventListener('DOMContentLoaded', async function() {
     const form = document.getElementById('sleepRecordForm');
     const refreshBtn = document.getElementById('refresh');
     const exportBtn = document.getElementById('exportData');
+    const userSelect = document.getElementById('userSelect');
+    const viewModeSelect = document.getElementById('viewMode');
     const chartTypeSelect = document.getElementById('chartType');
     const timeRangeSelect = document.getElementById('timeRange');
     const comparisonTimeRangeSelect = document.getElementById('comparisonTimeRange');
     const bedTimeRangeSelect = document.getElementById('bedTimeRange');
+    const compareTimeRangeSelect = document.getElementById('compareTimeRange');
     
     // 初始化
     await initializeApp();
@@ -66,6 +72,33 @@ document.addEventListener('DOMContentLoaded', async function() {
         updateBedTimeChart();
     });
     
+    // 用户选择事件
+    userSelect.addEventListener('change', (e) => {
+        currentUser = e.target.value;
+        loadUserData();
+    });
+    
+    // 视图模式切换事件
+    viewModeSelect.addEventListener('change', (e) => {
+        viewMode = e.target.value;
+        toggleViewMode();
+    });
+    
+    // 对比时间范围选择事件
+    compareTimeRangeSelect.addEventListener('change', (e) => {
+        currentComparisonRange = e.target.value;
+        updateUserCompareChart();
+    });
+    
+    // 评分滑块事件
+    document.getElementById('physicalScore').addEventListener('input', (e) => {
+        document.getElementById('physicalScoreValue').textContent = e.target.value;
+    });
+    
+    document.getElementById('mentalScore').addEventListener('input', (e) => {
+        document.getElementById('mentalScoreValue').textContent = e.target.value;
+    });
+    
     // 窗口大小变化时重新调整图表
     window.addEventListener('resize', () => {
         if (sleepChart) {
@@ -77,18 +110,22 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (bedTimeChart) {
             bedTimeChart.resize();
         }
+        if (userCompareChart) {
+            userCompareChart.resize();
+        }
     });
     
     // 初始化应用
     async function initializeApp() {
         try {
             showLoading('加载睡眠数据...');
-            await loadSleepData();
+            await loadAllUsersData();
             updateStats();
             updateChart();
             updateComparisonChart();
             updateBedTimeChart();
             updateRecentRecords();
+            toggleViewMode();
         } catch (error) {
             console.error('初始化失败:', error);
             showError('加载数据失败，请检查网络连接');
@@ -97,75 +134,49 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
     
-    // 加载睡眠数据
-    async function loadSleepData() {
+    // 加载所有用户数据
+    async function loadAllUsersData() {
         try {
-            sleepRecords = await storage.getSleepRecords();
+            // 获取所有记录
+            const allRecords = await storage.getAllSleepRecords();
             
-            // 如果没有数据，添加一些示例数据
-            if (sleepRecords.length === 0) {
-                await addSampleData();
-                sleepRecords = await storage.getSleepRecords();
-            }
+            // 分离用户数据
+            sleepRecords.user1 = allRecords.filter(r => r.user === 'user1' || !r.user);
+            sleepRecords.user2 = allRecords.filter(r => r.user === 'user2');
             
-            console.log('加载的睡眠记录:', sleepRecords);
+            console.log('加载的所有用户睡眠记录:', sleepRecords);
         } catch (error) {
-            console.error('加载睡眠数据失败:', error);
-            sleepRecords = [];
+            console.error('加载用户数据失败:', error);
+            sleepRecords.user1 = [];
+            sleepRecords.user2 = [];
         }
     }
     
-    // 添加示例数据
-    async function addSampleData() {
-        const sampleRecords = [
-            {
-                date: '2025-08-31',
-                bedTime: '22:00',
-                sleepTime: '22:30',
-                wakeTime: '06:00',
-                sleepDuration: 7.5,
-                sleepTimeHour: 22.5,
-                wakeTimeHour: 6.0,
-                bedTimeHour: 22.0,
-                notes: '早睡早起，精神很好'
-            },
-            {
-                date: '2025-09-01',
-                bedTime: '23:30',
-                sleepTime: '00:00',
-                wakeTime: '08:00',
-                sleepDuration: 8.0,
-                sleepTimeHour: 0.0,
-                wakeTimeHour: 8.0,
-                bedTimeHour: 23.5,
-                notes: '周末睡得比较晚，但睡眠质量不错'
-            },
-            {
-                date: '2025-09-02',
-                bedTime: '22:30',
-                sleepTime: '23:00',
-                wakeTime: '06:30',
-                sleepDuration: 7.5,
-                sleepTimeHour: 23.0,
-                wakeTimeHour: 6.5,
-                bedTimeHour: 22.5,
-                notes: '早睡早起，感觉不错'
-            },
-            {
-                date: '2025-09-03',
-                bedTime: '23:00',
-                sleepTime: '23:30',
-                wakeTime: '07:30',
-                sleepDuration: 8.0,
-                sleepTimeHour: 23.5,
-                wakeTimeHour: 7.5,
-                bedTimeHour: 23.0,
-                notes: '睡眠质量很好，早上精神饱满'
+    // 加载指定用户数据
+    async function loadUserData() {
+        try {
+            await loadAllUsersData();
+            updateStats();
+            updateChart();
+            updateComparisonChart();
+            updateBedTimeChart();
+            updateRecentRecords();
+            if (viewMode === 'compare') {
+                updateUserCompareChart();
             }
-        ];
-        
-        for (const record of sampleRecords) {
-            await storage.saveSleepRecord(record.date, record);
+        } catch (error) {
+            console.error('加载用户数据失败:', error);
+        }
+    }
+    
+    // 切换视图模式
+    function toggleViewMode() {
+        const compareView = document.querySelector('.compare-view');
+        if (viewMode === 'compare') {
+            compareView.style.display = 'block';
+            updateUserCompareChart();
+        } else {
+            compareView.style.display = 'none';
         }
     }
     
@@ -183,11 +194,17 @@ document.addEventListener('DOMContentLoaded', async function() {
             formatHour(stats.avgBedTime);
         document.getElementById('totalDays').textContent = 
             stats.totalDays;
+        document.getElementById('avgPhysicalScore').textContent = 
+            stats.avgPhysicalScore.toFixed(1);
+        document.getElementById('avgMentalScore').textContent = 
+            stats.avgMentalScore.toFixed(1);
     }
     
     // 计算统计数据
     function calculateStats() {
-        if (sleepRecords.length === 0) {
+        const userRecords = sleepRecords[currentUser] || [];
+        
+        if (userRecords.length === 0) {
             return {
                 totalDays: 0,
                 avgSleepDuration: 0,
@@ -204,7 +221,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         let validRecords = 0;
         let bedTimeCount = 0;
         
-        sleepRecords.forEach(record => {
+        userRecords.forEach(record => {
             if (record.sleepDuration) {
                 totalSleepHours += record.sleepDuration;
                 validRecords++;
@@ -222,12 +239,30 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         });
         
+        let totalPhysicalScore = 0;
+        let totalMentalScore = 0;
+        let physicalScoreCount = 0;
+        let mentalScoreCount = 0;
+        
+        userRecords.forEach(record => {
+            if (record.physicalScore) {
+                totalPhysicalScore += record.physicalScore;
+                physicalScoreCount++;
+            }
+            if (record.mentalScore) {
+                totalMentalScore += record.mentalScore;
+                mentalScoreCount++;
+            }
+        });
+        
         return {
-            totalDays: sleepRecords.length,
+            totalDays: userRecords.length,
             avgSleepDuration: validRecords > 0 ? totalSleepHours / validRecords : 0,
-            avgSleepTime: sleepRecords.length > 0 ? totalSleepTime / sleepRecords.length : 0,
-            avgWakeTime: sleepRecords.length > 0 ? totalWakeTime / sleepRecords.length : 0,
-            avgBedTime: bedTimeCount > 0 ? totalBedTime / bedTimeCount : 0
+            avgSleepTime: userRecords.length > 0 ? totalSleepTime / userRecords.length : 0,
+            avgWakeTime: userRecords.length > 0 ? totalWakeTime / userRecords.length : 0,
+            avgBedTime: bedTimeCount > 0 ? totalBedTime / bedTimeCount : 0,
+            avgPhysicalScore: physicalScoreCount > 0 ? totalPhysicalScore / physicalScoreCount : 0,
+            avgMentalScore: mentalScoreCount > 0 ? totalMentalScore / mentalScoreCount : 0
         };
     }
     
@@ -314,28 +349,48 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // 根据时间范围过滤记录
     function filterRecordsByTimeRange() {
+        const userRecords = sleepRecords[currentUser] || [];
+        if (!userRecords || userRecords.length === 0) {
+            return [];
+        }
+        
         if (currentTimeRange === 'all') {
-            return sleepRecords;
+            return userRecords;
         }
         
         const days = parseInt(currentTimeRange);
+        if (isNaN(days)) {
+            return userRecords;
+        }
+        
         const cutoffDate = dayjs().subtract(days, 'day');
         
-        return sleepRecords.filter(record => {
+        return userRecords.filter(record => {
+            if (!record.date) return false;
             return dayjs(record.date).isAfter(cutoffDate);
         });
     }
     
     // 通用时间范围过滤函数
     function filterRecordsByRange(range) {
+        const userRecords = sleepRecords[currentUser] || [];
+        if (!userRecords || userRecords.length === 0) {
+            return [];
+        }
+        
         if (range === 'all') {
-            return sleepRecords;
+            return userRecords;
         }
         
         const days = parseInt(range);
+        if (isNaN(days)) {
+            return userRecords;
+        }
+        
         const cutoffDate = dayjs().subtract(days, 'day');
         
-        return sleepRecords.filter(record => {
+        return userRecords.filter(record => {
+            if (!record.date) return false;
             return dayjs(record.date).isAfter(cutoffDate);
         });
     }
@@ -365,108 +420,70 @@ document.addEventListener('DOMContentLoaded', async function() {
                 data = sortedRecords.map(record => calculateSleepEfficiency(record));
                 label = '睡眠效率 (%)';
                 break;
+            case 'physicalScore':
+                data = sortedRecords.map(record => record.physicalScore || 0);
+                label = '身体状态评分';
+                break;
+            case 'mentalScore':
+                data = sortedRecords.map(record => record.mentalScore || 0);
+                label = '心理状态评分';
+                break;
         }
         
         return {
             labels: labels,
-            datasets: [{
-                label: label,
-                data: data,
-                borderColor: '#667eea',
-                backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: '#667eea',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointRadius: 4
-            }]
+            data: data,
+            label: label
         };
     }
     
     // 准备对比图表数据
     function prepareComparisonChartData(records) {
+        if (!records || records.length === 0) {
+            return {
+                labels: [],
+                bedTimes: [],
+                sleepTimes: [],
+                wakeTimes: []
+            };
+        }
+        
         const sortedRecords = records.sort((a, b) => new Date(a.date) - new Date(a.date));
         
         const labels = sortedRecords.map(record => record.date);
+        const bedTimes = sortedRecords.map(record => record.bedTime ? parseTimeToHour(record.bedTime) : null);
+        const sleepTimes = sortedRecords.map(record => record.sleepTime ? parseTimeToHour(record.sleepTime) : null);
+        const wakeTimes = sortedRecords.map(record => record.wakeTime ? parseTimeToHour(record.wakeTime) : null);
         
         return {
             labels: labels,
-            datasets: [
-                {
-                    label: '上床时间',
-                    data: sortedRecords.map(record => record.bedTime ? parseTimeToHour(record.bedTime) : null),
-                    borderColor: '#ff6b6b',
-                    backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                    borderWidth: 2,
-                    fill: false,
-                    tension: 0.4,
-                    pointBackgroundColor: '#ff6b6b',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    yAxisID: 'y'
-                },
-                {
-                    label: '入睡时间',
-                    data: sortedRecords.map(record => record.sleepTime ? parseTimeToHour(record.sleepTime) : null),
-                    borderColor: '#4ecdc4',
-                    backgroundColor: 'rgba(78, 205, 196, 0.1)',
-                    borderWidth: 2,
-                    fill: false,
-                    tension: 0.4,
-                    pointBackgroundColor: '#4ecdc4',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    yAxisID: 'y'
-                },
-                {
-                    label: '起床时间',
-                    data: sortedRecords.map(record => record.wakeTime ? parseTimeToHour(record.wakeTime) : null),
-                    borderColor: '#45b7d1',
-                    backgroundColor: 'rgba(69, 183, 209, 0.1)',
-                    borderWidth: 2,
-                    fill: false,
-                    tension: 0.4,
-                    pointBackgroundColor: '#45b7d1',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    yAxisID: 'y'
-                }
-            ]
+            bedTimes: bedTimes,
+            sleepTimes: sleepTimes,
+            wakeTimes: wakeTimes
         };
     }
     
     // 准备上床时间图表数据
     function prepareBedTimeChartData(records) {
+        if (!records || records.length === 0) {
+            return {
+                labels: [],
+                bedTimes: []
+            };
+        }
+        
         const sortedRecords = records.sort((a, b) => new Date(a.date) - new Date(a.date));
         
         const labels = sortedRecords.map(record => record.date);
         const bedTimes = sortedRecords.map(record => {
             if (!record.bedTime) return null;
             const hour = parseTimeToHour(record.bedTime);
-            // 将24小时制转换为更易读的格式（比如23:30显示为23.5）
             return hour;
         });
         
         return {
             labels: labels,
-            datasets: [{
-                label: '上床时间',
-                data: bedTimes,
-                borderColor: '#ff6b6b',
-                backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: '#ff6b6b',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointRadius: 5
-            }]
+            bedTimes: bedTimes
         };
     }
     
@@ -492,6 +509,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             case 'sleepTime': return '时间 (24小时制)';
             case 'wakeTime': return '时间 (24小时制)';
             case 'efficiency': return '百分比 (%)';
+            case 'physicalScore': return '评分 (1-10)';
+            case 'mentalScore': return '评分 (1-10)';
             default: return '';
         }
     }
@@ -503,6 +522,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             case 'sleepTime': return '入睡时间趋势';
             case 'wakeTime': return '起床时间趋势';
             case 'efficiency': return '睡眠效率趋势';
+            case 'physicalScore': return '身体状态趋势';
+            case 'mentalScore': return '心理状态趋势';
             default: return '睡眠趋势';
         }
     }
@@ -562,7 +583,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 {
                     name: '上床时间',
                     type: 'line',
-                    data: chartData.datasets[0].data,
+                    data: chartData.bedTimes,
                     smooth: true,
                     lineStyle: { color: '#ff6b6b', width: 2 },
                     itemStyle: { color: '#ff6b6b' },
@@ -572,7 +593,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 {
                     name: '入睡时间',
                     type: 'line',
-                    data: chartData.datasets[1].data,
+                    data: chartData.sleepTimes,
                     smooth: true,
                     lineStyle: { color: '#4ecdc4', width: 2 },
                     itemStyle: { color: '#4ecdc4' },
@@ -582,7 +603,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 {
                     name: '起床时间',
                     type: 'line',
-                    data: chartData.datasets[2].data,
+                    data: chartData.wakeTimes,
                     smooth: true,
                     lineStyle: { color: '#45b7d1', width: 2 },
                     itemStyle: { color: '#45b7d1' },
@@ -647,7 +668,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             series: [{
                 name: '上床时间',
                 type: 'line',
-                data: chartData.datasets[0].data,
+                data: chartData.bedTimes,
                 smooth: true,
                 lineStyle: { color: '#ff6b6b', width: 3 },
                 itemStyle: { color: '#ff6b6b' },
@@ -671,10 +692,157 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
     
+    // 更新用户对比图表
+    function updateUserCompareChart() {
+        const user1Records = filterRecordsByRangeForUser(currentComparisonRange, 'user1');
+        const user2Records = filterRecordsByRangeForUser(currentComparisonRange, 'user2');
+        
+        if (userCompareChart) {
+            userCompareChart.dispose();
+        }
+        
+        userCompareChart = echarts.init(document.getElementById('userCompareChart'));
+        userCompareChart.setOption({
+            title: {
+                text: '用户睡眠对比分析',
+                left: 'center',
+                textStyle: {
+                    fontSize: 16,
+                    fontWeight: 'normal'
+                }
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                }
+            },
+            legend: {
+                data: ['用户1-睡眠时长', '用户2-睡眠时长', '用户1-身体状态', '用户2-身体状态'],
+                top: 30
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                top: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: getCommonDates(user1Records, user2Records),
+                axisLabel: {
+                    formatter: function(value) {
+                        return dayjs(value).format('MM/DD');
+                    }
+                }
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: '睡眠时长 (小时)',
+                    nameLocation: 'middle',
+                    nameGap: 30,
+                    position: 'left'
+                },
+                {
+                    type: 'value',
+                    name: '身心状态评分',
+                    nameLocation: 'middle',
+                    nameGap: 30,
+                    position: 'right'
+                }
+            ],
+            series: [
+                {
+                    name: '用户1-睡眠时长',
+                    type: 'line',
+                    data: user1Records.map(r => r.sleepDuration || 0),
+                    yAxisIndex: 0,
+                    smooth: true,
+                    lineStyle: { color: '#667eea', width: 2 },
+                    itemStyle: { color: '#667eea' },
+                    symbol: 'circle',
+                    symbolSize: 6
+                },
+                {
+                    name: '用户2-睡眠时长',
+                    type: 'line',
+                    data: user2Records.map(r => r.sleepDuration || 0),
+                    yAxisIndex: 0,
+                    smooth: true,
+                    lineStyle: { color: '#764ba2', width: 2 },
+                    itemStyle: { color: '#764ba2' },
+                    symbol: 'circle',
+                    symbolSize: 6
+                },
+                {
+                    name: '用户1-身体状态',
+                    type: 'line',
+                    data: user1Records.map(r => r.physicalScore || 0),
+                    yAxisIndex: 1,
+                    smooth: true,
+                    lineStyle: { color: '#ff6b6b', width: 2 },
+                    itemStyle: { color: '#ff6b6b' },
+                    symbol: 'circle',
+                    symbolSize: 6
+                },
+                {
+                    name: '用户2-身体状态',
+                    type: 'line',
+                    data: user2Records.map(r => r.physicalScore || 0),
+                    yAxisIndex: 1,
+                    smooth: true,
+                    lineStyle: { color: '#4ecdc4', width: 2 },
+                    itemStyle: { color: '#4ecdc4' },
+                    symbol: 'circle',
+                    symbolSize: 6
+                }
+            ]
+        });
+    }
+    
+    // 为指定用户过滤记录
+    function filterRecordsByRangeForUser(range, user) {
+        const userRecords = sleepRecords[user] || [];
+        if (!userRecords || userRecords.length === 0) {
+            return [];
+        }
+        
+        if (range === 'all') {
+            return userRecords;
+        }
+        
+        const days = parseInt(range);
+        if (isNaN(days)) {
+            return userRecords;
+        }
+        
+        const cutoffDate = dayjs().subtract(days, 'day');
+        
+        return userRecords.filter(record => {
+            if (!record.date) return false;
+            return dayjs(record.date).isAfter(cutoffDate);
+        });
+    }
+    
+    // 获取两个用户记录的共同日期
+    function getCommonDates(user1Records, user2Records) {
+        if (!user1Records || !user2Records) {
+            return [];
+        }
+        
+        const dates1 = user1Records.filter(r => r.date).map(r => r.date);
+        const dates2 = user2Records.filter(r => r.date).map(r => r.date);
+        const allDates = [...new Set([...dates1, ...dates2])];
+        return allDates.sort((a, b) => new Date(a) - new Date(b));
+    }
+    
     // 更新最近记录
     function updateRecentRecords() {
         const container = document.getElementById('recentRecordsList');
-        const recentRecords = sleepRecords.slice(0, 5);
+        const userRecords = sleepRecords[currentUser] || [];
+        const recentRecords = userRecords.slice(0, 5);
         
         if (recentRecords.length === 0) {
             container.innerHTML = '<div class="empty">还没有睡眠记录，开始记录吧！</div>';
@@ -697,12 +865,17 @@ document.addEventListener('DOMContentLoaded', async function() {
         const duration = record.sleepDuration ? `${record.sleepDuration.toFixed(1)}小时` : '未记录';
         const sleepTime = record.sleepTime ? formatTime(record.sleepTime) : '未记录';
         const wakeTime = record.wakeTime ? formatTime(record.wakeTime) : '未记录';
+        const physicalScore = record.physicalScore ? `${record.physicalScore}分` : '未评分';
+        const mentalScore = record.mentalScore ? `${record.mentalScore}分` : '未评分';
         
         recordEl.innerHTML = `
             <div class="record-info">
                 <div class="record-date">${formatDate(record.date)}</div>
                 <div class="record-details">
                     睡眠时长: ${duration} | 入睡: ${sleepTime} | 起床: ${wakeTime}
+                </div>
+                <div class="record-scores">
+                    身体状态: ${physicalScore} | 心理状态: ${mentalScore}
                 </div>
             </div>
             <div class="record-actions">
@@ -754,30 +927,53 @@ document.addEventListener('DOMContentLoaded', async function() {
             bedTime: formData.get('bedTime'),
             sleepTime: formData.get('sleepTime'),
             wakeTime: formData.get('wakeTime'),
+            physicalScore: parseInt(formData.get('physicalScore')) || 7,
+            mentalScore: parseInt(formData.get('mentalScore')) || 7,
             notes: formData.get('notes')
         };
         
-        // 计算睡眠时长
+        // 数据验证
+        if (!record.date) {
+            showError('请选择日期');
+            return;
+        }
+        
+        if (!record.sleepTime || !record.wakeTime) {
+            showError('请填写入睡时间和起床时间');
+            return;
+        }
+        
+        // 计算睡眠时长和上床时间
         if (record.sleepTime && record.wakeTime) {
             record.sleepDuration = calculateSleepDuration(record.sleepTime, record.wakeTime);
             record.sleepTimeHour = parseTimeToHour(record.sleepTime);
             record.wakeTimeHour = parseTimeToHour(record.wakeTime);
         }
+        if (record.bedTime) {
+            record.bedTimeHour = parseTimeToHour(record.bedTime);
+        }
         
         try {
             showLoading('保存中...');
-            await storage.saveSleepRecord(record.date, record);
+            await storage.saveSleepRecord(record.date, record, currentUser);
             
             // 更新本地数据
-            const existingIndex = sleepRecords.findIndex(r => r.date === record.date);
+            if (!sleepRecords[currentUser]) {
+                sleepRecords[currentUser] = [];
+            }
+            
+            // 确保记录包含用户信息
+            const recordWithUser = { ...record, user: currentUser };
+            
+            const existingIndex = sleepRecords[currentUser].findIndex(r => r.date === record.date);
             if (existingIndex >= 0) {
-                sleepRecords[existingIndex] = record;
+                sleepRecords[currentUser][existingIndex] = recordWithUser;
             } else {
-                sleepRecords.unshift(record);
+                sleepRecords[currentUser].unshift(recordWithUser);
             }
             
             // 重新排序
-            sleepRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+            sleepRecords[currentUser].sort((a, b) => new Date(b.date) - new Date(a.date));
             
             // 更新UI
             updateStats();
@@ -798,6 +994,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // 计算睡眠时长
     function calculateSleepDuration(sleepTime, wakeTime) {
+        if (!sleepTime || !wakeTime) {
+            return 0;
+        }
+        
         const sleep = parseTimeToHour(sleepTime);
         const wake = parseTimeToHour(wakeTime);
         
@@ -811,12 +1011,24 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // 解析时间为小时数
     function parseTimeToHour(timeStr) {
+        if (!timeStr || typeof timeStr !== 'string') {
+            return 0;
+        }
+        
         const [hours, minutes] = timeStr.split(':').map(Number);
+        if (isNaN(hours) || isNaN(minutes)) {
+            return 0;
+        }
+        
         return hours + minutes / 60;
     }
     
     // 获取时间差
     function getTimeDifference(time1, time2) {
+        if (!time1 || !time2) {
+            return 0;
+        }
+        
         const hour1 = parseTimeToHour(time1);
         const hour2 = parseTimeToHour(time2);
         
@@ -828,7 +1040,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // 编辑记录
     function editRecord(date) {
-        const record = sleepRecords.find(r => r.date === date);
+        const userRecords = sleepRecords[currentUser] || [];
+        const record = userRecords.find(r => r.date === date);
         if (!record) return;
         
         // 填充表单
@@ -836,6 +1049,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.getElementById('bedTime').value = record.bedTime || '';
         document.getElementById('sleepTime').value = record.sleepTime || '';
         document.getElementById('wakeTime').value = record.wakeTime || '';
+        document.getElementById('physicalScore').value = record.physicalScore || 7;
+        document.getElementById('physicalScoreValue').textContent = record.physicalScore || 7;
+        document.getElementById('mentalScore').value = record.mentalScore || 7;
+        document.getElementById('mentalScoreValue').textContent = record.mentalScore || 7;
         document.getElementById('notes').value = record.notes || '';
         
         showModal();
@@ -849,10 +1066,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         try {
             showLoading('删除中...');
-            await storage.deleteSleepRecord(date);
+            await storage.deleteSleepRecord(date, currentUser);
             
             // 更新本地数据
-            sleepRecords = sleepRecords.filter(r => r.date !== date);
+            if (sleepRecords[currentUser]) {
+                sleepRecords[currentUser] = sleepRecords[currentUser].filter(r => r.date !== date);
+            }
             
             // 更新UI
             updateStats();
@@ -874,12 +1093,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     async function refreshData() {
         try {
             showLoading('刷新数据中...');
-            await loadSleepData();
+            await loadAllUsersData();
             updateStats();
             updateChart();
             updateComparisonChart();
             updateBedTimeChart();
             updateRecentRecords();
+            if (viewMode === 'compare') {
+                updateUserCompareChart();
+            }
             showSuccess('数据刷新成功！');
         } catch (error) {
             console.error('刷新失败:', error);
@@ -891,12 +1113,13 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // 导出数据
     function exportData() {
-        if (sleepRecords.length === 0) {
+        const userRecords = sleepRecords[currentUser] || [];
+        if (userRecords.length === 0) {
             showError('没有数据可导出');
             return;
         }
         
-        const csvContent = convertToCSV(sleepRecords);
+        const csvContent = convertToCSV(userRecords);
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         
@@ -913,13 +1136,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // 转换为CSV格式
     function convertToCSV(records) {
-        const headers = ['日期', '上床时间', '睡着时间', '起床时间', '睡眠时长(小时)', '备注'];
+        const headers = ['日期', '上床时间', '睡着时间', '起床时间', '睡眠时长(小时)', '身体状态评分', '心理状态评分', '备注'];
         const rows = records.map(record => [
             record.date,
             record.bedTime || '',
             record.sleepTime || '',
             record.wakeTime || '',
             record.sleepDuration ? record.sleepDuration.toFixed(1) : '',
+            record.physicalScore || '',
+            record.mentalScore || '',
             record.notes || ''
         ]);
         

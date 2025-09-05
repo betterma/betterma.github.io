@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>首页导航 - 蚂蚱导航</title>
   <style>
     body {
@@ -96,26 +99,61 @@
       <div class="nav-icon">📊</div>
       数据处理
     </a>
-    <a class="nav-item" href="https://betterma.github.io/book" target="_blank">
+    <a class="nav-item" href="https://betterma.github.io/book?v=20250105" target="_blank">
       <div class="nav-icon">📚</div>
       阅读资源
     </a>
-    <a class="nav-item" href="https://betterma.github.io/memory" target="_blank">
+    <a class="nav-item" href="https://betterma.github.io/memory?v=20250105" target="_blank">
       <div class="nav-icon">🧠</div>
       蚂蚱记忆
     </a>
-     <a class="nav-item" href="https://betterma.github.io/hot_article" target="_blank">
-      <div class="nav-icon">🧠</div>
+     <a class="nav-item" href="https://betterma.github.io/hot_article?v=20250105" target="_blank">
+      <div class="nav-icon">🔥</div>
       TT入口
     </a>
-    <a class="nav-item" href="https://betterma.github.io/zyx" target="_blank">
+    <a class="nav-item" href="https://betterma.github.io/zyx?v=20250105" target="_blank">
       <div class="nav-icon">🛠️</div>
       思睿工坊
     </a>
-    <a class="nav-item" href="https://betterma.github.io/cook" target="_blank">
+    <a class="nav-item" href="https://betterma.github.io/cook?v=20250105" target="_blank">
       <div class="nav-icon">👨‍🍳</div>
       我是厨神
     </a>
+    <a class="nav-item" href="https://betterma.github.io/sleep?v=20250105" target="_blank">
+      <div class="nav-icon">😴</div>
+      睡眠统计
+    </a>
+    <a class="nav-item" href="jinfeng/index.html?v=20250105" target="_blank">
+      <div class="nav-icon">🏠</div>
+      租赁管理
+    </a>
+    <a class="nav-item" href="nav.html?v=20250105" target="_blank">
+      <div class="nav-icon">🧭</div>
+      导航页面
+    </a>
   </div>
+  
+  <script>
+    // 强制刷新缓存
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+    
+    // 清除浏览器缓存
+    if ('caches' in window) {
+      caches.keys().then(function(names) {
+        for (let name of names) {
+          caches.delete(name);
+        }
+      });
+    }
+    
+    // 添加版本信息到控制台
+    console.log('蚂蚱导航 v20250105 - 缓存已清除');
+  </script>
 </body>
 </html>
