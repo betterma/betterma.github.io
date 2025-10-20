@@ -1,127 +1,83 @@
 // This file implements the logic for the calendar functionality, allowing users to select dates and view tasks and check-in records.
 
 document.addEventListener('DOMContentLoaded', async () => {
-    let currentDate = new Date();
-    const calendarDays = document.getElementById('calendar-days');
-    const currentMonthEl = document.getElementById('current-month');
-    const prevMonthBtn = document.getElementById('prev-month');
-    const nextMonthBtn = document.getElementById('next-month');
-    
-    async function renderPregnancyOverview() {
-        try {
-            const info = await window.BabyWeeks.getPregnancyInfo(currentDate);
-            const el = document.getElementById('pregnancy-overview');
-            if (el) {
-                el.innerHTML = `
-                    <div>当前：${info.display || '0周'}</div>
-                    <div>${info.trimester || '未开始'} · 开始日期：${info.startDate || '未设置'}</div>
-                `;
-            }
-        } catch (error) {
-            console.error('渲染孕周信息失败:', error);
-        }
-    }
+  // 获取必要的 DOM 元素
+  const calendarEl = document.querySelector('.calendar tbody');
+  const currentMonthEl = document.getElementById('current-month');
+  const prevMonthBtn = document.getElementById('prev-month');
+  const nextMonthBtn = document.getElementById('next-month');
+  const pregnancyOverviewEl = document.getElementById('pregnancy-overview');
 
-    function getMonthData(year, month) {
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        const startPadding = firstDay.getDay();
-        const daysInMonth = lastDay.getDate();
-        
-        return { startPadding, daysInMonth };
-    }
+  // 检查必要的 DOM 元素是否存在
+  if (!calendarEl || !currentMonthEl || !prevMonthBtn || !nextMonthBtn || !pregnancyOverviewEl) {
+    console.error('未找到必要的 DOM 元素');
+    return;
+  }
 
-    async function getDayStatus(dateStr) {
-        try {
-            const [tasks, records] = await Promise.all([
-                window.BabyStorage.getTasks(),
-                window.BabyStorage.getRecords(dateStr)
-            ]);
-            
-            if(!tasks.length || !Object.keys(records).length) return 'empty';
-            
-            const total = tasks.length;
-            const completed = Object.values(records).filter(r => r.done).length;
-            
-            if(completed === 0) return 'none';
-            if(completed === total) return 'complete';
-            return 'partial';
-        } catch (error) {
-            console.error('获取状态失败:', error);
-            return 'error';
-        }
-    }
+  let currentDate = new Date();
 
-    function renderCalendar() {
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
-        const today = new Date();
-        
-        currentMonthEl.textContent = `${year}年 ${month + 1}月`;
-        
-        const { startPadding, daysInMonth } = getMonthData(year, month);
-        
-        calendarDays.innerHTML = '';
-        
-        // Empty cells for padding
-        for(let i = 0; i < startPadding; i++) {
-            calendarDays.appendChild(document.createElement('div'));
-        }
-        
-        // Days of month
-        for(let day = 1; day <= daysInMonth; day++) {
-            const cell = document.createElement('div');
-            cell.className = 'calendar-day';
-            
-            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-            const status = getDayStatus(dateStr);
-            
-            if(status === 'complete') cell.classList.add('with-records');
-            if(status === 'partial') cell.classList.add('incomplete');
-            
-            if(year === today.getFullYear() && 
-               month === today.getMonth() && 
-               day === today.getDate()) {
-                cell.classList.add('today');
-            }
-            
-            cell.innerHTML = `
-                <span class="date">${day}</span>
-                ${status !== 'empty' ? `<span class="indicator">${
-                    status === 'complete' ? '✓' : 
-                    status === 'partial' ? '⚠️' : '✗'
-                }</span>` : ''}
-            `;
-            
-            cell.addEventListener('click', () => {
-                window.location.href = `med-checkin.html?date=${dateStr}`;
-            });
-            
-            calendarDays.appendChild(cell);
-        }
+  // 渲染日历
+  async function renderCalendar(date) {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    
+    // 更新月份显示
+    currentMonthEl.textContent = `${year}年${month + 1}月`;
+    
+    // 获取当月第一天和最后一天
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    
+    // 计算需要显示的日期范围
+    const firstDayWeek = firstDay.getDay();
+    const daysInMonth = lastDay.getDate();
+    
+    let html = '';
+    let currentWeek = '';
+    
+    // 添加月初的空白格子
+    for (let i = 0; i < firstDayWeek; i++) {
+      currentWeek += '<td></td>';
     }
     
-    prevMonthBtn.addEventListener('click', () => {
-        currentDate.setMonth(currentDate.getMonth() - 1);
-        renderCalendar();
-        renderPregnancyOverview();
-    });
-    
-    nextMonthBtn.addEventListener('click', () => {
-        currentDate.setMonth(currentDate.getMonth() + 1);
-        renderCalendar();
-        renderPregnancyOverview();
-    });
-    
-    // Initialize
-    renderCalendar();
-    renderPregnancyOverview();
-    
-    // Handle URL params
-    const params = new URLSearchParams(window.location.search);
-    if(params.has('date')) {
-        currentDate = new Date(params.get('date'));
-        renderCalendar();
-        renderPregnancyOverview();
+    // 添加日期
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const dayStatus = await getDayStatus(dateStr);
+      
+      currentWeek += `
+        <td>
+          <span class="date-cell ${dayStatus}" data-date="${dateStr}">
+            ${day}
+          </span>
+        </td>
+      `;
+      
+      // 一周结束或月末，添加行
+      if ((firstDayWeek + day) % 7 === 0 || day === daysInMonth) {
+        html += `<tr>${currentWeek}</tr>`;
+        currentWeek = '';
+      }
     }
+    
+    calendarEl.innerHTML = html;
+
+    // 更新孕周信息
+    await renderPregnancyOverview(date);
+  }
+
+  // 上个月按钮点击事件
+  prevMonthBtn.addEventListener('click', () => {
+    currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1);
+    renderCalendar(currentDate);
+  });
+
+  // 下个月按钮点击事件
+  nextMonthBtn.addEventListener('click', () => {
+    currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1);
+    renderCalendar(currentDate);
+  });
+
+  // 初始化
+  await renderCalendar(currentDate);
 });
