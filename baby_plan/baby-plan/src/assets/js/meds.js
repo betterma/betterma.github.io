@@ -92,15 +92,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       tasks.forEach(task => {
         const rec = records[task.id] || { done: false, note: '' };
         const row = document.createElement('div');
-        row.className = 'med-row';
+        row.className = `med-row ${rec.done ? 'done' : ''}`;
+        
         row.innerHTML = `
-          <div style="flex:1">
-            <div style="font-weight:600;color:#44324a">${task.name}</div>
-            ${task.dose ? `<div style="color:#666;font-size:0.9em">剂量：${task.dose}</div>` : ''}
-            ${task.notes ? `<div style="color:#888;font-size:0.85em">备注：${task.notes}</div>` : ''}
+          <div class="task-info">
+            <div class="task-name">${task.name}</div>
+            ${task.dose ? `<div class="task-dose">剂量：${task.dose}</div>` : ''}
+            ${task.notes ? `<div class="task-notes">备注：${task.notes}</div>` : ''}
           </div>
           <div style="display:flex;align-items:center;gap:10px">
-            <input type="checkbox" ${rec.done ? 'checked' : ''} style="width:20px;height:20px">
+            <input type="checkbox" ${rec.done ? 'checked' : ''}>
           </div>
         `;
 
@@ -111,10 +112,10 @@ document.addEventListener('DOMContentLoaded', async () => {
               done: e.target.checked,
               note: rec.note
             });
-            await renderTasksFor(dateStr);
+            row.className = `med-row ${e.target.checked ? 'done' : ''}`;
           } catch (error) {
             alert('保存失败: ' + error.message);
-            e.target.checked = !e.target.checked; // 回滚状态
+            e.target.checked = !e.target.checked;
           }
         });
 
