@@ -58,10 +58,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   const todayStr = new Date().toISOString().split('T')[0];
   dateInput.value = todayStr;
 
-  function renderPregnancyInfo(dateStr) {
-    const info = window.BabyWeeks.getPregnancyInfo(new Date(dateStr));
-    pregWeekEl.textContent = `当前：${info.display}`;
-    pregTrimEl.textContent = `${info.trimester} · 开始日期：${info.startDate}`;  // 修改文案
+  async function renderPregnancyInfo(dateStr) {
+    try {
+      const info = await window.BabyWeeks.getPregnancyInfo(new Date(dateStr));
+      pregWeekEl.textContent = `当前：${info.display || '0周'}`;
+      pregTrimEl.textContent = `${info.trimester || '未开始'} · 开始日期：${info.startDate || '未设置'}`;
+    } catch (error) {
+      console.error('渲染孕周信息失败:', error);
+      pregWeekEl.textContent = '当前：加载失败';
+      pregTrimEl.textContent = '请检查设置';
+    }
   }
 
   async function renderTasksFor(dateStr) {

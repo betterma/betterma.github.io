@@ -56,9 +56,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 渲染任务列表
   async function renderTasks() {
     taskList.innerHTML = '<div style="text-align:center;padding:20px;">加载中...</div>';
+    
     try {
       const tasks = await window.BabyStorage.getTasks();
-      console.log('获取到的任务:', tasks); // 添加调试日志
+      console.log('获取到的任务:', tasks);
       
       if (!tasks || tasks.length === 0) {
         taskList.innerHTML = `
@@ -68,14 +69,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
         return;
       }
-      
+
       taskList.innerHTML = '';
       tasks.forEach(task => {
         const div = document.createElement('div');
         div.className = 'task-item';
         div.innerHTML = `
           <div class="task-info">
-            <div class="task-name">${task.name}</div>
+            <div class="task-name">${task.name || ''}</div>
             ${task.dose ? `<div class="task-dose">剂量: ${task.dose}</div>` : ''}
             ${task.notes ? `<div class="task-notes">${task.notes}</div>` : ''}
           </div>
@@ -89,9 +90,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
       console.error('渲染任务失败:', error);
       taskList.innerHTML = `
-        <div style="text-align:center;padding:20px;color:#ff4444;">
+        <div style="text-align:center;padding:20px;color:#ff4444">
           加载失败: ${error.message}<br>
-          <button onclick="location.reload()" style="margin-top:10px;padding:5px 10px;">重试</button>
+          <button onclick="location.reload()" style="margin-top:10px;padding:5px 10px">重试</button>
         </div>
       `;
     }

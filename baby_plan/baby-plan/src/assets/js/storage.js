@@ -1,7 +1,7 @@
 // storage.js
 const BabyStorage = (function() {
   const GITHUB_USERNAME = 'betterma';
-  const GITHUB_REPO = 'mazha';
+  const GITHUB_REPO = 'betterma.github.io';  // 修改为正确的仓库名
   const BASE_PATH = 'baby_plan/data';
   const TOKEN = 'gith' + 'ub_pat_11AJKESVI04gWNYmNeUflS_IrzWyyWiIJrvY8ZXAss7C7GQYg3OlPnWmBGqSdVFsqsAJPFBPTIE5ksm9jp';
 
@@ -73,8 +73,6 @@ const BabyStorage = (function() {
         console.log('开始获取任务');
         const response = await request(`contents/${BASE_PATH}/tasks.json`);
         
-        console.log('获取任务响应:', response);
-        
         if (!response || !response.content) {
           console.error('任务文件内容为空');
           return [];
@@ -84,11 +82,20 @@ const BabyStorage = (function() {
         const content = decodeContent(response.content);
         console.log('解码后的任务:', content);
 
-        return Array.isArray(content) ? content : [];
+        // 确保返回的是数组
+        if (Array.isArray(content)) {
+          return content;
+        } else if (content && typeof content === 'object') {
+          // 如果是单个任务对象，转换为数组
+          return [{
+            id: Date.now().toString(),
+            ...content
+          }];
+        }
+        return [];
       } catch (error) {
         console.error('获取任务失败:', error);
         if (error.message.includes('404')) {
-          console.log('任务文件不存在，返回空数组');
           return [];
         }
         throw error;
@@ -101,26 +108,23 @@ const BabyStorage = (function() {
       let sha = null;
 
       try {
-        // 获取现有文件的 SHA
         const existing = await request(`contents/${filePath}`);
         sha = existing.sha;
-        console.log('获取到现有文件 SHA:', sha);
       } catch (e) {
         console.log('文件不存在，将创建新文件');
       }
 
-      // 保存文件
-      const response = await request(`contents/${filePath}`, {
+      // 确保保存的是数组
+      const tasksToSave = Array.isArray(tasks) ? tasks : [tasks];
+
+      return request(`contents/${filePath}`, {
         method: 'PUT',
         body: JSON.stringify({
           message: `更新任务列表 - ${new Date().toISOString()}`,
-          content: encodeContent(tasks),
+          content: encodeContent(tasksToSave),
           ...(sha ? { sha } : {})
         })
       });
-
-      console.log('保存任务响应:', response);
-      return response;
     },
 
     // 打卡记录相关 

@@ -39,16 +39,21 @@ document.addEventListener('DOMContentLoaded', displayWeeks);
     let startDate = '2025-09-07';
     try {
       const meta = await window.BabyStorage.getMeta();
-      startDate = meta.startDate || startDate;
+      if (meta && meta.startDate) {
+        startDate = meta.startDate;
+      }
     } catch (error) {
-      console.error('获取设置失败:', error);
+      console.log('使用默认开始日期:', startDate);
     }
 
-    // 确保日期对象正确
-    const start = new Date(startDate + 'T00:00:00');
+    // 规范化日期对象
+    const start = new Date(startDate);
     const ref = new Date(referenceDate);
+    
+    // 设置为当天开始时间
+    start.setHours(0, 0, 0, 0);
     ref.setHours(0, 0, 0, 0);
-
+    
     console.log('日期计算:', {
       startDate,
       start: start.toISOString(),
@@ -80,11 +85,11 @@ document.addEventListener('DOMContentLoaded', displayWeeks);
     }
 
     return {
-      weeks,
-      days,
-      display: `${weeks}周${days ? '+' + days + '天' : ''}`,
-      trimester,
-      progress: Math.min(1, weeks / 40),
+      weeks: isNaN(weeks) ? 0 : weeks,
+      days: isNaN(days) ? 0 : days,
+      display: isNaN(weeks) ? '0周' : `${weeks}周${days ? '+' + days + '天' : ''}`,
+      trimester: isNaN(weeks) ? '未开始' : trimester,
+      progress: isNaN(weeks) ? 0 : Math.min(1, weeks / 40),
       startDate
     };
   }
