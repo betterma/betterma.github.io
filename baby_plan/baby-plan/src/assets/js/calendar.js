@@ -7,19 +7,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevMonthBtn = document.getElementById('prev-month');
     const nextMonthBtn = document.getElementById('next-month');
     
-    function renderPregnancyOverview() {
-        const info = window.BabyWeeks.getPregnancyInfo(currentDate);
-        const el = document.getElementById('pregnancy-overview');
-        el.innerHTML = `
-            <div style="text-align:center;padding:1rem;">
-                <div style="font-size:1.2rem;font-weight:600;color:#c85a90;">
-                    当前：${info.display}
-                </div>
-                <div style="margin-top:6px;color:#7a4b66;">
-                    ${info.trimester} · 预计开始：${info.startDate}
-                </div>
-            </div>
-        `;
+    async function renderPregnancyOverview() {
+        try {
+            const info = await window.BabyWeeks.getPregnancyInfo(currentDate);
+            const el = document.getElementById('pregnancy-overview');
+            if (el) {
+                el.innerHTML = `
+                    <div>当前：${info.display || '0周'}</div>
+                    <div>${info.trimester || '未开始'} · 开始日期：${info.startDate || '未设置'}</div>
+                `;
+            }
+        } catch (error) {
+            console.error('渲染孕周信息失败:', error);
+        }
     }
 
     function getMonthData(year, month) {

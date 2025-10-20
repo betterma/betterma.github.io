@@ -9,68 +9,85 @@
     <link rel="stylesheet" href="assets/css/components.css">
 </head>
 <body>
-    <header>
-        <h1>设置</h1>
-        <nav>
-            <a href="index.html">首页</a>
-            <a href="med-checkin.html">药物打卡</a>
-            <a href="calendar.html">日历</a>
-            <a href="tasks.html">任务管理</a>
-        </nav>
-    </header>
+  <header class="header">
+    <h1>设置</h1>
+  </header>
 
-    <main>
-        <section id="settings-panel">
-            <!-- 孕期设置 -->
-            <div class="settings-group">
-                <h3>孕期设置</h3>
-                <div class="setting-item">
-                    <label for="pregnancy-start">孕期开始日期</label>
-                    <input type="date" id="pregnancy-start">
-                    <p class="setting-hint">当前设置: <span id="current-start">2025-09-07</span></p>
-                    <p class="setting-note" style="color:#666;font-size:0.9em;margin-top:8px;">
-                        注：这里填写的是怀孕第一周的开始日期，用于计算孕周
-                    </p>
+  <nav>
+    <a href="index.html">
+      <span class="nav-icon">🏠</span>
+      <span>首页</span>
+    </a>
+    <a href="med-checkin.html">
+      <span class="nav-icon">💊</span>
+      <span>药物打卡</span>
+    </a>
+    <a href="calendar.html">
+      <span class="nav-icon">📅</span>
+      <span>日历视图</span>
+    </a>
+    <a href="tasks.html">
+      <span class="nav-icon">📝</span>
+      <span>任务管理</span>
+    </a>
+    <a href="settings.html" class="active">
+      <span class="nav-icon">⚙️</span>
+      <span>设置</span>
+    </a>
+  </nav>
+
+  <main class="page-content">
+    <section id="settings-panel">
+        <!-- 孕期设置 -->
+        <div class="settings-group">
+            <h3>孕期设置</h3>
+            <div class="setting-item">
+                <label for="pregnancy-start">孕期开始日期</label>
+                <input type="date" id="pregnancy-start">
+                <p class="setting-hint">当前设置: <span id="current-start">2025-09-07</span></p>
+                <p class="setting-note" style="color:#666;font-size:0.9em;margin-top:8px;">
+                    注：这里填写的是怀孕第一周的开始日期，用于计算孕周
+                </p>
+            </div>
+        </div>
+
+        <!-- 主题设置 -->
+        <div class="settings-group">
+            <h3>界面主题</h3>
+            <div class="setting-item">
+                <label>主题色调</label>
+                <div class="theme-colors">
+                    <button class="color-btn" data-theme="pink" style="background:#ff8fb1"></button>
+                    <button class="color-btn" data-theme="purple" style="background:#b88fce"></button>
+                    <button class="color-btn" data-theme="blue" style="background:#8fb8ff"></button>
+                    <button class="color-btn" data-theme="green" style="background:#8fceb9"></button>
                 </div>
             </div>
+        </div>
 
-            <!-- 主题设置 -->
-            <div class="settings-group">
-                <h3>界面主题</h3>
-                <div class="setting-item">
-                    <label>主题色调</label>
-                    <div class="theme-colors">
-                        <button class="color-btn" data-theme="pink" style="background:#ff8fb1"></button>
-                        <button class="color-btn" data-theme="purple" style="background:#b88fce"></button>
-                        <button class="color-btn" data-theme="blue" style="background:#8fb8ff"></button>
-                        <button class="color-btn" data-theme="green" style="background:#8fceb9"></button>
-                    </div>
-                </div>
+        <!-- 数据管理 -->
+        <div class="settings-group">
+            <h3>数据管理</h3>
+            <div class="setting-item">
+                <button id="clear-tasks" class="danger-btn">清除所有任务</button>
+                <button id="clear-records" class="danger-btn">清除打卡记录</button>
+                <button id="clear-all" class="danger-btn">重置所有数据</button>
             </div>
+        </div>
 
-            <!-- 数据管理 -->
-            <div class="settings-group">
-                <h3>数据管理</h3>
-                <div class="setting-item">
-                    <button id="clear-tasks" class="danger-btn">清除所有任务</button>
-                    <button id="clear-records" class="danger-btn">清除打卡记录</button>
-                    <button id="clear-all" class="danger-btn">重置所有数据</button>
-                </div>
+        <!-- 关于信息 -->
+        <div class="settings-group">
+            <h3>关于</h3>
+            <div class="about-info">
+                <p>宝贝计划 v1.0.0</p>
+                <p>一个简单的孕期管理工具</p>
+                <p>© 2025 宝贝计划</p>
             </div>
+        </div>
+    </section>
+  </main>
 
-            <!-- 关于信息 -->
-            <div class="settings-group">
-                <h3>关于</h3>
-                <div class="about-info">
-                    <p>宝贝计划 v1.0.0</p>
-                    <p>一个简单的孕期管理工具</p>
-                    <p>© 2025 宝贝计划</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <script src="assets/js/storage.js"></script>
-    <script src="assets/js/settings.js"></script>
+  <script src="assets/js/storage.js"></script>
+  <script src="assets/js/settings.js"></script>
 </body>
 </html>

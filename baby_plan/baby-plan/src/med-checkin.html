@@ -9,39 +9,42 @@
     <title>药物打卡记录 - 宝贝计划</title>
 </head>
 <body>
-    <header>
-        <h1>药物打卡记录</h1>
-        <nav>
-            <a href="index.html">首页</a>
-            <a href="calendar.html">日历</a>
-            <a href="tasks.html">任务管理</a>
-            <a href="settings.html">设置</a>
-        </nav>
-    </header>
-    <main>
-        <!-- 新增：孕周显示与日期选择 -->
-        <section id="pregnancy-overview" style="text-align:center; padding:1rem;">
-            <div id="preg-week" style="font-size:1.2rem; font-weight:600; color:#c85a90;"></div>
-            <div id="preg-trimester" style="margin-top:6px; color:#7a4b66;"></div>
-            <div style="margin-top:10px;">
-                <label for="selected-date" style="margin-right:8px;color:#666;">选择日期：</label>
-                <input type="date" id="selected-date" />
-            </div>
-        </section>
+  <header class="header">
+    <h1>药物打卡</h1>
+  </header>
 
-        <section id="med-checkin">
-            <h2>每日药物补充情况</h2>
-            <div id="med-records" style="display:flex;flex-direction:column;gap:8px; max-width:720px; margin:0 auto;">
-                <!-- 任务列表将通过 JS 动态生成 -->
-            </div>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2025 宝贝计划</p>
-    </footer>
-    <script src="assets/js/storage.js"></script>
-    <script src="assets/js/weeks.js"></script>
-    <script src="assets/js/app.js"></script>
-    <script src="assets/js/meds.js"></script>
+  <nav>
+    <a href="index.html">首页</a>
+    <a href="med-checkin.html" class="active">药物打卡</a>
+    <a href="calendar.html">日历视图</a>
+    <a href="tasks.html">任务管理</a>
+    <a href="settings.html">设置</a>
+  </nav>
+
+  <main class="page-content">
+    <!-- 新增：孕周显示与日期选择 -->
+    <section id="pregnancy-overview" style="text-align:center; padding:1rem;">
+        <div id="preg-week" style="font-size:1.2rem; font-weight:600; color:#c85a90;"></div>
+        <div id="preg-trimester" style="margin-top:6px; color:#7a4b66;"></div>
+        <div style="margin-top:10px;">
+            <label for="selected-date" style="margin-right:8px;color:#666;">选择日期：</label>
+            <input type="date" id="selected-date" />
+        </div>
+    </section>
+
+    <section id="med-checkin">
+        <h2>每日药物补充情况</h2>
+        <div id="med-records" style="display:flex;flex-direction:column;gap:8px; max-width:720px; margin:0 auto;">
+            <!-- 任务列表将通过 JS 动态生成 -->
+        </div>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 宝贝计划</p>
+  </footer>
+  <script src="assets/js/storage.js"></script>
+  <script src="assets/js/weeks.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/meds.js"></script>
 </body>
 </html>

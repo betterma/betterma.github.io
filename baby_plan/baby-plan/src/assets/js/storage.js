@@ -102,26 +102,43 @@ const BabyStorage = (function() {
       }
     },
 
-    async saveTasks(tasks) {
-      console.log('准备保存任务:', tasks);
+    async saveTasks(newTask) {
       const filePath = `${BASE_PATH}/tasks.json`;
+      let currentTasks = [];
       let sha = null;
 
       try {
+        // 获取现有任务
         const existing = await request(`contents/${filePath}`);
-        sha = existing.sha;
+        if (existing && existing.content) {
+          currentTasks = decodeContent(existing.content);
+          sha = existing.sha;
+        }
       } catch (e) {
-        console.log('文件不存在，将创建新文件');
+        console.log('未找到现有任务文件');
       }
 
-      // 确保保存的是数组
-      const tasksToSave = Array.isArray(tasks) ? tasks : [tasks];
+      // 确保currentTasks是数组
+      if (!Array.isArray(currentTasks)) {
+        currentTasks = [];
+      }
 
+      // 添加新任务
+      if (newTask) {
+        const taskToAdd = {
+          id: Date.now().toString(),
+          createdAt: new Date().toISOString(),
+          ...newTask
+        };
+        currentTasks.push(taskToAdd);
+      }
+
+      // 保存更新后的任务列表
       return request(`contents/${filePath}`, {
         method: 'PUT',
         body: JSON.stringify({
           message: `更新任务列表 - ${new Date().toISOString()}`,
-          content: encodeContent(tasksToSave),
+          content: encodeContent(currentTasks),
           ...(sha ? { sha } : {})
         })
       });

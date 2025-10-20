@@ -94,6 +94,7 @@ nav {
 
 nav a {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 120px;
@@ -102,11 +103,8 @@ nav a {
   border-radius: 16px;
   text-decoration: none;
   color: var(--text-primary);
-  font-weight: 500;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   transition: all 0.2s;
-  flex-direction: column;
-  gap: 8px;
 }
 
 nav a:hover {
@@ -142,7 +140,35 @@ nav a[href*="settings"]::before { content: "⚙️"; }
   }
 }
 
+/* 顶部栏样式 */
+.header {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: white;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  margin: 0;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: white;
+}
+
+.page-content {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 调整现有样式以适应新布局 */
 body {
+  margin: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -150,8 +176,7 @@ body {
 
 main {
   flex: 1;
-  text-align: center;
-  padding: 2rem 1rem;
+  padding: 0;
 }
 
 footer {

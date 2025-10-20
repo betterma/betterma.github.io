@@ -93,21 +93,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const rec = records[task.id] || { done: false, note: '' };
         const row = document.createElement('div');
         row.className = 'med-row';
-        row.style.cssText = `
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 15px;
-          margin-bottom: 10px;
-          border-radius: 12px;
-          background: ${rec.done ? '#eefaf0' : '#fff7f7'};
-          border: 1px solid ${rec.done ? '#cde9d6' : '#ffd6d6'};
-        `;
-
         row.innerHTML = `
           <div style="flex:1">
             <div style="font-weight:600;color:#44324a">${task.name}</div>
             ${task.dose ? `<div style="color:#666;font-size:0.9em">剂量：${task.dose}</div>` : ''}
+            ${task.notes ? `<div style="color:#888;font-size:0.85em">备注：${task.notes}</div>` : ''}
           </div>
           <div style="display:flex;align-items:center;gap:10px">
             <input type="checkbox" ${rec.done ? 'checked' : ''} style="width:20px;height:20px">
