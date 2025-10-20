@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <title>药物打卡记录</title>
+</head>
+<body>
+    <div class="med-tracker">
+        <h2>药物打卡记录</h2>
+        <div class="med-records">
+            <table>
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>药物名称</th>
+                        <th>剂量</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody id="med-records-body">
+                    <!-- 药物记录将通过JavaScript动态添加 -->
+                </tbody>
+            </table>
+        </div>
+        <div class="med-input">
+            <input type="date" id="med-date" required>
+            <input type="text" id="med-name" placeholder="药物名称" required>
+            <input type="text" id="med-dose" placeholder="剂量" required>
+            <button id="add-med-btn">添加记录</button>
+        </div>
+    </div>
+
+    <script src="../assets/js/meds.js"></script>
+</body>
+</html>

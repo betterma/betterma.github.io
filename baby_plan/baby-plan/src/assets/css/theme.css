@@ -1,0 +1,191 @@
+:root {
+  /* 默认主题 (pink) */
+  --primary-color: #ff8fb1;
+  --primary-light: #ffd6e4;
+  --primary-dark: #c85a90;
+  --accent-color: #f2d9e6;
+  --text-primary: #2c3e50;
+  --text-secondary: #666666;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f7f8fa;
+  --border-color: #eeeeee;
+}
+
+/* 紫色主题 */
+[data-theme="purple"] {
+  --primary-color: #b88fce;
+  --primary-light: #e8d9f2;
+  --primary-dark: #8b4b9f;
+  --accent-color: #e2d9f2;
+}
+
+/* 蓝色主题 */
+[data-theme="blue"] {
+  --primary-color: #8fb8ff;
+  --primary-light: #d9e6ff;
+  --primary-dark: #4b7bcf;
+  --accent-color: #d9e6f2;
+}
+
+/* 绿色主题 */
+[data-theme="green"] {
+  --primary-color: #8fceb9;
+  --primary-light: #d9f2eb;
+  --primary-dark: #4b9f8b;
+  --accent-color: #d9f2e6;
+}
+
+/* 应用主题颜色 */
+.primary-btn {
+  background: var(--primary-color);
+  color: white;
+}
+
+.secondary-btn {
+  background: var(--accent-color);
+  color: var(--primary-dark);
+}
+
+.task-item:hover {
+  background: var(--bg-secondary);
+}
+
+.calendar-day.with-records {
+  background: var(--primary-light);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  header {
+    padding: 1rem;
+  }
+  
+  header h1 {
+    font-size: 1.5rem;
+  }
+  
+  nav {
+    font-size: 0.9rem;
+  }
+  
+  #settings-panel,
+  #task-manager,
+  #calendar-container {
+    margin: 10px;
+    padding: 15px;
+  }
+  
+  .task-actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .calendar-day {
+    padding: 4px;
+  }
+  
+  .calendar-day .date {
+    font-size: 0.9em;
+  }
+  
+  dialog {
+    width: 90%;
+    max-width: none;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+h1, h2, h3 {
+  color: #4a4a4a;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.button {
+  background-color: #ff6f61;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.button:hover {
+  background-color: #ff4f3a;
+}
+
+.card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.input-field:focus {
+  border-color: #ff6f61;
+  outline: none;
+}
+
+.task-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.task-list li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.task-list li:last-child {
+  border-bottom: none;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.calendar-day {
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.calendar-day:hover {
+  background-color: #ffefef;
+}
+
+.calendar-day.with-records {
+  background: var(--primary-light);
+}
+
+.week-display {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}

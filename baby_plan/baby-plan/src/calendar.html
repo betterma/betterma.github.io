@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宝贝计划 - 日历视图</title>
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/theme.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+</head>
+<body>
+    <header>
+        <h1>日历视图</h1>
+        <nav>
+            <a href="index.html">首页</a>
+            <a href="med-checkin.html">药物打卡</a>
+            <a href="tasks.html">任务管理</a>
+            <a href="settings.html">设置</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="pregnancy-overview"></section>
+        
+        <section id="calendar-container">
+            <div class="calendar-header">
+                <button id="prev-month">&lt;</button>
+                <h2 id="current-month">2025年 10月</h2>
+                <button id="next-month">&gt;</button>
+            </div>
+            <div class="calendar-weekdays">
+                <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+            </div>
+            <div id="calendar-days"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 宝贝计划</p>
+    </footer>
+
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/weeks.js"></script>
+    <script src="assets/js/calendar.js"></script>
+</body>
+</html>

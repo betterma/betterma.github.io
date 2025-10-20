@@ -1,0 +1,25 @@
+{
+  "name": "baby-plan",
+  "version": "1.0.0",
+  "description": "A warm and friendly web application for managing pregnancy-related tasks, medication check-ins, and calendar events.",
+  "main": "src/assets/js/app.js",
+  "scripts": {
+    "start": "live-server src",
+    "build": "echo 'Build process not defined yet.'",
+    "test": "echo 'No tests defined.'"
+  },
+  "dependencies": {
+    "dayjs": "^1.10.4"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.1"
+  },
+  "keywords": [
+    "pregnancy",
+    "medication",
+    "calendar",
+    "task management"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

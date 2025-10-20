@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <script src="../lib/dayjs.min.js"></script>
+    <script src="../assets/js/calendar.js" defer></script>
+    <title>日历组件</title>
+</head>
+<body>
+    <div class="calendar-widget">
+        <h2>选择日期</h2>
+        <div id="calendar"></div>
+        <div id="selected-date-tasks">
+            <h3>任务记录</h3>
+            <ul id="task-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarElement = document.getElementById('calendar');
+            const taskListElement = document.getElementById('task-list');
+
+            // 初始化日历
+            const calendar = new FullCalendar.Calendar(calendarElement, {
+                initialView: 'dayGridMonth',
+                dateClick: function(info) {
+                    const selectedDate = info.dateStr;
+                    loadTasksForDate(selectedDate);
+                }
+            });
+
+            calendar.render();
+
+            function loadTasksForDate(date) {
+                // 这里可以添加逻辑来加载特定日期的任务
+                taskListElement.innerHTML = ''; // 清空当前任务列表
+                // 示例任务
+                const tasks = getTasksForDate(date);
+                tasks.forEach(task => {
+                    const li = document.createElement('li');
+                    li.textContent = task;
+                    taskListElement.appendChild(li);
+                });
+            }
+
+            function getTasksForDate(date) {
+                // 示例数据，实际应从存储中获取
+                return ['任务1', '任务2', '任务3'];
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 宝贝计划</title>
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/theme.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+</head>
+<body>
+    <main class="login-container">
+        <div class="login-box">
+            <h1>宝贝计划</h1>
+            <p>请输入GitHub Personal Access Token继续</p>
+            
+            <form id="login-form">
+                <input type="password" id="token" placeholder="输入 GitHub Token" required>
+                <button type="submit" class="primary-btn">登录</button>
+            </form>
+            
+            <div class="login-help">
+                <p>如何获取Token?</p>
+                <ol>
+                    <li>访问 <a href="https://github.com/settings/tokens" target="_blank">GitHub Tokens</a></li>
+                    <li>点击 "Generate new token"</li>
+                    <li>勾选 "repo" 权限</li>
+                    <li>生成并复制token</li>
+                </ol>
+            </div>
+        </div>
+    </main>
+
+    <script src="assets/js/auth.js"></script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const token = document.getElementById('token').value.trim();
+            if (token) {
+                auth.setToken(token);
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>

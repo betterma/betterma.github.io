@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <script src="../lib/dayjs.min.js"></script>
+    <script src="../assets/js/weeks.js" defer></script>
+</head>
+<body>
+    <div class="week-display">
+        <h2>当前孕周数</h2>
+        <p id="current-week">计算中...</p>
+    </div>
+
+    <script>
+        function calculateWeeks(startDate) {
+            const today = dayjs();
+            const start = dayjs(startDate);
+            const weeks = today.diff(start, 'week');
+            return weeks;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const startDate = '2025-09-07';
+            const weeks = calculateWeeks(startDate);
+            document.getElementById('current-week').textContent = `您当前的孕周数是：${weeks} 周`;
+        });
+    </script>
+</body>
+</html>
