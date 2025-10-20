@@ -46,49 +46,56 @@ function loadTasks() {
 loadTasks();
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const taskList = document.querySelector('.task-list');
-    const taskDialog = document.getElementById('task-dialog');
-    const taskForm = document.getElementById('task-form');
-    const importExportDialog = document.getElementById('import-export-dialog');
-    
-    let editingTaskId = null;
+  const taskList = document.querySelector('.task-list');
+  const taskDialog = document.getElementById('task-dialog');
+  const taskForm = document.getElementById('task-form');
+  const importExportDialog = document.getElementById('import-export-dialog');
+  
+  let editingTaskId = null;
 
-    // 渲染任务列表
-    async function renderTasks() {
-        taskList.innerHTML = '';
-        try {
-            const tasks = await window.BabyStorage.getTasks();
-            
-            if(tasks.length === 0) {
-                taskList.innerHTML = `
-                    <div style="text-align:center;padding:30px;color:#666;">
-                        还没有添加任务，点击"新增任务"开始添加
-                    </div>
-                `;
-                return;
-            }
-            
-            tasks.forEach(task => {
-                const div = document.createElement('div');
-                div.className = 'task-item';
-                div.innerHTML = `
-                    <div class="task-info">
-                        <div class="task-name">${task.name}</div>
-                        ${task.dose ? `<div class="task-dose">剂量: ${task.dose}</div>` : ''}
-                        ${task.notes ? `<div class="task-notes">${task.notes}</div>` : ''}
-                    </div>
-                    <div class="task-actions">
-                        <button class="secondary-btn edit-task" data-id="${task.id}">编辑</button>
-                        <button class="danger-btn delete-task" data-id="${task.id}">删除</button>
-                    </div>
-                `;
-                taskList.appendChild(div);
-            });
-        } catch (error) {
-            console.error('加载任务失败:', error);
-            taskList.innerHTML = '<div class="error">加载失败,请稍后重试</div>';
-        }
+  // 渲染任务列表
+  async function renderTasks() {
+    taskList.innerHTML = '<div style="text-align:center;padding:20px;">加载中...</div>';
+    try {
+      const tasks = await window.BabyStorage.getTasks();
+      console.log('获取到的任务:', tasks); // 添加调试日志
+      
+      if (!tasks || tasks.length === 0) {
+        taskList.innerHTML = `
+          <div style="text-align:center;padding:30px;color:#666;">
+            还没有添加任务，点击"新增任务"开始添加
+          </div>
+        `;
+        return;
+      }
+      
+      taskList.innerHTML = '';
+      tasks.forEach(task => {
+        const div = document.createElement('div');
+        div.className = 'task-item';
+        div.innerHTML = `
+          <div class="task-info">
+            <div class="task-name">${task.name}</div>
+            ${task.dose ? `<div class="task-dose">剂量: ${task.dose}</div>` : ''}
+            ${task.notes ? `<div class="task-notes">${task.notes}</div>` : ''}
+          </div>
+          <div class="task-actions">
+            <button class="secondary-btn edit-task" data-id="${task.id}">编辑</button>
+            <button class="danger-btn delete-task" data-id="${task.id}">删除</button>
+          </div>
+        `;
+        taskList.appendChild(div);
+      });
+    } catch (error) {
+      console.error('渲染任务失败:', error);
+      taskList.innerHTML = `
+        <div style="text-align:center;padding:20px;color:#ff4444;">
+          加载失败: ${error.message}<br>
+          <button onclick="location.reload()" style="margin-top:10px;padding:5px 10px;">重试</button>
+        </div>
+      `;
     }
+  }
 
     // 打开新增/编辑对话框
     function openTaskDialog(task = null) {
@@ -200,5 +207,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // 初始化
-    renderTasks();
+    await renderTasks();
 });

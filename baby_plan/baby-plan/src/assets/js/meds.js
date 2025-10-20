@@ -67,11 +67,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const todayStr = toISODate(new Date());
   dateInput.value = todayStr;
 
-  function renderPregnancyInfo(dateStr){
-    const ref = new Date(dateStr + 'T00:00:00');
-    const info = window.BabyWeeks.getPregnancyInfo(ref);
+  function renderPregnancyInfo(dateStr) {
+    const info = window.BabyWeeks.getPregnancyInfo(new Date(dateStr));
     pregWeekEl.textContent = `当前：${info.display}`;
-    pregTrimEl.textContent = `${info.trimester} · 预计开始：${info.startDate}`;
+    pregTrimEl.textContent = `${info.trimester} · 开始日期：${info.startDate}`;  // 修改文案
   }
 
   async function renderTasksFor(dateStr) {

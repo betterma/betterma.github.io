@@ -9,24 +9,27 @@ const BabyStorage = (function() {
   // 私有方法
   async function request(endpoint, options = {}) {
     const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/${endpoint}`;
+    console.log('请求API:', url); // 添加调试日志
     
     try {
       const response = await fetch(url, {
         ...options,
         headers: {
           'Accept': 'application/vnd.github.v3+json',
-          'Authorization': `token ${TOKEN}`,
           ...(options.headers || {})
         }
       });
       
+      const responseText = await response.text();
+      console.log('API响应:', responseText); // 添加调试日志
+      
       if (!response.ok) {
-        throw new Error(`GitHub API错误：${response.status}`);
+        throw new Error(`GitHub API错误：${response.status} - ${responseText}`);
       }
       
-      return response.json();
+      return JSON.parse(responseText);
     } catch (error) {
-      console.error('数据存储错误:', error);
+      console.error('请求失败:', error);
       throw error;
     }
   }
@@ -61,15 +64,20 @@ const BabyStorage = (function() {
   return {
     // 任务相关
     async getTasks() {
-      return getCached('tasks', async () => {
-        try {
-          const file = await request(`contents/${BASE_PATH}/tasks.json`);
-          return decodeContent(file.content);
-        } catch (error) {
-          console.error('获取任务列表失败:', error);
+      try {
+        const file = await request(`contents/${BASE_PATH}/tasks.json`);
+        // GitHub API 返回的是 base64 编码的内容
+        if (!file.content) {
+          console.error('任务文件内容为空');
           return [];
         }
-      });
+        const content = decodeContent(file.content);
+        console.log('解析后的任务数据:', content); // 添加调试日志
+        return Array.isArray(content) ? content : [];
+      } catch (error) {
+        console.error('获取任务列表失败:', error);
+        return [];
+      }
     },
 
     async saveTasks(tasks) {
