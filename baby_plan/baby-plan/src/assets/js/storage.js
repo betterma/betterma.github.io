@@ -70,34 +70,47 @@ const BabyStorage = (function() {
     // 任务相关
     async getTasks() {
       try {
-        const file = await request(`contents/${BASE_PATH}/tasks.json`);
-        // GitHub API 返回的是 base64 编码的内容
-        if (!file.content) {
+        console.log('开始获取任务');
+        const response = await request(`contents/${BASE_PATH}/tasks.json`);
+        
+        console.log('获取任务响应:', response);
+        
+        if (!response || !response.content) {
           console.error('任务文件内容为空');
           return [];
         }
-        const content = decodeContent(file.content);
-        console.log('解析后的任务数据:', content); // 添加调试日志
+
+        // 解码 base64 内容
+        const content = decodeContent(response.content);
+        console.log('解码后的任务:', content);
+
         return Array.isArray(content) ? content : [];
       } catch (error) {
-        console.error('获取任务列表失败:', error);
-        return [];
+        console.error('获取任务失败:', error);
+        if (error.message.includes('404')) {
+          console.log('任务文件不存在，返回空数组');
+          return [];
+        }
+        throw error;
       }
     },
 
     async saveTasks(tasks) {
-      cache.delete('tasks'); // 清除缓存
+      console.log('准备保存任务:', tasks);
       const filePath = `${BASE_PATH}/tasks.json`;
       let sha = null;
-      
+
       try {
+        // 获取现有文件的 SHA
         const existing = await request(`contents/${filePath}`);
         sha = existing.sha;
+        console.log('获取到现有文件 SHA:', sha);
       } catch (e) {
-        // 文件不存在
+        console.log('文件不存在，将创建新文件');
       }
 
-      return request(`contents/${filePath}`, {
+      // 保存文件
+      const response = await request(`contents/${filePath}`, {
         method: 'PUT',
         body: JSON.stringify({
           message: `更新任务列表 - ${new Date().toISOString()}`,
@@ -105,6 +118,9 @@ const BabyStorage = (function() {
           ...(sha ? { sha } : {})
         })
       });
+
+      console.log('保存任务响应:', response);
+      return response;
     },
 
     // 打卡记录相关 

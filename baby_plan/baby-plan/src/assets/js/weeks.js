@@ -34,52 +34,58 @@ document.addEventListener('DOMContentLoaded', displayWeeks);
     const msPerDay = 24*60*60*1000;
     return Math.floor((end - start) / msPerDay);
   }
-  function getPregnancyInfo(referenceDate = new Date()){
-    const meta = window.BabyStorage?.getMeta?.() || { startDate: '2025-09-07' };
-    const start = new Date(meta.startDate);
-    const ref = new Date(referenceDate);
-    
-    // 检查日期是否有效
-    if (isNaN(start.getTime()) || isNaN(ref.getTime())) {
-      console.error('无效的日期:', { start, ref, meta });
-      return {
-        weeks: 0,
-        days: 0,
-        display: '0周',
-        trimester: '未开始',
-        progress: 0,
-        startDate: meta.startDate || '2025-09-07'
-      };
+  async function getPregnancyInfo(referenceDate = new Date()) {
+    // 获取开始日期
+    let startDate = '2025-09-07';
+    try {
+      const meta = await window.BabyStorage.getMeta();
+      startDate = meta.startDate || startDate;
+    } catch (error) {
+      console.error('获取设置失败:', error);
     }
 
-    // 计算相差天数
+    // 确保日期对象正确
+    const start = new Date(startDate + 'T00:00:00');
+    const ref = new Date(referenceDate);
+    ref.setHours(0, 0, 0, 0);
+
+    console.log('日期计算:', {
+      startDate,
+      start: start.toISOString(),
+      ref: ref.toISOString()
+    });
+
+    // 计算天数差
     const msPerDay = 24 * 60 * 60 * 1000;
-    const deltaDays = Math.max(0, Math.floor((ref - start) / msPerDay));
+    const deltaDays = Math.floor((ref - start) / msPerDay);
     
-    // 计算周数和剩余天数
-    const weeks = Math.floor(deltaDays / 7) + 1;  // +1 因为第一天就算第一周
+    // 计算周数和天数
+    const weeks = Math.floor(deltaDays / 7) + 1;
     const days = deltaDays % 7;
-    
-    // 孕期阶段判断（1-13周为早期，14-27周为中期，28-40周为晚期）
+
+    console.log('计算结果:', {
+      deltaDays,
+      weeks,
+      days
+    });
+
+    // 确定孕期阶段
     let trimester = '未开始';
     if (weeks >= 1 && weeks <= 13) {
       trimester = '孕早期';
     } else if (weeks >= 14 && weeks <= 27) {
       trimester = '孕中期';
-    } else if (weeks >= 28 && weeks <= 42) {
+    } else if (weeks >= 28) {
       trimester = '孕晚期';
     }
-    
-    // 添加孕期进度（以40周为标准）
-    const progress = Math.min(1, weeks / 40);
-    
+
     return {
       weeks,
       days,
       display: `${weeks}周${days ? '+' + days + '天' : ''}`,
       trimester,
-      progress,
-      startDate: meta.startDate
+      progress: Math.min(1, weeks / 40),
+      startDate
     };
   }
 
