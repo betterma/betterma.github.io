@@ -35,29 +35,38 @@ document.addEventListener('DOMContentLoaded', displayWeeks);
     return Math.floor((end - start) / msPerDay);
   }
   function getPregnancyInfo(referenceDate = new Date()){
-    // 从 meta 获取开始日期（第一周开始日期）
-    const meta = window.BabyStorage ? window.BabyStorage.getMeta() : { startDate: '2025-09-07' };
-    const start = new Date(meta.startDate + 'T00:00:00');
-    const ref = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate());
+    const meta = window.BabyStorage?.getMeta?.() || { startDate: '2025-09-07' };
+    const start = new Date(meta.startDate);
+    const ref = new Date(referenceDate);
     
+    // 检查日期是否有效
+    if (isNaN(start.getTime()) || isNaN(ref.getTime())) {
+      console.error('无效的日期:', { start, ref, meta });
+      return {
+        weeks: 0,
+        days: 0,
+        display: '0周',
+        trimester: '未开始',
+        progress: 0,
+        startDate: meta.startDate || '2025-09-07'
+      };
+    }
+
     // 计算相差天数
-    const msPerDay = 24*60*60*1000;
-    let deltaDays = Math.floor((ref - start) / msPerDay);
-    
-    // 确保不会出现负数周
-    if(deltaDays < 0) deltaDays = 0;
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const deltaDays = Math.max(0, Math.floor((ref - start) / msPerDay));
     
     // 计算周数和剩余天数
-    const weeks = Math.floor(deltaDays / 7) + 1; // +1 因为第一天就算第一周
+    const weeks = Math.floor(deltaDays / 7) + 1;  // +1 因为第一天就算第一周
     const days = deltaDays % 7;
     
     // 孕期阶段判断（1-13周为早期，14-27周为中期，28-40周为晚期）
-    let trimester = '未怀孕';
-    if(weeks >= 1 && weeks <= 13) {
+    let trimester = '未开始';
+    if (weeks >= 1 && weeks <= 13) {
       trimester = '孕早期';
-    } else if(weeks >= 14 && weeks <= 27) {
+    } else if (weeks >= 14 && weeks <= 27) {
       trimester = '孕中期';
-    } else if(weeks >= 28 && weeks <= 42) { // 最多计算到42周
+    } else if (weeks >= 28 && weeks <= 42) {
       trimester = '孕晚期';
     }
     
@@ -67,10 +76,10 @@ document.addEventListener('DOMContentLoaded', displayWeeks);
     return {
       weeks,
       days,
-      display: `${weeks}周${days ? '+'+days+'天' : ''}`,
+      display: `${weeks}周${days ? '+' + days + '天' : ''}`,
       trimester,
       progress,
-      startDate: meta.startDate || '2025-09-07'  // 添加默认值
+      startDate: meta.startDate
     };
   }
 

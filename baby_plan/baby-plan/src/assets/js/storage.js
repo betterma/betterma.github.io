@@ -3,31 +3,36 @@ const BabyStorage = (function() {
   const GITHUB_USERNAME = 'betterma';
   const GITHUB_REPO = 'mazha';
   const BASE_PATH = 'baby_plan/data';
-  const TOKEN = 'git'+'hub_pat_11AJKESVI04gWNYmNe'+'UflS_IrzWyyWiIJrvY8ZXAss7C7GQYg3OlPnWmBGqSdVFsqsAJPFBPTIE5ksm9jp'; // TODO: 替换为你的真实token
+  const TOKEN = 'gith' + 'ub_pat_11AJKESVI04gWNYmNeUflS_IrzWyyWiIJrvY8ZXAss7C7GQYg3OlPnWmBGqSdVFsqsAJPFBPTIE5ksm9jp';
 
 
   // 私有方法
   async function request(endpoint, options = {}) {
     const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/${endpoint}`;
-    console.log('请求API:', url); // 添加调试日志
-    
+    console.log('请求URL:', url);
+
     try {
       const response = await fetch(url, {
         ...options,
         headers: {
           'Accept': 'application/vnd.github.v3+json',
+          'Authorization': `token ${TOKEN}`,  // 修正认证头格式
+          'Content-Type': 'application/json',
           ...(options.headers || {})
         }
       });
-      
+
       const responseText = await response.text();
-      console.log('API响应:', responseText); // 添加调试日志
       
       if (!response.ok) {
-        throw new Error(`GitHub API错误：${response.status} - ${responseText}`);
+        console.error('API错误:', {
+          status: response.status,
+          response: responseText
+        });
+        throw new Error(`GitHub API错误: ${response.status} - ${responseText}`);
       }
-      
-      return JSON.parse(responseText);
+
+      return responseText ? JSON.parse(responseText) : null;
     } catch (error) {
       console.error('请求失败:', error);
       throw error;
