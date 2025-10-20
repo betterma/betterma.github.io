@@ -41,13 +41,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // 主题切换
     themeButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
             const theme = btn.dataset.theme;
-            document.documentElement.setAttribute('data-theme', theme);
-            localStorage.setItem('theme', theme);
-            
-            themeButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            const saved = await saveTheme(theme);
+            if (saved) {
+                themeButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            } else {
+                alert('主题保存失败，请重试');
+            }
         });
     });
     
@@ -163,4 +165,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // 初始化
     loadSettings();
+    
+    async function saveTheme(theme) {
+        try {
+            const meta = await window.BabyStorage.getMeta();
+            await window.BabyStorage.setMeta({
+                ...meta,
+                theme
+            });
+            
+            // 应用主题
+            document.documentElement.setAttribute('data-theme', theme);
+            return true;
+        } catch (error) {
+            console.error('保存主题失败:', error);
+            return false;
+        }
+    }
 });

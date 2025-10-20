@@ -1,6 +1,6 @@
 // This file implements the logic for the calendar functionality, allowing users to select dates and view tasks and check-in records.
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     let currentDate = new Date();
     const calendarDays = document.getElementById('calendar-days');
     const currentMonthEl = document.getElementById('current-month');

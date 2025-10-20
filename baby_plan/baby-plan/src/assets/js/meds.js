@@ -55,8 +55,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const pregTrimEl = document.getElementById('preg-trimester');
 
   // 设置默认日期为今天
-  const todayStr = new Date().toISOString().split('T')[0];
-  dateInput.value = todayStr;
+  const today = new Date().toISOString().split('T')[0];
+  dateInput.value = today;
 
   async function renderPregnancyInfo(dateStr) {
     try {

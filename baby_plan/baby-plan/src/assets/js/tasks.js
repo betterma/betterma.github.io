@@ -120,7 +120,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     taskDialog.showModal();
   });
 
-  // 表单提交处理
+  // 添加任务列表的事件委托
+  taskList.addEventListener('click', async (e) => {
+    const target = e.target;
+    
+    // 处理编辑按钮点击
+    if (target.classList.contains('edit-task')) {
+      const taskId = target.dataset.id;
+      const tasks = await window.BabyStorage.getTasks();
+      const task = tasks.find(t => t.id === taskId);
+      
+      if (task) {
+        // 填充表单
+        document.getElementById('task-name').value = task.name || '';
+        document.getElementById('task-dose').value = task.dose || '';
+        document.getElementById('task-notes').value = task.notes || '';
+        
+        // 标记正在编辑的任务ID
+        taskForm.dataset.editingId = taskId;
+        
+        // 更新对话框标题
+        const dialogTitle = taskDialog.querySelector('h3');
+        if (dialogTitle) {
+          dialogTitle.textContent = '编辑任务';
+        }
+        
+        taskDialog.showModal();
+      }
+    }
+    
+    // 处理删除按钮点击
+    if (target.classList.contains('delete-task')) {
+      const taskId = target.dataset.id;
+      if (confirm('确定要删除这个任务吗？')) {
+        try {
+          const tasks = await window.BabyStorage.getTasks();
+          const updatedTasks = tasks.filter(t => t.id !== taskId);
+          await window.BabyStorage.saveTasks(updatedTasks);
+          await renderTasks();
+        } catch (error) {
+          alert('删除失败: ' + error.message);
+        }
+      }
+    }
+  });
+
+  // 修改表单提交处理，支持编辑功能
   taskForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(taskForm);
@@ -131,12 +176,46 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     try {
-      await window.BabyStorage.saveTasks(taskData);
+      const editingId = taskForm.dataset.editingId;
+      let tasks = await window.BabyStorage.getTasks();
+      
+      if (editingId) {
+        // 编辑现有任务
+        tasks = tasks.map(task => 
+          task.id === editingId 
+            ? { ...task, ...taskData }
+            : task
+        );
+      } else {
+        // 添加新任务
+        taskData.id = 't_' + Date.now();
+        taskData.createdAt = new Date().toISOString();
+        tasks.push(taskData);
+      }
+
+      await window.BabyStorage.saveTasks(tasks);
       taskDialog.close();
       await renderTasks();
       taskForm.reset();
+      delete taskForm.dataset.editingId;
+      
+      // 重置对话框标题
+      const dialogTitle = taskDialog.querySelector('h3');
+      if (dialogTitle) {
+        dialogTitle.textContent = '新增任务';
+      }
     } catch (error) {
       alert('保存失败: ' + error.message);
+    }
+  });
+
+  // 添加对话框关闭事件处理
+  taskDialog.addEventListener('close', () => {
+    taskForm.reset();
+    delete taskForm.dataset.editingId;
+    const dialogTitle = taskDialog.querySelector('h3');
+    if (dialogTitle) {
+      dialogTitle.textContent = '新增任务';
     }
   });
 

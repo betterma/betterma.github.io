@@ -451,3 +451,40 @@ dialog::backdrop {
   text-decoration: line-through;
   color: var(--text-secondary);
 }
+
+/* 日历组件响应式样式 */
+.calendar-container {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .calendar {
+    min-width: 320px;
+    font-size: 14px;
+  }
+  
+  .calendar td {
+    padding: 8px;
+    height: 40px;
+  }
+}
+
+/* 孕周信息样式 */
+#preg-week {
+  font-weight: 700;
+  font-size: 1.2em;
+  color: var(--primary-color);
+}
+
+#pregnancy-overview {
+  text-align: center;
+  margin: 1rem 0;
+}
+
+#pregnancy-overview div:first-child {
+  font-weight: 700;
+  font-size: 1.2em;
+  color: var(--primary-color);
+}
