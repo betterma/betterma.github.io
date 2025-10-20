@@ -33,19 +33,21 @@
     </nav>
 
     <main class="page-content">
-        <section id="pregnancy-overview"></section>
-        
-        <section id="calendar-container">
-            <div class="calendar-header">
+        <div id="pregnancy-overview">
+            <!-- 孕周信息 -->
+        </div>
+
+        <div class="calendar-container">
+            <div class="date-controls">
                 <button id="prev-month">&lt;</button>
-                <h2 id="current-month">2025年 10月</h2>
+                <span id="current-month">2025年10月</span>
                 <button id="next-month">&gt;</button>
             </div>
-            <div class="calendar-weekdays">
-                <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
-            </div>
-            <div id="calendar-days"></div>
-        </section>
+            
+            <table class="calendar">
+                <!-- 日历内容 -->
+            </table>
+        </div>
     </main>
 
     <footer>

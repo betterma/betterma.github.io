@@ -452,22 +452,69 @@ dialog::backdrop {
   color: var(--text-secondary);
 }
 
-/* 日历组件响应式样式 */
+/* 日历组件样式 */
 .calendar-container {
   max-width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  margin: 0 auto;
+  padding: 0 15px;
 }
 
+.calendar {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* 移动端适配 */
 @media (max-width: 768px) {
   .calendar {
-    min-width: 320px;
     font-size: 14px;
   }
-  
+
+  .calendar th,
   .calendar td {
-    padding: 8px;
-    height: 40px;
+    padding: 8px 4px;
+    height: 36px;
+    min-width: 36px;
+  }
+
+  .calendar td span {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+  }
+
+  .date-controls {
+    padding: 0 10px;
+  }
+
+  .date-controls button {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+}
+
+/* 超小屏幕适配 */
+@media (max-width: 360px) {
+  .calendar {
+    font-size: 12px;
+  }
+
+  .calendar th,
+  .calendar td {
+    padding: 6px 2px;
+    height: 32px;
+    min-width: 32px;
+  }
+
+  .calendar td span {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
   }
 }
 

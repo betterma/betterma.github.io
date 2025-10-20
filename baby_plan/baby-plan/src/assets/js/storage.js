@@ -74,7 +74,7 @@ const BabyStorage = (function() {
         const response = await request(`contents/${BASE_PATH}/tasks.json`);
         
         if (!response || !response.content) {
-          console.error('任务文件内容为空');
+          console.log('任务文件为空，返回空数组');
           return [];
         }
 
@@ -83,16 +83,7 @@ const BabyStorage = (function() {
         console.log('解码后的任务:', content);
 
         // 确保返回的是数组
-        if (Array.isArray(content)) {
-          return content;
-        } else if (content && typeof content === 'object') {
-          // 如果是单个任务对象，转换为数组
-          return [{
-            id: Date.now().toString(),
-            ...content
-          }];
-        }
-        return [];
+        return Array.isArray(content) ? content : [];
       } catch (error) {
         console.error('获取任务失败:', error);
         if (error.message.includes('404')) {
@@ -102,43 +93,24 @@ const BabyStorage = (function() {
       }
     },
 
-    async saveTasks(newTask) {
+    async saveTasks(tasks) {
+      console.log('准备保存任务:', tasks);
       const filePath = `${BASE_PATH}/tasks.json`;
-      let currentTasks = [];
       let sha = null;
 
       try {
-        // 获取现有任务
+        // 获取现有文件的 SHA
         const existing = await request(`contents/${filePath}`);
-        if (existing && existing.content) {
-          currentTasks = decodeContent(existing.content);
-          sha = existing.sha;
-        }
+        sha = existing.sha;
       } catch (e) {
-        console.log('未找到现有任务文件');
+        console.log('文件不存在，将创建新文件');
       }
 
-      // 确保currentTasks是数组
-      if (!Array.isArray(currentTasks)) {
-        currentTasks = [];
-      }
-
-      // 添加新任务
-      if (newTask) {
-        const taskToAdd = {
-          id: Date.now().toString(),
-          createdAt: new Date().toISOString(),
-          ...newTask
-        };
-        currentTasks.push(taskToAdd);
-      }
-
-      // 保存更新后的任务列表
       return request(`contents/${filePath}`, {
         method: 'PUT',
         body: JSON.stringify({
           message: `更新任务列表 - ${new Date().toISOString()}`,
-          content: encodeContent(currentTasks),
+          content: encodeContent(Array.isArray(tasks) ? tasks : [tasks]),
           ...(sha ? { sha } : {})
         })
       });
