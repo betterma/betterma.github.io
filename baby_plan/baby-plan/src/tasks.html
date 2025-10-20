@@ -20,11 +20,11 @@
         </a>
         <a href="med-checkin.html">
             <span class="nav-icon">💊</span>
-            <span>药物打卡</span>
+            <span>打卡</span>
         </a>
         <a href="calendar.html">
             <span class="nav-icon">📅</span>
-            <span>日历视图</span>
+            <span>日历</span>
         </a>
         <a href="settings.html">
             <span class="nav-icon">⚙️</span>
@@ -33,55 +33,35 @@
     </nav>
 
     <main class="page-content">
-        <section id="task-manager">
-            <div class="task-controls">
-                <button id="add-task" class="primary-btn">新增任务</button>
-            </div>
+        <div class="task-controls">
+            <button id="add-task" class="primary-btn">新增任务</button>
+        </div>
 
-            <div class="task-list">
-                <!-- 任务列表将通过 JS 动态生成 -->
-            </div>
+        <div id="task-list">
+            <!-- 任务列表将通过 JS 动态生成 -->
+        </div>
 
-            <!-- 新增任务对话框 -->
-            <dialog id="task-dialog">
-                <form id="task-form">
-                    <h3>任务详情</h3>
-                    <div class="form-group">
-                        <label for="task-name">任务名称</label>
-                        <input type="text" id="task-name" required placeholder="例如: 叶酸">
-                    </div>
-                    <div class="form-group">
-                        <label for="task-dose">剂量</label>
-                        <input type="text" id="task-dose" placeholder="例如: 2片 0.8mg">
-                    </div>
-                    <div class="form-group">
-                        <label for="task-notes">备注说明</label>
-                        <textarea id="task-notes" rows="3" placeholder="可选: 补充说明"></textarea>
-                    </div>
-                    <div class="dialog-buttons">
-                        <button type="button" class="secondary-btn" onclick="this.closest('dialog').close()">取消</button>
-                        <button type="submit" class="primary-btn">保存</button>
-                    </div>
-                </form>
-            </dialog>
-
-            <!-- 导入/导出对话框 -->
-            <dialog id="import-export-dialog">
-                <div class="import-export-content">
-                    <h3>数据导入/导出</h3>
-                    <div class="export-section">
-                        <h4>导出数据</h4>
-                        <button id="export-btn" class="secondary-btn">下载任务数据</button>
-                    </div>
-                    <div class="import-section">
-                        <h4>导入数据</h4>
-                        <input type="file" id="import-file" accept=".json">
-                        <button id="import-btn" class="secondary-btn">导入</button>
-                    </div>
-                    <button class="secondary-btn" onclick="this.closest('dialog').close()">关闭</button>
+        <dialog id="task-dialog">
+            <form id="task-form">
+                <h3>新增任务</h3>
+                <div class="form-group">
+                    <label for="task-name">任务名称</label>
+                    <input type="text" id="task-name" name="name" required>
                 </div>
-            </dialog>
-        </section>
+                <div class="form-group">
+                    <label for="task-dose">剂量</label>
+                    <input type="text" id="task-dose" name="dose">
+                </div>
+                <div class="form-group">
+                    <label for="task-notes">备注</label>
+                    <textarea id="task-notes" name="notes"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="this.closest('dialog').close()">取消</button>
+                    <button type="submit" class="primary-btn">保存</button>
+                </div>
+            </form>
+        </dialog>
     </main>
 
     <footer>

@@ -46,22 +46,34 @@ function loadTasks() {
 loadTasks();
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // 获取 DOM 元素
   const taskList = document.getElementById('task-list');
   const taskDialog = document.getElementById('task-dialog');
   const taskForm = document.getElementById('task-form');
   const addTaskBtn = document.getElementById('add-task');
   
-  let editingTaskId = null;
-
-  // 确保 DOM 元素存在
-  if (!taskList || !taskDialog || !taskForm || !addTaskBtn) {
-    console.error('必要的 DOM 元素未找到');
+  // 检查必要的 DOM 元素
+  if (!taskList) {
+    console.error('未找到任务列表元素 #task-list');
+    return;
+  }
+  if (!taskDialog) {
+    console.error('未找到对话框元素 #task-dialog');
+    return;
+  }
+  if (!taskForm) {
+    console.error('未找到表单元素 #task-form');
+    return;
+  }
+  if (!addTaskBtn) {
+    console.error('未找到添加按钮元素 #add-task');
     return;
   }
 
   // 渲染任务列表
   async function renderTasks() {
     taskList.innerHTML = '<div style="text-align:center;padding:20px;">加载中...</div>';
+    
     try {
       const tasks = await window.BabyStorage.getTasks();
       console.log('获取到的任务:', tasks);
@@ -103,9 +115,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // 添加任务事件监听
+  // 添加任务按钮点击事件
   addTaskBtn.addEventListener('click', () => {
-    editingTaskId = null;
     taskDialog.showModal();
   });
 
