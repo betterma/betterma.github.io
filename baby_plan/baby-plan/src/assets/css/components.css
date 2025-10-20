@@ -389,7 +389,16 @@ dialog::backdrop {
 }
 
 /* 药物打卡列表样式 */
+#med-records {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
 .med-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: white;
   border-radius: 12px;
   padding: 15px;
@@ -405,6 +414,7 @@ dialog::backdrop {
 
 .med-row .task-info {
   flex: 1;
+  padding-right: 15px;
 }
 
 .med-row .task-name {
@@ -425,13 +435,19 @@ dialog::backdrop {
 }
 
 .med-row input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   margin: 0;
   cursor: pointer;
+  border: 2px solid var(--primary-color);
+  border-radius: 4px;
 }
 
 .med-row.done {
   background: var(--primary-light);
-  border: 1px solid var(--primary-color);
+}
+
+.med-row.done .task-name {
+  text-decoration: line-through;
+  color: var(--text-secondary);
 }

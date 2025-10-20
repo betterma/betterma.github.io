@@ -33,22 +33,18 @@
   </nav>
 
   <main class="page-content">
-    <!-- 新增：孕周显示与日期选择 -->
-    <section id="pregnancy-overview" style="text-align:center; padding:1rem;">
-        <div id="preg-week" style="font-size:1.2rem; font-weight:600; color:#c85a90;"></div>
-        <div id="preg-trimester" style="margin-top:6px; color:#7a4b66;"></div>
-        <div style="margin-top:10px;">
-            <label for="selected-date" style="margin-right:8px;color:#666;">选择日期：</label>
-            <input type="date" id="selected-date" />
-        </div>
-    </section>
+    <div id="pregnancy-info">
+      <div id="preg-week">当前：加载中...</div>
+      <div id="preg-trimester">加载中...</div>
+    </div>
 
-    <section id="med-checkin">
-        <h2>每日药物补充情况</h2>
-        <div id="med-records" style="display:flex;flex-direction:column;gap:8px; max-width:720px; margin:0 auto;">
-            <!-- 任务列表将通过 JS 动态生成 -->
-        </div>
-    </section>
+    <div class="date-selector">
+      <input type="date" id="selected-date">
+    </div>
+
+    <div id="med-records">
+      <!-- 任务列表将通过 JS 动态生成 -->
+    </div>
   </main>
   <footer>
     <p>&copy; 2025 宝贝计划</p>

@@ -46,17 +46,22 @@ function loadTasks() {
 loadTasks();
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const taskList = document.querySelector('.task-list');
+  const taskList = document.getElementById('task-list');
   const taskDialog = document.getElementById('task-dialog');
   const taskForm = document.getElementById('task-form');
-  const importExportDialog = document.getElementById('import-export-dialog');
+  const addTaskBtn = document.getElementById('add-task');
   
   let editingTaskId = null;
+
+  // 确保 DOM 元素存在
+  if (!taskList || !taskDialog || !taskForm || !addTaskBtn) {
+    console.error('必要的 DOM 元素未找到');
+    return;
+  }
 
   // 渲染任务列表
   async function renderTasks() {
     taskList.innerHTML = '<div style="text-align:center;padding:20px;">加载中...</div>';
-    
     try {
       const tasks = await window.BabyStorage.getTasks();
       console.log('获取到的任务:', tasks);
@@ -78,11 +83,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="task-info">
             <div class="task-name">${task.name || ''}</div>
             ${task.dose ? `<div class="task-dose">剂量: ${task.dose}</div>` : ''}
-            ${task.notes ? `<div class="task-notes">${task.notes}</div>` : ''}
+            ${task.notes ? `<div class="task-notes">备注: ${task.notes}</div>` : ''}
           </div>
           <div class="task-actions">
-            <button class="secondary-btn edit-task" data-id="${task.id}">编辑</button>
-            <button class="danger-btn delete-task" data-id="${task.id}">删除</button>
+            <button class="edit-task" data-id="${task.id}">编辑</button>
+            <button class="delete-task" data-id="${task.id}">删除</button>
           </div>
         `;
         taskList.appendChild(div);
@@ -92,121 +97,38 @@ document.addEventListener('DOMContentLoaded', async () => {
       taskList.innerHTML = `
         <div style="text-align:center;padding:20px;color:#ff4444">
           加载失败: ${error.message}<br>
-          <button onclick="location.reload()" style="margin-top:10px;padding:5px 10px">重试</button>
+          <button onclick="location.reload()">重试</button>
         </div>
       `;
     }
   }
 
-    // 打开新增/编辑对话框
-    function openTaskDialog(task = null) {
-        const nameInput = document.getElementById('task-name');
-        const doseInput = document.getElementById('task-dose');
-        const notesInput = document.getElementById('task-notes');
-        
-        if(task) {
-            editingTaskId = task.id;
-            nameInput.value = task.name;
-            doseInput.value = task.dose || '';
-            notesInput.value = task.notes || '';
-        } else {
-            editingTaskId = null;
-            nameInput.value = '';
-            doseInput.value = '';
-            notesInput.value = '';
-        }
-        
-        taskDialog.showModal();
+  // 添加任务事件监听
+  addTaskBtn.addEventListener('click', () => {
+    editingTaskId = null;
+    taskDialog.showModal();
+  });
+
+  // 表单提交处理
+  taskForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(taskForm);
+    const taskData = {
+      name: formData.get('name'),
+      dose: formData.get('dose'),
+      notes: formData.get('notes')
+    };
+
+    try {
+      await window.BabyStorage.saveTasks(taskData);
+      taskDialog.close();
+      await renderTasks();
+      taskForm.reset();
+    } catch (error) {
+      alert('保存失败: ' + error.message);
     }
+  });
 
-    // 事件监听
-    document.getElementById('add-task').addEventListener('click', () => {
-        openTaskDialog();
-    });
-
-    document.getElementById('import-export').addEventListener('click', () => {
-        importExportDialog.showModal();
-    });
-
-    // 修改表单提交为异步
-    taskForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        try {
-            const task = {
-                name: document.getElementById('task-name').value.trim(),
-                dose: document.getElementById('task-dose').value.trim(),
-                notes: document.getElementById('task-notes').value.trim()
-            };
-            
-            if(editingTaskId) {
-                task.id = editingTaskId;
-                await window.BabyStorage.updateTask(task);
-            } else {
-                await window.BabyStorage.saveTasks(task);
-            }
-            
-            taskDialog.close();
-            await renderTasks();
-        } catch (error) {
-            alert('保存失败: ' + error.message);
-        }
-    });
-
-    taskList.addEventListener('click', (e) => {
-        if(e.target.classList.contains('edit-task')) {
-            const id = e.target.dataset.id;
-            const task = window.BabyStorage.getTasks().find(t => t.id === id);
-            if(task) openTaskDialog(task);
-        }
-        
-        if(e.target.classList.contains('delete-task')) {
-            const id = e.target.dataset.id;
-            if(confirm('确定要删除这个任务吗？')) {
-                window.BabyStorage.deleteTask(id);
-                renderTasks();
-            }
-        }
-    });
-
-    // 导入/导出功能
-    document.getElementById('export-btn').addEventListener('click', () => {
-        const tasks = window.BabyStorage.getTasks();
-        const records = window.BabyStorage.getRecords();
-        const data = { tasks, records };
-        
-        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `babyplan-backup-${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-    });
-
-    document.getElementById('import-btn').addEventListener('click', () => {
-        const fileInput = document.getElementById('import-file');
-        const file = fileInput.files[0];
-        if(!file) return alert('请先选择文件');
-        
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const data = JSON.parse(e.target.result);
-                if(data.tasks) {
-                    window.BabyStorage.saveTasks(data.tasks);
-                }
-                if(data.records) {
-                    window.BabyStorage.saveRecords(data.records);
-                }
-                alert('数据导入成功');
-                renderTasks();
-            } catch(err) {
-                alert('导入失败: ' + err.message);
-            }
-        };
-        reader.readAsText(file);
-    });
-
-    // 初始化
-    await renderTasks();
+  // 初始化加载
+  await renderTasks();
 });
