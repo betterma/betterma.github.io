@@ -1,33 +1,189 @@
-<!doctype html>
-<html lang="zh-CN">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>导航 — 视频工具</title>
-		<style>
-			body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial; background:#f7f9fb; color:#0b1220; }
-			.wrap{ max-width:720px; margin:56px auto; background:#fff; padding:28px; border-radius:10px; box-shadow:0 6px 30px rgba(20,30,60,0.06)}
-			h1{ margin:0 0 8px 0; font-size:20px }
-			p.lead{ color:#475569; margin-top:0 }
-			ul.links{ list-style:none; padding:0; margin:18px 0 0 0 }
-			ul.links li{ margin:10px 0 }
-			a.btn{ display:inline-block; padding:12px 16px; background:#0ea5a4; color:#fff; border-radius:8px; text-decoration:none }
-			a.btn:hover{ background:#089191 }
-		</style>
-	</head>
-	<body>
-		<main class="wrap">
-			<h1>视频 / 文本工具导航</h1>
-			<p class="lead">下面是你提供的外部工具链接，点击会在新标签打开：</p>
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+  <title>流程打卡网页</title>
+  <style>
+    body { font-family: "Microsoft YaHei", Arial, sans-serif; background: #f7f7f7; }
+    .container { max-width: 700px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 12px #0001; padding: 32px 24px; }
+    .step { margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #eee; }
+    .step:last-child { border-bottom: none; }
+    .step-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+    .step-content { margin-bottom: 10px; }
+    .step-actions { margin-top: 10px; }
+    .step input[type="text"], .step .rich-input, .step textarea {
+      width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 6px; margin-bottom: 8px;
+      font-size: 15px; box-sizing: border-box;
+    }
+    .rich-input { min-height: 60px; }
+    .step button { padding: 6px 18px; border: none; border-radius: 4px; background: #409eff; color: #fff; cursor: pointer; font-size: 15px; }
+    .step button:disabled { background: #bbb; cursor: not-allowed; }
+    .done { color: #67c23a; font-weight: bold; margin-left: 10px; }
+    .clear-btn { background: #f56c6c; margin-left: 16px; }
+    .status-bar { margin-bottom: 24px; }
+    .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+    .status-dot.done { background: #67c23a; }
+    .status-dot.todo { background: #bbb; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="status-bar">
+      <span class="status-dot" id="dot-0"></span> 素材下载
+      <span class="status-dot" id="dot-1"></span> 原始标题
+      <span class="status-dot" id="dot-2"></span> 获取字幕
+      <span class="status-dot" id="dot-3"></span> 豆包总结
+      <span class="status-dot" id="dot-4"></span> 封面生成
+      <span class="status-dot" id="dot-5"></span> 上传
+      <button class="clear-btn" onclick="clearAll()">清除所有状态</button>
+    </div>
+    <!-- 步骤1 -->
+    <div class="step" id="step-0">
+      <div class="step-title">1. 打开TG寻找合适素材，保存至个人云盘，并点击下载</div>
+      <div class="step-content">
+        <label>素材下载链接（可选）：<input type="text" id="input-link"></label>
+      </div>
+      <div class="step-actions">
+        <button onclick="finishStep(0)" id="btn-0">完成本步骤</button>
+        <span class="done" id="done-0" style="display:none;">已完成</span>
+      </div>
+    </div>
+    <!-- 步骤2 -->
+    <div class="step" id="step-1">
+      <div class="step-title">2. 获取原始标题</div>
+      <div class="step-content">
+        <label>原始标题：<input type="text" id="input-title"></label>
+      </div>
+      <div class="step-actions">
+        <button onclick="finishStep(1)" id="btn-1">完成本步骤</button>
+        <span class="done" id="done-1" style="display:none;">已完成</span>
+      </div>
+    </div>
+    <!-- 步骤3 -->
+    <div class="step" id="step-2">
+      <div class="step-title">3. 打开网站获取字幕</div>
+      <div class="step-content">
+        <label>字幕内容（富文本）：<textarea id="input-subtitle" class="rich-input"></textarea></label>
+      </div>
+      <div class="step-actions">
+        <button onclick="finishStep(2)" id="btn-2">完成本步骤</button>
+        <span class="done" id="done-2" style="display:none;">已完成</span>
+      </div>
+    </div>
+    <!-- 步骤4 -->
+    <div class="step" id="step-3">
+      <div class="step-title">4. 打开豆包，根据模版文案+字幕总结标题，以及描述</div>
+      <div class="step-content">
+        <label>新标题：<input type="text" id="input-new-title"></label>
+        <label>新描述（富文本）：<textarea id="input-new-desc" class="rich-input"></textarea></label>
+      </div>
+      <div class="step-actions">
+        <button onclick="finishStep(3)" id="btn-3">完成本步骤</button>
+        <span class="done" id="done-3" style="display:none;">已完成</span>
+      </div>
+    </div>
+    <!-- 步骤5 -->
+    <div class="step" id="step-4">
+      <div class="step-title">5. 打开豆包，根据标题和描述生成封面图片</div>
+      <div class="step-actions">
+        <button onclick="finishStep(4)" id="btn-4">完成本步骤</button>
+        <span class="done" id="done-4" style="display:none;">已完成</span>
+      </div>
+    </div>
+    <!-- 步骤6 -->
+    <div class="step" id="step-5">
+      <div class="step-title">6. 上传</div>
+      <div class="step-actions">
+        <button onclick="finishStep(5)" id="btn-5">完成本步骤</button>
+        <span class="done" id="done-5" style="display:none;">已完成</span>
+      </div>
+    </div>
+  </div>
+  <script>
+    const STEPS = 6;
+    const STORAGE_KEY = 'flow_steps_status_v1';
+    const INFO_KEY = 'flow_steps_info_v1';
 
-			<ul class="links">
-				<li><a class="btn" href="https://www.jianying.com/editor" target="_blank" rel="noopener">剪映在线编辑器 — https://www.jianying.com/editor</a></li>
-				<li><a class="btn" href="https://www.subzin.com/" target="_blank" rel="noopener">Subzin — https://www.subzin.com/</a></li>
-				<li><a class="btn" href="https://getyarn.io/" target="_blank" rel="noopener">GetYarn — https://getyarn.io/</a></li>
-				<li><a class="btn" href="https://www.youtube.com" target="_blank" rel="noopener">YouTube — https://www.youtube.com</a></li>
-			</ul>
+    // 初始化状态
+    function getStatus() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || Array(STEPS).fill(false);
+      } catch { return Array(STEPS).fill(false); }
+    }
+    function getInfo() {
+      try {
+        return JSON.parse(localStorage.getItem(INFO_KEY)) || {};
+      } catch { return {}; }
+    }
+    function setStatus(status) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(status));
+    }
+    function setInfo(info) {
+      localStorage.setItem(INFO_KEY, JSON.stringify(info));
+    }
 
-			<footer style="margin-top:22px;color:#94a3b8;font-size:13px">页面生成于本仓库的 <code>/vedio/index.html</code></footer>
-		</main>
-	</body>
+    // 步骤完成
+    function finishStep(idx) {
+      // 保存填写信息
+      saveInfo();
+      let status = getStatus();
+      status[idx] = true;
+      setStatus(status);
+      render();
+    }
+
+    // 渲染状态
+    function render() {
+      let status = getStatus();
+      let info = getInfo();
+      for (let i = 0; i < STEPS; i++) {
+        // 步骤按钮和已完成
+        document.getElementById('btn-' + i).disabled = (i > 0 && !status[i - 1]) || status[i];
+        document.getElementById('done-' + i).style.display = status[i] ? '' : 'none';
+        // 步骤区块
+        document.getElementById('step-' + i).style.opacity = (i === 0 || status[i - 1]) ? 1 : 0.5;
+        // 状态点
+        let dot = document.getElementById('dot-' + i);
+        dot.className = 'status-dot ' + (status[i] ? 'done' : 'todo');
+      }
+      // 恢复输入内容
+      document.getElementById('input-link').value = info.link || '';
+      document.getElementById('input-title').value = info.title || '';
+      document.getElementById('input-subtitle').value = info.subtitle || '';
+      document.getElementById('input-new-title').value = info.newTitle || '';
+      document.getElementById('input-new-desc').value = info.newDesc || '';
+    }
+
+    // 保存填写信息
+    function saveInfo() {
+      let info = {
+        link: document.getElementById('input-link').value,
+        title: document.getElementById('input-title').value,
+        subtitle: document.getElementById('input-subtitle').value,
+        newTitle: document.getElementById('input-new-title').value,
+        newDesc: document.getElementById('input-new-desc').value
+      };
+      setInfo(info);
+    }
+
+    // 清除所有状态
+    function clearAll() {
+      if (confirm('确定要清除所有打卡状态和填写内容吗？')) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(INFO_KEY);
+        render();
+      }
+    }
+
+    // 自动保存输入内容
+    ['input-link', 'input-title', 'input-subtitle', 'input-new-title', 'input-new-desc'].forEach(id => {
+      document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById(id).addEventListener('input', saveInfo);
+      });
+    });
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', render);
+  </script>
+</body>
 </html>
