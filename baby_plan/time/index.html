@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>孕期陪产假计算器</title>
+    <style>
+        :root {
+            --color-work: #f8f9fa;
+            --color-weekend: #e9ecef;
+            --color-dragonBoat: #ffd700;
+            --color-annualBefore: #87ceeb;
+            --color-paternity: #98fb98;
+            --color-annualAfter: #add8e6;
+            --color-birthday: #ffb6c1;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            padding: 12px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 20px 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 24px;
+            position: relative;
+            padding-bottom: 12px;
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+        
+        .controls {
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .date-picker label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            color: #2c3e50;
+            font-size: 15px;
+        }
+        
+        input[type="date"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+            margin-bottom: 8px;
+            -webkit-appearance: none;
+        }
+        
+        input[type="date"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        
+        .date-range {
+            font-size: 13px;
+            color: #666;
+            text-align: center;
+        }
+        
+        .summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.3);
+        }
+        
+        .summary h3 {
+            margin-bottom: 12px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .birth-date-display {
+            font-size: 16px;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .summary-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .summary-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .summary-label {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 6px;
+        }
+        
+        .summary-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 8px 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .summary-detail {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #eaeaea;
+        }
+        
+        .legend-title {
+            grid-column: 1 / -1;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-size: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            font-size: 13px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+        
+        .calendar {
+            margin-top: 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .month-section {
+            margin-bottom: 30px;
+            min-width: 320px;
+        }
+        
+        .month-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eaeaea;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #ddd;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+        }
+        
+        .day-header {
+            background: #555;
+            color: white;
+            padding: 12px 5px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .day-cell {
+            min-height: 70px;
+            padding: 8px 6px;
+            background: var(--color-work);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .day-number {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            align-self: flex-start;
+        }
+        
+        .day-type {
+            font-size: 11px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 4px;
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        
+        .birth-indicator {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 16px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        /* 日期类型颜色 */
+        .work { background: var(--color-work); }
+        .weekend { background: var(--color-weekend); }
+        .dragonBoat { background: var(--color-dragonBoat); }
+        .annualBefore { background: var(--color-annualBefore); }
+        .paternity { background: var(--color-paternity); }
+        .annualAfter { background: var(--color-annualAfter); }
+        .birth-day { background: var(--color-birthday); }
+        
+        .birth-day .day-number {
+            color: #d63031;
+            font-weight: bold;
+        }
+        
+        .tips {
+            margin-top: 25px;
+            padding: 18px;
+            background: #e3f2fd;
+            border-radius: 10px;
+            border-left: 4px solid #2196f3;
+            font-size: 14px;
+        }
+        
+        .tips h4 {
+            color: #1565c0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+        
+        .tips ul {
+            padding-left: 18px;
+            color: #37474f;
+        }
+        
+        .tips li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .phase-explanation {
+            margin-top: 25px;
+            padding: 18px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            border: 1px solid #eaeaea;
+        }
+        
+        .phase-explanation h4 {
+            color: #2c3e50;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+        
+        .phases-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .phase-item {
+            padding: 12px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        
+        .phase-name {
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+        
+        .phase-dates {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 4px;
+        }
+        
+        /* 平板设备适配 */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .container {
+                padding: 25px;
+                max-width: 768px;
+            }
+            
+            h1 {
+                font-size: 28px;
+            }
+            
+            .summary-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .legend {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+            
+            .phases-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .day-cell {
+                min-height: 85px;
+                padding: 10px 8px;
+            }
+            
+            .day-type {
+                font-size: 12px;
+            }
+        }
+        
+        /* 桌面设备适配 */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1000px;
+                padding: 30px;
+            }
+            
+            .summary-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .legend {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .phases-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .calendar {
+                overflow-x: visible;
+            }
+            
+            .month-section {
+                min-width: auto;
+            }
+        }
+        
+        /* 超大屏幕适配 */
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1100px;
+            }
+        }
+        
+        /* 小屏幕手机特殊适配 */
+        @media (max-width: 360px) {
+            .container {
+                padding: 15px 12px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            .day-cell {
+                min-height: 65px;
+                padding: 6px 4px;
+            }
+            
+            .day-header {
+                padding: 10px 3px;
+                font-size: 13px;
+            }
+            
+            .day-number {
+                font-size: 13px;
+            }
+            
+            .day-type {
+                font-size: 10px;
+                padding: 2px 4px;
+            }
+            
+            .legend {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 横屏适配 */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .day-cell {
+                min-height: 55px;
+                padding: 4px;
+            }
+            
+            .day-type {
+                display: none;
+            }
+            
+            .birth-indicator {
+                font-size: 14px;
+                top: 2px;
+                right: 2px;
+            }
+        }
+        
+        /* 深色模式适配 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-work: #2d2d2d;
+                --color-weekend: #3d3d3d;
+                --color-birthday: #4a2d3d;
+            }
+            
+            body {
+                background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+                color: #e0e0e0;
+            }
+            
+            .container {
+                background: #2d2d2d;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            }
+            
+            h1, .date-picker label, .month-header, .tips h4, .phase-explanation h4 {
+                color: #e0e0e0;
+            }
+            
+            .controls, .legend, .phase-explanation, .tips {
+                background: #3d3d3d;
+                border-color: #4d4d4d;
+            }
+            
+            input[type="date"] {
+                background: #3d3d3d;
+                border-color: #4d4d4d;
+                color: #e0e0e0;
+            }
+            
+            .day-header {
+                background: #4d4d4d;
+            }
+            
+            .calendar-grid {
+                background: #4d4d4d;
+                border-color: #4d4d4d;
+            }
+            
+            .phase-item {
+                background: #3d3d3d;
+            }
+            
+            .tips {
+                background: #2d3d4d;
+                border-color: #3d4d5d;
+            }
+            
+            .tips h4 {
+                color: #90caf9;
+            }
+            
+            .tips ul {
+                color: #b0bec5;
+            }
+            
+            .footer {
+                color: #888;
+                border-top-color: #3d3d3d;
+            }
+        }
+        
+        /* 触摸设备优化 */
+        @media (hover: none) and (pointer: coarse) {
+            .day-cell:hover {
+                transform: none;
+                box-shadow: none;
+            }
+            
+            .summary-item:hover, .phase-item:hover {
+                transform: none;
+            }
+            
+            input[type="date"] {
+                font-size: 18px; /* 增加字体大小便于触摸操作 */
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👶 孕期陪产假计算器</h1>
+        
+        <div class="controls">
+            <div class="date-picker">
+                <label for="birthDate">选择宝宝出生日期：</label>
+                <input type="date" id="birthDate" min="2026-06-10" max="2026-07-05" value="2026-06-23">
+                <div class="date-range">可选范围：2026年6月10日 至 2026年7月5日</div>
+            </div>
+        </div>
+        
+        <div class="summary" id="summary">
+            <!-- 这里会动态显示统计信息 -->
+        </div>
+        
+        <div class="legend">
+            <div class="legend-title">图例说明：</div>
+            <div class="legend-item">
+                <div class="legend-color work"></div>
+                <span>工作日</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color weekend"></div>
+                <span>周末</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color dragonBoat"></div>
+                <span>端午节</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color annualBefore"></div>
+                <span>前置年假</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color paternity"></div>
+                <span>陪产假</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color annualAfter"></div>
+                <span>后置年假</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color birth-day"></div>
+                <span>宝宝出生日</span>
+            </div>
+        </div>
+        
+        <div class="phase-explanation" id="phaseExplanation">
+            <!-- 这里会动态显示各阶段说明 -->
+        </div>
+        
+        <div class="calendar" id="calendar">
+            <!-- 这里会动态显示日历 -->
+        </div>
+        
+        <div class="tips">
+            <h4>💡 使用提示：</h4>
+            <ul>
+                <li>此计算器基于您提供的假期规则：陪产假15天（含周末），年假6天（不含周末）</li>
+                <li>端午节固定为2026年6月19日-21日</li>
+                <li>年假会自动拆分使用，前置部分用于出生前等待，后置部分用于产后恢复</li>
+                <li>无论宝宝何时出生，都能获得至少20天的连续假期</li>
+                <li>最佳方案是宝宝在6月23日出生，可获得最长26天连续假期</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>陪产假计算器 © 2026 | 为新手爸爸精心设计</p>
+        </div>
+    </div>
+
+    <script>
+        // 基础配置
+        const CONFIG = {
+            dragonBoatFestival: ['2026-06-19', '2026-06-20', '2026-06-21'], // 端午节
+            paternityLeaveDays: 15, // 陪产假天数（含周末）
+            annualLeaveDays: 6,     // 年假天数（不含周末）
+            startRange: '2026-06-10', // 出生日期范围开始
+            endRange: '2026-07-05'    // 出生日期范围结束
+        };
+
+        // 预计算所有可能情况的假期安排
+        const LEAVE_SCENARIOS = {};
+
+        // 计算从startDate开始的连续日期数组
+        function getDateRange(startDate, days) {
+            const dates = [];
+            const date = new Date(startDate);
+            for (let i = 0; i < days; i++) {
+                dates.push(new Date(date));
+                date.setDate(date.getDate() + 1);
+            }
+            return dates;
+        }
+
+        // 判断是否为周末
+        function isWeekend(date) {
+            const day = date.getDay();
+            return day === 0 || day === 6;
+        }
+
+        // 判断是否为端午节
+        function isDragonBoatFestival(date) {
+            const dateStr = date.toISOString().split('T')[0];
+            return CONFIG.dragonBoatFestival.includes(dateStr);
+        }
+
+        // 格式化日期为YYYY-MM-DD
+        function formatDateToYYYYMMDD(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // 计算具体出生日期的假期安排
+        function calculateLeaveScenario(birthDateStr) {
+            const birthDate = new Date(birthDateStr);
+            const scenario = {
+                birthDate: birthDateStr,
+                phases: {
+                    dragonBoat: [],  // 端午节
+                    annualBefore: [], // 前置年假
+                    paternity: [],    // 陪产假
+                    annualAfter: []   // 后置年假
+                },
+                timeline: [],      // 按时间顺序的所有日期状态
+                summary: {}        // 统计信息
+            };
+            
+            // 1. 端午节固定部分
+            scenario.phases.dragonBoat = CONFIG.dragonBoatFestival.map(d => new Date(d));
+            
+            // 2. 计算前置年假（从端午节后到出生前）
+            const afterFestival = new Date('2026-06-22');
+            const beforeBirth = new Date(birthDate);
+            beforeBirth.setDate(beforeBirth.getDate() - 1);
+            
+            let annualDaysUsed = 0;
+            let currentDate = new Date(afterFestival);
+            
+            // 前置年假：从端午节后到出生前一天，只计工作日
+            while (currentDate <= beforeBirth && annualDaysUsed < CONFIG.annualLeaveDays) {
+                if (!isWeekend(currentDate) && !isDragonBoatFestival(currentDate)) {
+                    scenario.phases.annualBefore.push(new Date(currentDate));
+                    annualDaysUsed++;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            // 3. 计算陪产假（出生日起15天）
+            scenario.phases.paternity = getDateRange(birthDate, CONFIG.paternityLeaveDays);
+            
+            // 4. 计算后置年假（剩余年假）
+            const afterPaternity = new Date(scenario.phases.paternity[scenario.phases.paternity.length - 1]);
+            afterPaternity.setDate(afterPaternity.getDate() + 1);
+            
+            let remainingAnnualDays = CONFIG.annualLeaveDays - annualDaysUsed;
+            currentDate = new Date(afterPaternity);
+            
+            // 后置年假：陪产假结束后，只计工作日
+            while (remainingAnnualDays > 0) {
+                if (!isWeekend(currentDate)) {
+                    scenario.phases.annualAfter.push(new Date(currentDate));
+                    remainingAnnualDays--;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            // 5. 构建完整时间线（6月和7月）
+            const startDate = new Date('2026-06-01');
+            const endDate = new Date('2026-07-31');
+            currentDate = new Date(startDate);
+            
+            while (currentDate <= endDate) {
+                const dateStr = formatDateToYYYYMMDD(currentDate);
+                const dateObj = new Date(currentDate);
+                
+                let type = 'work'; // 默认工作日
+                
+                if (isDragonBoatFestival(dateObj)) {
+                    type = 'dragonBoat';
+                } else if (scenario.phases.annualBefore.some(d => formatDateToYYYYMMDD(d) === dateStr)) {
+                    type = 'annualBefore';
+                } else if (scenario.phases.paternity.some(d => formatDateToYYYYMMDD(d) === dateStr)) {
+                    type = 'paternity';
+                } else if (scenario.phases.annualAfter.some(d => formatDateToYYYYMMDD(d) === dateStr)) {
+                    type = 'annualAfter';
+                } else if (isWeekend(dateObj)) {
+                    type = 'weekend';
+                }
+                
+                // 如果是出生日，特殊标记
+                if (dateStr === birthDateStr) {
+                    type = 'birth-day';
+                }
+                
+                scenario.timeline.push({
+                    date: new Date(dateObj),
+                    dateStr: dateStr,
+                    type: type,
+                    dayOfMonth: dateObj.getDate(),
+                    dayOfWeek: dateObj.getDay(),
+                    month: dateObj.getMonth() + 1,
+                    year: dateObj.getFullYear()
+                });
+                
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            // 6. 计算统计信息
+            const leaveDays = scenario.timeline.filter(d => 
+                ['dragonBoat', 'annualBefore', 'paternity', 'annualAfter', 'birth-day'].includes(d.type)
+            );
+            
+            const totalLeaveDays = leaveDays.length;
+            
+            // 找出连续休假的开始和结束日期
+            let continuousStart = null;
+            let continuousEnd = null;
+            
+            for (let i = 0; i < scenario.timeline.length; i++) {
+                const day = scenario.timeline[i];
+                if (['dragonBoat', 'annualBefore', 'paternity', 'annualAfter', 'birth-day'].includes(day.type)) {
+                    if (!continuousStart) {
+                        continuousStart = day.dateStr;
+                    }
+                    continuousEnd = day.dateStr;
+                }
+            }
+            
+            scenario.summary = {
+                totalLeaveDays,
+                continuousFrom: continuousStart,
+                continuousTo: continuousEnd,
+                workDaysInLeave: scenario.phases.annualBefore.length + scenario.phases.annualAfter.length,
+                annualBeforeCount: scenario.phases.annualBefore.length,
+                annualAfterCount: scenario.phases.annualAfter.length,
+                paternityCount: scenario.phases.paternity.length,
+                dragonBoatCount: scenario.phases.dragonBoat.length
+            };
+            
+            return scenario;
+        }
+
+        // 预计算所有可能的出生日期的方案
+        function precalculateAllScenarios() {
+            const start = new Date(CONFIG.startRange);
+            const end = new Date(CONFIG.endRange);
+            const current = new Date(start);
+            
+            while (current <= end) {
+                const dateStr = formatDateToYYYYMMDD(current);
+                LEAVE_SCENARIOS[dateStr] = calculateLeaveScenario(dateStr);
+                current.setDate(current.getDate() + 1);
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 预计算所有情况
+            precalculateAllScenarios();
+            
+            // 设置默认日期
+            const defaultDate = '2026-06-23';
+            document.getElementById('birthDate').value = defaultDate;
+            
+            // 初始渲染
+            renderCalendar(defaultDate);
+            
+            // 监听日期选择变化
+            document.getElementById('birthDate').addEventListener('change', function(e) {
+                renderCalendar(e.target.value);
+            });
+            
+            // 移动端优化：点击日历区域外收起键盘
+            document.addEventListener('touchstart', function(e) {
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'TEXTAREA') {
+                    document.activeElement.blur();
+                }
+            });
+        });
+
+        // 渲染日历和摘要
+        function renderCalendar(birthDateStr) {
+            const scenario = LEAVE_SCENARIOS[birthDateStr];
+            if (!scenario) {
+                console.error('没有找到对应出生日期的方案:', birthDateStr);
+                return;
+            }
+            
+            // 更新摘要信息
+            renderSummary(scenario);
+            
+            // 更新阶段说明
+            renderPhaseExplanation(scenario);
+            
+            // 更新日历
+            renderCalendarGrid(scenario);
+        }
+
+        // 渲染摘要信息
+        function renderSummary(scenario) {
+            const summaryDiv = document.getElementById('summary');
+            const totalDays = scenario.summary.totalLeaveDays;
+            const workDays = scenario.summary.workDaysInLeave;
+            const continuousDays = calculateContinuousDays(scenario);
+            
+            // 格式化日期显示
+            const birthDateFormatted = formatDate(scenario.birthDate);
+            const fromFormatted = formatDate(scenario.summary.continuousFrom);
+            const toFormatted = formatDate(scenario.summary.continuousTo);
+            
+            summaryDiv.innerHTML = `
+                <h3>假期安排总览</h3>
+                <div class="birth-date-display">👶 宝宝出生日：<strong>${birthDateFormatted}</strong></div>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-label">总休假天数</div>
+                        <div class="summary-value">${totalDays}天</div>
+                        <div class="summary-detail">包含所有假期类型</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">连续休假</div>
+                        <div class="summary-value">${continuousDays}天</div>
+                        <div class="summary-detail">不间断连续休假</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">年假使用</div>
+                        <div class="summary-value">${workDays}天</div>
+                        <div class="summary-detail">共6天年假全部使用</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">休假时间段</div>
+                        <div class="summary-value">${formatShortDate(scenario.summary.continuousFrom)}<br>至<br>${formatShortDate(scenario.summary.continuousTo)}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 渲染阶段说明
+        function renderPhaseExplanation(scenario) {
+            const phaseDiv = document.getElementById('phaseExplanation');
+            
+            // 格式化各阶段的日期范围
+            const dragonBoatRange = formatPhaseDates(scenario.phases.dragonBoat);
+            const annualBeforeRange = formatPhaseDates(scenario.phases.annualBefore);
+            const paternityRange = formatPhaseDates(scenario.phases.paternity);
+            const annualAfterRange = formatPhaseDates(scenario.phases.annualAfter);
+            
+            phaseDiv.innerHTML = `
+                <h4>📋 假期阶段说明</h4>
+                <div class="phases-grid">
+                    <div class="phase-item" style="border-left: 4px solid #ffd700;">
+                        <div class="phase-name">🎏 端午节</div>
+                        <div class="phase-dates">${dragonBoatRange || "不适用"}</div>
+                        <div style="font-size: 12px; color: #777; margin-top: 4px;">法定假日，固定为6月19日-21日</div>
+                    </div>
+                    <div class="phase-item" style="border-left: 4px solid #87ceeb;">
+                        <div class="phase-name">⏳ 前置年假</div>
+                        <div class="phase-dates">${annualBeforeRange || "不适用"}</div>
+                        <div style="font-size: 12px; color: #777; margin-top: 4px;">从端午节后到宝宝出生前，使用年假等待</div>
+                    </div>
+                    <div class="phase-item" style="border-left: 4px solid #98fb98;">
+                        <div class="phase-name">👨‍👩‍👧 陪产假</div>
+                        <div class="phase-dates">${paternityRange}</div>
+                        <div style="font-size: 12px; color: #777; margin-top: 4px;">从宝宝出生日起15天（含周末）</div>
+                    </div>
+                    <div class="phase-item" style="border-left: 4px solid #add8e6;">
+                        <div class="phase-name">🏠 后置年假</div>
+                        <div class="phase-dates">${annualAfterRange || "不适用"}</div>
+                        <div style="font-size: 12px; color: #777; margin-top: 4px;">陪产假结束后，使用剩余年假</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 渲染日历网格
+        function renderCalendarGrid(scenario) {
+            const calendarDiv = document.getElementById('calendar');
+            const timeline = scenario.timeline;
+            
+            // 按月份分组
+            const months = {};
+            timeline.forEach(day => {
+                const monthKey = `${day.year}年${day.month}月`;
+                if (!months[monthKey]) {
+                    months[monthKey] = [];
+                }
+                months[monthKey].push(day);
+            });
+            
+            let calendarHTML = '';
+            
+            // 生成每个月的日历
+            Object.keys(months).forEach(monthName => {
+                const days = months[monthName];
+                calendarHTML += `
+                    <div class="month-section">
+                        <div class="month-header">${monthName}</div>
+                        <div class="calendar-grid">
+                            ${renderDayHeaders()}
+                            ${renderEmptyCells(days[0])}
+                            ${days.map(day => renderDayCell(day, scenario.birthDate)).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            calendarDiv.innerHTML = calendarHTML;
+        }
+
+        // 渲染星期标题
+        function renderDayHeaders() {
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            return weekdays.map(day => `<div class="day-header">${day}</div>`).join('');
+        }
+
+        // 渲染空白单元格（用于月份第一天之前）
+        function renderEmptyCells(firstDay) {
+            const emptyCells = [];
+            const firstDayOfWeek = firstDay.dayOfWeek; // 0 = 周日
+            
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                emptyCells.push('<div class="day-cell" style="background: #f9f9f9;"></div>');
+            }
+            
+            return emptyCells.join('');
+        }
+
+        // 渲染单个日期单元格
+        function renderDayCell(day, birthDateStr) {
+            const isBirthDay = day.dateStr === birthDateStr;
+            const cellClass = `day-cell ${day.type}`;
+            
+            // 根据类型显示不同的标签
+            const typeLabels = {
+                'work': '',
+                'weekend': '周末',
+                'dragonBoat': '端午',
+                'annualBefore': '年假',
+                'paternity': '陪产',
+                'annualAfter': '年假',
+                'birth-day': '出生'
+            };
+            
+            const label = typeLabels[day.type] || '';
+            
+            // 日期显示
+            let dayNumber = day.dayOfMonth;
+            if (isBirthDay) {
+                dayNumber = `<strong>${dayNumber}</strong>`;
+            }
+            
+            return `
+                <div class="${cellClass}" title="${getDayTooltip(day, birthDateStr)}">
+                    <div class="day-number">${dayNumber}</div>
+                    ${isBirthDay ? '<div class="birth-indicator">👶</div>' : ''}
+                    ${label ? `<div class="day-type">${label}</div>` : ''}
+                </div>
+            `;
+        }
+
+        // 辅助函数
+        function formatDate(dateStr) {
+            if (!dateStr) return "未计算";
+            const date = new Date(dateStr);
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            return date.toLocaleDateString('zh-CN', options);
+        }
+
+        function formatShortDate(dateStr) {
+            if (!dateStr) return "未计算";
+            const date = new Date(dateStr);
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const weekday = ['日', '一', '二', '三', '四', '五', '六'][date.getDay()];
+            return `${month}月${day}日 (周${weekday})`;
+        }
+
+        function formatPhaseDates(datesArray) {
+            if (!datesArray || datesArray.length === 0) return "";
+            if (datesArray.length === 1) {
+                return formatShortDate(formatDateToYYYYMMDD(datesArray[0]));
+            }
+            const first = datesArray[0];
+            const last = datesArray[datesArray.length - 1];
+            return `${formatShortDate(formatDateToYYYYMMDD(first))} - ${formatShortDate(formatDateToYYYYMMDD(last))}`;
+        }
+
+        function calculateContinuousDays(scenario) {
+            if (!scenario.summary.continuousFrom || !scenario.summary.continuousTo) {
+                return 0;
+            }
+            const continuousFrom = new Date(scenario.summary.continuousFrom);
+            const continuousTo = new Date(scenario.summary.continuousTo);
+            const diffTime = Math.abs(continuousTo - continuousFrom);
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        }
+
+        function getDayTooltip(day, birthDateStr) {
+            const dateFormatted = formatDate(day.dateStr);
+            let typeDescription = "";
+            
+            switch(day.type) {
+                case 'work':
+                    typeDescription = "工作日";
+                    break;
+                case 'weekend':
+                    typeDescription = "周末休息";
+                    break;
+                case 'dragonBoat':
+                    typeDescription = "端午节法定假日";
+                    break;
+                case 'annualBefore':
+                    typeDescription = "年假（前置等待期）";
+                    break;
+                case 'paternity':
+                    typeDescription = "陪产假（核心照顾期）";
+                    break;
+                case 'annualAfter':
+                    typeDescription = "年假（产后恢复期）";
+                    break;
+                case 'birth-day':
+                    typeDescription = "宝宝出生日";
+                    break;
+                default:
+                    typeDescription = "工作日";
+            }
+            
+            if (day.dateStr === birthDateStr) {
+                return `${dateFormatted}\n👶 宝宝出生日`;
+            }
+            
+            return `${dateFormatted}\n${typeDescription}`;
+        }
+
+        // 页面加载完成后调用
+        document.addEventListener('DOMContentLoaded', function() {
+            // 确保数据已预计算
+            precalculateAllScenarios();
+            
+            // 设置日期选择器的限制和初始值
+            const datePicker = document.getElementById('birthDate');
+            datePicker.min = CONFIG.startRange;
+            datePicker.max = CONFIG.endRange;
+            datePicker.value = '2026-06-23'; // 默认值
+            
+            // 初始渲染
+            const initialDate = datePicker.value;
+            renderCalendar(initialDate);
+            
+            // 监听日期变化
+            datePicker.addEventListener('change', function(e) {
+                renderCalendar(e.target.value);
+            });
+            
+            // 移动端优化：防止点击时出现蓝色高亮
+            document.addEventListener('touchstart', function() {}, {passive: true});
+        });
+    </script>
+</body>
+</html>
