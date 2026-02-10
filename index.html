@@ -67,6 +67,48 @@
       justify-content: center;
       font-size: 2rem;
     }
+    /* 更多 下拉 */
+    .more-dropdown {
+      position: relative;
+      width: 100%;
+    }
+    .dropdown-button {
+      width: 100%;
+      border-radius: 28px;
+      padding: 1.2rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      background: linear-gradient(180deg,#fafbfd,#eef2f7);
+      box-shadow: 0 6px 18px #c7d1e1aa;
+    }
+    .dropdown-content {
+      position: absolute;
+      top: calc(100% + 12px);
+      right: 0;
+      left: 0;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(17,24,39,0.12);
+      padding: 8px;
+      display: none;
+      z-index: 40;
+    }
+    .dropdown-content a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      color: #111827;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.98rem;
+    }
+    .dropdown-content a:hover { background: #f3f4f6; }
+    .dropdown-open .dropdown-content { display: block; }
+
     @media (max-width: 600px) {
       h1 {
         font-size: 1.4rem;
@@ -89,54 +131,38 @@
         font-size: 1.3rem;
         border-radius: 10px;
       }
+      .dropdown-content { position: static; margin-top: 8px; box-shadow: none; }
     }
   </style>
 </head>
 <body>
   <h1>蚂蚱导航</h1>
   <div class="nav-grid">
-    <!-- 添加宝贝计划入口 -->
-    <a class="nav-item" href="baby_plan/baby-plan/src/index.html?v=20250105" target="_blank">
-      <div class="nav-icon">👶</div>
-      宝贝计划
-    </a>
-    <!-- 现有入口 -->
+    <!-- 仅保留重点入口，其他收纳到“更多” -->
     <a class="nav-item" href="https://betterma.github.io/pages" target="_blank">
       <div class="nav-icon">📊</div>
       数据处理
-    </a>
-    <a class="nav-item" href="https://betterma.github.io/book?v=20250105" target="_blank">
-      <div class="nav-icon">📚</div>
-      阅读资源
     </a>
     <a class="nav-item" href="https://betterma.github.io/memory?v=20250105" target="_blank">
       <div class="nav-icon">🧠</div>
       蚂蚱记忆
     </a>
-    <a class="nav-item" href="https://betterma.github.io/cook?v=20250105" target="_blank">
-      <div class="nav-icon">👨‍🍳</div>
-      我是厨神
-    </a>
-    <a class="nav-item" href="jinfeng/index.html?v=20250105" target="_blank">
-      <div class="nav-icon">🏠</div>
-      租赁管理
-    </a>
-    <!-- <a class="nav-item" href="nav.html?v=20250105" target="_blank">
-      <div class="nav-icon">🧭</div>
-      导航页面
-    </a> -->
-     <a class="nav-item" href="vedio/index.html?v=20250105" target="_blank">
-      <div class="nav-icon">🧭</div>
-      搬运流程
-    </a>
-    <a class="nav-item" href="encry/index.html?v=20250105" target="_blank">
-      <div class="nav-icon">MI</div>
-      加MI工具
-    </a>
-    <a class="nav-item" href="baby_plan/time/index.html?v=20250105" target="_blank">
-      <div class="nav-icon">假期</div>
-      请假排期
-    </a>
+
+    <div class="more-dropdown nav-item" id="moreDropdown">
+      <div class="dropdown-button" id="moreBtn" role="button" aria-haspopup="true" aria-expanded="false">
+        <div class="nav-icon">⋯</div>
+        更多
+      </div>
+      <div class="dropdown-content" aria-label="更多链接">
+        <a href="https://betterma.github.io/book?v=20250105" target="_blank"><span>📚</span> 阅读资源</a>
+        <a href="https://betterma.github.io/cook?v=20250105" target="_blank"><span>👨‍🍳</span> 我是厨神</a>
+        <a href="jinfeng/index.html?v=20250105" target="_blank"><span>🏠</span> 租赁管理</a>
+        <a href="vedio/index.html?v=20250105" target="_blank"><span>🧭</span> 搬运流程</a>
+        <a href="encry/index.html?v=20250105" target="_blank"><span>MI</span> 加MI工具</a>
+        <a href="ipcheck/ipcheck.html?v=20250105" target="_blank"><span>🔎</span> IP Check</a>
+        <a href="baby_plan/time/index.html?v=20250105" target="_blank"><span>🏖️</span> 请假排期</a>
+      </div>
+    </div>
   </div>
   
   <script>
@@ -160,6 +186,38 @@
     
     // 添加版本信息到控制台
     console.log('蚂蚱导航 v20250105 - 缓存已清除');
+  </script>
+
+  <script>
+    (function() {
+      var moreBtn = document.getElementById('moreBtn');
+      var moreDropdown = document.getElementById('moreDropdown');
+      if (!moreBtn || !moreDropdown) return;
+
+      function closeDropdown() {
+        moreDropdown.classList.remove('dropdown-open');
+        moreBtn.setAttribute('aria-expanded','false');
+      }
+      function openDropdown() {
+        moreDropdown.classList.add('dropdown-open');
+        moreBtn.setAttribute('aria-expanded','true');
+      }
+
+      // 点击切换（移动端友好）
+      moreBtn.addEventListener('click', function(e){
+        e.stopPropagation();
+        if (moreDropdown.classList.contains('dropdown-open')) closeDropdown(); else openDropdown();
+      });
+
+      // 点击外部关闭
+      document.addEventListener('click', function(){ closeDropdown(); });
+
+      // Esc 关闭
+      document.addEventListener('keyup', function(e){ if (e.key === 'Escape') closeDropdown(); });
+
+      // 在窗口调整时关闭
+      window.addEventListener('resize', closeDropdown);
+    })();
   </script>
 </body>
 </html>

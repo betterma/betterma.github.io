@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+h1 { font-size: 2em; text-align: center; }
+        h3 { font-size: 1.3em; color: #34495e; }
+        a {
+            color: #3498db;
+            text-decoration: none;
+font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 25px;
+            padding-left: 0;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .important-note {
+            background-color: #ffe0b2;
+            border-left: 5px solid #ff9800;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            color: #555;
+        }
+        .check-point {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .app-check {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h3>1. <a href="https://ipinfo.io" target="_blank">ipinfo.io</a> - 确认IP地址、地理位置和ISP类型 <span class="check-point">(最重要！⭐⭐⭐)</span></h3>
+    <ul>
+        <li>点击链接后，页面会显示你的IP信息。</li>
+        <li><strong>检查要点：</strong>
+            <ul>
+                <li>`ip`：显示的IP地址是否为你购买的**美国IP**。</li>
+                <li>`city`, `region`, `country`：地理位置是否显示为**美国的城市和州**。</li>
+                <li>`org`：<span class="check-point">这是最关键的！</span> 应该显示为美国的**住宅互联网服务提供商 (ISP) 名称**，例如 <span class="highlight">`AT&T Services, Inc.`</span>, <span class="highlight">`Comcast Cable Communications, LLC`</span>, <span class="highlight">`Spectrum`</span> 等。<strong><span style="color: red;">绝不能是云服务商的名字（如 AWS, Google LLC, Microsoft Corporation）。</span></strong></li>
+            </ul>
+        </li>
+    </ul>
+
+    <hr>
+
+    <h3>2. <a href="https://ipleak.net" target="_blank">ipleak.net</a> - 综合性泄露检查 (DNS泄露、WebRTC泄露)</h3>
+    <ul>
+        <li>点击链接后，等待页面加载完毕，它会自动进行多项检测。</li>
+        <li><strong>检查要点：</strong>
+            <ul>
+                <li><strong>Your IP Addresses (你的IP地址):</strong> 确认显示的IP地址是你的美国IP。</li>
+                <li><strong>DNS Addresses (DNS地址):</strong> <span class="check-point">这是防止真实位置暴露的关键！</span> <strong>确保所有列出的DNS服务器的IP地址和地理位置都显示为<span class="highlight">美国</span>。</strong> 如果出现任何非美国（尤其是中国）的DNS地址，说明你的DNS泄露了，非常危险！</li>
+                <li><strong>WebRTC Detection (WebRTC检测):</strong> 确认这里显示的IP地址<strong>只包含你的美国IP。</strong>如果出现了你真实的中国IP地址，则说明存在WebRTC泄露。</li>
+            </ul>
+        </li>
+    </ul>
+
+    <hr>
+
+    <h3>3. <a href="https://whoer.net" target="_blank">whoer.net</a> - 综合匿名性与环境一致性检查</h3>
+    <ul>
+        <li>点击链接后，页面会显示一个关于你匿名性的概览。</li>
+        <li><strong>检查要点：</strong>
+            <ul>
+                <li><strong>Anonymity (匿名性):</strong> 分数尽可能高，理想情况是100%。</li>
+                <li><strong>IP Address, DNS, Country (IP地址、DNS、国家):</strong> 再次确认它们都显示为<span class="highlight">美国</span>。</li>
+                <li><strong>System Time (系统时间) 和 Browser Language (浏览器语言):</strong> 确保它们与你目标模拟的美国时区和英文（美国）设置完全一致。不一致会降低“真实性”。</li>
+            </ul>
+        </li>
+    </ul>
+
+    <hr>
+
+    <h3>4. TikTok 应用本身 - 内容流验证 (最终效果)</h3>
+    <div class="app-check">
+        <p>当所有技术性检查都通过后，你才能打开手机上的TikTok应用（请确保Shadowrocket等代理工具已连接）。</p>
+        <p><strong>检查要点：</strong></p>
+        <ul>
+            <li>观察“为您推荐（For You Page, FYP）”页面上刷到的视频内容。</li>
+            <li><strong>预期结果：</strong> FYP应该充满英文视频，内容主题（如热门挑战、新闻、生活场景、本地口音等）应符合**美国当地的文化和趋势**。如果依然刷到大量非英语或明显非美国区的内容，说明TikTok可能仍然没有把你识别为美国用户，需要进一步检查环境配置。</li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <p>祝你顺利使用！</p>
+
+</body>
+</html>
