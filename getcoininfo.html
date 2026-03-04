@@ -194,16 +194,6 @@
             color: #b91c1c;
             font-weight: 500;
         }
-        .loading-dots:after {
-            content: '.';
-            animation: dots 1.5s steps(5, end) infinite;
-        }
-        @keyframes dots {
-            0%, 20% { content: '.'; }
-            40% { content: '..'; }
-            60% { content: '...'; }
-            80%, 100% { content: ''; }
-        }
         .footer-note {
             margin-top: 24px;
             font-size: 12px;
@@ -244,28 +234,29 @@
                     <th class="numeric">价格 (USD)</th>
                     <th class="numeric">流通市值</th>
                     <th class="numeric">FDV</th>
+                    <th class="numeric">流动性</th>
                     <th class="numeric">24h 交易量</th>
+                    <th>持有者数</th>
                 </tr>
             </thead>
             <tbody id="resultsBody">
-                <tr><td colspan="7" style="text-align: center; color: #888; padding: 40px;">👆 输入地址后点击查询</td></tr>
+                <tr><td colspan="9" style="text-align: center; color: #888; padding: 40px;">👆 输入地址后点击查询</td></tr>
             </tbody>
         </table>
     </div>
 
     <div class="footer-note">
-        ⚡ 数据来源：CoinGecko API | 每个请求间隔1.2秒，请耐心等待
+        ⚡ 数据来源：Birdeye API | 免费套餐 10 次/分钟，每次请求间隔 6 秒，请合理使用
     </div>
 </div>
 
 <script>
     (function() {
         // ---------- 配置 ----------
-        const API_KEY = 'CG-DednKYtyyv8PqLKY4dEWbbPs';   // ⚠️ 密钥已暴露，仅供测试
-        const BASE_URL = 'https://api.coingecko.com/api/v3';
-        const PLATFORM = 'solana';
-        const REQUEST_DELAY = 1200; // 毫秒，避免超限
-
+const API_KEY = '753abf2a5d134d8ea522138f22661d31';
+const BASE_URL = 'https://public-api.birdeye.so';
+const PLATFORM = 'solana';
+const REQUEST_DELAY = 1000; // 60 rpm → 1秒间隔
         // ---------- DOM 元素 ----------
         const fileInput = document.getElementById('fileInput');
         const addressesTextarea = document.getElementById('addresses');
@@ -274,7 +265,7 @@
         const statusDiv = document.getElementById('status');
         const resultsBody = document.getElementById('resultsBody');
 
-        // ---------- 工具函数：显示状态 ----------
+        // ---------- 工具函数 ----------
         function showStatus(message, type = 'info') {
             statusDiv.style.display = 'flex';
             statusDiv.textContent = message;
@@ -292,7 +283,12 @@
             statusDiv.style.display = 'none';
         }
 
-        // 格式化大数字 (K/M/B)
+        function shortenAddress(addr) {
+            if (!addr) return '';
+            if (addr.length <= 16) return addr;
+            return addr.slice(0, 8) + '...' + addr.slice(-6);
+        }
+
         function formatNumber(num) {
             if (num === null || num === undefined) return '-';
             if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
@@ -301,16 +297,8 @@
             return num.toFixed(2);
         }
 
-        // 缩短地址显示
-        function shortenAddress(addr) {
-            if (!addr) return '';
-            if (addr.length <= 16) return addr;
-            return addr.slice(0, 8) + '...' + addr.slice(-6);
-        }
-
-        // 清空表格
         function clearResults() {
-            resultsBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #888; padding: 40px;">👆 输入地址后点击查询</td></tr>`;
+            resultsBody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: #888; padding: 40px;">👆 输入地址后点击查询</td></tr>`;
         }
 
         // ---------- 文件上传 ----------
@@ -322,7 +310,6 @@
                 addressesTextarea.value = event.target.result;
             };
             reader.readAsText(file);
-            // 清空文件输入，以便重新选择同一个文件
             fileInput.value = '';
         });
 
@@ -333,42 +320,68 @@
             hideStatus();
         });
 
-        // ---------- 查询单个合约 (返回Promise) ----------
-        async function queryToken(address) {
-    // 将 API 密钥作为查询参数，而不是 headers
-    const url = `${BASE_URL}/coins/${PLATFORM}/contract/${address.trim()}?x_cg_demo_api_key=${API_KEY}`;
-    const response = await fetch(url);  // 注意：这里没有 headers 了
-    if (!response.ok) {
-        if (response.status === 404) throw new Error('未收录');
-        if (response.status === 429) throw new Error('请求超限');
-        throw new Error(`HTTP ${response.status}`);
-    }
-    return response.json();
-}
+        // ---------- Birdeye API 调用 (单个地址，带重试) ----------
+        async function queryTokenWithRetry(address, retries = 3) {
+            const url = `${BASE_URL}/defi/token_overview?address=${encodeURIComponent(address)}`;
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        headers: { 'X-API-KEY': API_KEY }
+                    });
+                    
+                    // 处理 429 限流
+                    if (response.status === 429) {
+                        const waitTime = Math.pow(2, i) * 2000; // 2s, 4s, 8s
+                        console.log(`⏳ 429 限流，等待 ${waitTime}ms 后重试 (${i+1}/${retries})`);
+                        await new Promise(resolve => setTimeout(resolve, waitTime));
+                        continue;
+                    }
+                    
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            throw new Error('未收录');
+                        } else {
+                            const errText = await response.text();
+                            throw new Error(`HTTP ${response.status}: ${errText.slice(0, 100)}`);
+                        }
+                    }
 
-        // ---------- 批量查询（串行，带延迟）----------
+                    const json = await response.json();
+                    const data = json.data || {};
+                    
+                    // 提取所需字段
+                    return {
+                        address,
+                        success: true,
+                        name: data.name || '-',
+                        symbol: data.symbol || '-',
+                        price: data.price,
+                        market_cap: data.marketcap,
+                        fdv: data.fdv,
+                        liquidity: data.liquidity,
+                        volume_24h: data.volume24h,
+                        holders: data.holder,
+                    };
+                } catch (err) {
+                    if (i === retries - 1) throw err; // 最后一次重试失败则抛出
+                    // 其他错误（如网络问题）等待后重试
+                    await new Promise(resolve => setTimeout(resolve, 2000 * (i + 1)));
+                }
+            }
+        }
+
+        // ---------- 批量查询（串行，固定延迟 + 重试）----------
         async function batchQuery(addresses) {
             const results = [];
             let successCount = 0;
+            
             for (let i = 0; i < addresses.length; i++) {
                 const addr = addresses[i];
-                // 更新状态显示
                 showStatus(`正在查询 (${i+1}/${addresses.length}): ${shortenAddress(addr)} ...`);
 
                 try {
-                    const data = await queryToken(addr);
-                    // 提取有用字段
-                    const marketData = data.market_data || {};
-                    results.push({
-                        address: addr,
-                        success: true,
-                        name: data.name || '-',
-                        symbol: data.symbol?.toUpperCase() || '-',
-                        price: marketData.current_price?.usd,
-                        market_cap: marketData.market_cap?.usd,
-                        fdv: marketData.fully_diluted_valuation?.usd,
-                        volume_24h: marketData.total_volume?.usd,
-                    });
+                    const result = await queryTokenWithRetry(addr);
+                    results.push(result);
                     successCount++;
                 } catch (err) {
                     results.push({
@@ -378,7 +391,7 @@
                     });
                 }
 
-                // 除最后一次外，每次请求后延迟
+                // 除最后一次外，每次请求后延迟（即使失败也要延迟，避免超限）
                 if (i < addresses.length - 1) {
                     await new Promise(resolve => setTimeout(resolve, REQUEST_DELAY));
                 }
@@ -389,7 +402,7 @@
         // ---------- 渲染表格 ----------
         function renderResults(results) {
             if (!results || results.length === 0) {
-                resultsBody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 40px;">无数据</td></tr>`;
+                resultsBody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 40px;">无数据</td></tr>`;
                 return;
             }
 
@@ -403,12 +416,14 @@
                         <td class="numeric">${item.price ? '$' + item.price.toFixed(6) : '-'}</td>
                         <td class="numeric">${item.market_cap ? '$' + formatNumber(item.market_cap) : '-'}</td>
                         <td class="numeric">${item.fdv ? '$' + formatNumber(item.fdv) : '-'}</td>
+                        <td class="numeric">${item.liquidity ? '$' + formatNumber(item.liquidity) : '-'}</td>
                         <td class="numeric">${item.volume_24h ? '$' + formatNumber(item.volume_24h) : '-'}</td>
+                        <td class="numeric">${item.holders ?? '-'}</td>
                     </tr>`;
                 } else {
                     html += `<tr class="error-row">
                         <td class="address-cell" title="${item.address}">${shortenAddress(item.address)}</td>
-                        <td colspan="6" class="error-message">❌ 查询失败: ${item.error}</td>
+                        <td colspan="8" class="error-message">❌ 查询失败: ${item.error}</td>
                     </tr>`;
                 }
             }
@@ -423,7 +438,7 @@
                 return;
             }
 
-            // 按行分割，过滤空行和注释行（以#开头）
+            // 按行分割，过滤空行和注释行
             const addresses = rawText.split('\n')
                 .map(line => line.trim())
                 .filter(line => line && !line.startsWith('#'));
@@ -433,10 +448,15 @@
                 return;
             }
 
+            // 检查是否可能超过免费套餐的月度限额（这里只是提醒，不强制）
+            if (addresses.length > 100) {
+                showStatus(`⚠️ 一次性查询 ${addresses.length} 个代币可能需要很长时间，建议分批进行。`, 'warning');
+            }
+
             // 禁用按钮，开始查询
             queryBtn.disabled = true;
-            clearResults(); // 清空旧结果
-            showStatus(`准备查询 ${addresses.length} 个代币，每个间隔 ${REQUEST_DELAY/1000} 秒，请稍候...`);
+            clearResults();
+            showStatus(`准备查询 ${addresses.length} 个代币，每个间隔 6 秒，预计耗时 ${(addresses.length * 6 / 60).toFixed(1)} 分钟，请耐心等待...`);
 
             try {
                 const { results, successCount } = await batchQuery(addresses);
@@ -454,9 +474,6 @@
                 queryBtn.disabled = false;
             }
         });
-
-        // 可选：按 Enter 快捷键触发查询（可不用）
-        // 无额外操作
     })();
 </script>
 </body>
