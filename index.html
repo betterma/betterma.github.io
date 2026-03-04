@@ -197,18 +197,42 @@
       var moreDropdown = document.getElementById('moreDropdown');
       if (!moreBtn || !moreDropdown) return;
 
+      var dropdownContent = moreDropdown.querySelector('.dropdown-content');
+
       function closeDropdown() {
+        // 恢复内联样式并移除类
+        if (dropdownContent) {
+          dropdownContent.style.position = '';
+          dropdownContent.style.left = '';
+          dropdownContent.style.top = '';
+          dropdownContent.style.width = '';
+        }
         moreDropdown.classList.remove('dropdown-open');
         moreBtn.setAttribute('aria-expanded','false');
+        console.debug('moreDropdown closed');
       }
+
       function openDropdown() {
         moreDropdown.classList.add('dropdown-open');
         moreBtn.setAttribute('aria-expanded','true');
+        console.debug('moreDropdown opened (class added)');
+
+        // 强制使用 fixed 定位并计算位置，避免被父容器裁切或 z-index 问题
+        if (dropdownContent) {
+          var rect = moreDropdown.getBoundingClientRect();
+          dropdownContent.style.position = 'fixed';
+          dropdownContent.style.left = rect.left + 'px';
+          dropdownContent.style.top = (rect.bottom + 12) + 'px';
+          dropdownContent.style.width = rect.width + 'px';
+          dropdownContent.style.display = 'block';
+          console.debug('dropdown positioned fixed at', dropdownContent.style.left, dropdownContent.style.top);
+        }
       }
 
       // 点击切换（移动端友好）
       moreBtn.addEventListener('click', function(e){
         e.preventDefault();
+        e.stopPropagation();
         // 切换显示状态
         if (moreDropdown.classList.contains('dropdown-open')) closeDropdown(); else openDropdown();
       });
