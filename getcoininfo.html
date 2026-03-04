@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana 代币市值查询 (纯前端)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 {
+            margin-top: 0;
+            color: #1a1a1a;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        h1 small {
+            font-size: 14px;
+            font-weight: 400;
+            color: #666;
+            margin-left: 12px;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #856404;
+        }
+        .upload-area {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            background: #f9fafc;
+            padding: 16px 20px;
+            border-radius: 16px;
+        }
+        .file-label {
+            background: #e8ecf2;
+            padding: 10px 18px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .file-label:hover {
+            background: #d9e0e8;
+        }
+        .file-label input {
+            display: none;
+        }
+        .or-divider {
+            color: #888;
+            font-weight: 500;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 16px;
+            border: 1px solid #d0d7de;
+            border-radius: 16px;
+            font-family: 'SF Mono', 'Menlo', monospace;
+            font-size: 14px;
+            resize: vertical;
+            margin-bottom: 20px;
+            background: #f9fafc;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+        }
+        .actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 6px rgba(99,102,241,0.2);
+        }
+        .btn:hover:not(:disabled) {
+            background: #4f52e0;
+            transform: translateY(-1px);
+        }
+        .btn:disabled {
+            background: #a5a8f0;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .status {
+            padding: 12px 16px;
+            background: #e8f4fe;
+            border-radius: 12px;
+            color: #0369a1;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status.error {
+            background: #fee9e7;
+            color: #b91c1c;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+        }
+        th {
+            background: #f2f5f9;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #2c3e50;
+            padding: 14px 12px;
+            text-align: left;
+        }
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #eef2f6;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .numeric {
+            text-align: right;
+            font-family: 'SF Mono', monospace;
+        }
+        .address-cell {
+            font-family: 'SF Mono', monospace;
+            font-size: 13px;
+            color: #4b5563;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .success-row {
+            background-color: #ffffff;
+        }
+        .error-row {
+            background-color: #fff8f8;
+            color: #b91c1c;
+        }
+        .error-message {
+            color: #b91c1c;
+            font-weight: 500;
+        }
+        .loading-dots:after {
+            content: '.';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
+        .footer-note {
+            margin-top: 24px;
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            border-top: 1px dashed #ccc;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>
+        ⚡ Solana 代币市值批量查询
+        <small>(纯前端 · GitHub Pages 版)</small>
+    </h1>
+
+    <div class="warning">
+        ⚠️ 警告：本工具为纯前端实现，API 密钥直接暴露在源码中，请勿用于生产环境，也不要频繁查询大量代币以免触发速率限制。
+    </div>
+
+    <div class="upload-area">
+        <label class="file-label">
+            📁 选择 .txt 文件
+            <input type="file" id="fileInput" accept=".txt">
+        </label>
+        <span class="or-divider">或者</span>
+        <span style="color: #4b5563;">直接粘贴合约地址（一行一个）</span>
+    </div>
+
+    <textarea id="addresses" placeholder="例如：&#10;So11111111111111111111111111111111111111112&#10;EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&#10;# 支持注释行（以#开头会被忽略）"></textarea>
+
+    <div class="actions">
+        <button class="btn" id="queryBtn">开始查询</button>
+        <button class="btn" id="clearBtn" style="background: #e2e8f0; color: #1e293b; box-shadow: none;">清空</button>
+    </div>
+
+    <div id="status" class="status" style="display: none;"></div>
+
+    <div style="overflow-x: auto;">
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th>合约地址</th>
+                    <th>代币名称</th>
+                    <th>符号</th>
+                    <th class="numeric">价格 (USD)</th>
+                    <th class="numeric">流通市值</th>
+                    <th class="numeric">FDV</th>
+                    <th class="numeric">24h 交易量</th>
+                </tr>
+            </thead>
+            <tbody id="resultsBody">
+                <tr><td colspan="7" style="text-align: center; color: #888; padding: 40px;">👆 输入地址后点击查询</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer-note">
+        ⚡ 数据来源：CoinGecko API | 每个请求间隔1.2秒，请耐心等待
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- 配置 ----------
+        const API_KEY = 'CG-DednKYtyyv8PqLKY4dEWbbPs';   // ⚠️ 密钥已暴露，仅供测试
+        const BASE_URL = 'https://api.coingecko.com/api/v3';
+        const PLATFORM = 'solana';
+        const REQUEST_DELAY = 1200; // 毫秒，避免超限
+
+        // ---------- DOM 元素 ----------
+        const fileInput = document.getElementById('fileInput');
+        const addressesTextarea = document.getElementById('addresses');
+        const queryBtn = document.getElementById('queryBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const statusDiv = document.getElementById('status');
+        const resultsBody = document.getElementById('resultsBody');
+
+        // ---------- 工具函数：显示状态 ----------
+        function showStatus(message, type = 'info') {
+            statusDiv.style.display = 'flex';
+            statusDiv.textContent = message;
+            statusDiv.className = 'status';
+            if (type === 'error') {
+                statusDiv.classList.add('error');
+            } else if (type === 'warning') {
+                statusDiv.classList.add('warning');
+            } else {
+                statusDiv.classList.remove('error', 'warning');
+            }
+        }
+
+        function hideStatus() {
+            statusDiv.style.display = 'none';
+        }
+
+        // 格式化大数字 (K/M/B)
+        function formatNumber(num) {
+            if (num === null || num === undefined) return '-';
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+            return num.toFixed(2);
+        }
+
+        // 缩短地址显示
+        function shortenAddress(addr) {
+            if (!addr) return '';
+            if (addr.length <= 16) return addr;
+            return addr.slice(0, 8) + '...' + addr.slice(-6);
+        }
+
+        // 清空表格
+        function clearResults() {
+            resultsBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #888; padding: 40px;">👆 输入地址后点击查询</td></tr>`;
+        }
+
+        // ---------- 文件上传 ----------
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                addressesTextarea.value = event.target.result;
+            };
+            reader.readAsText(file);
+            // 清空文件输入，以便重新选择同一个文件
+            fileInput.value = '';
+        });
+
+        // ---------- 清空按钮 ----------
+        clearBtn.addEventListener('click', () => {
+            addressesTextarea.value = '';
+            clearResults();
+            hideStatus();
+        });
+
+        // ---------- 查询单个合约 (返回Promise) ----------
+        async function queryToken(address) {
+            const url = `${BASE_URL}/coins/${PLATFORM}/contract/${address.trim()}`;
+            const response = await fetch(url, {
+                headers: { 'x-cg-pro-api-key': API_KEY }
+            });
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error('未收录');
+                } else if (response.status === 429) {
+                    throw new Error('请求超限');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            }
+            return response.json();
+        }
+
+        // ---------- 批量查询（串行，带延迟）----------
+        async function batchQuery(addresses) {
+            const results = [];
+            let successCount = 0;
+            for (let i = 0; i < addresses.length; i++) {
+                const addr = addresses[i];
+                // 更新状态显示
+                showStatus(`正在查询 (${i+1}/${addresses.length}): ${shortenAddress(addr)} ...`);
+
+                try {
+                    const data = await queryToken(addr);
+                    // 提取有用字段
+                    const marketData = data.market_data || {};
+                    results.push({
+                        address: addr,
+                        success: true,
+                        name: data.name || '-',
+                        symbol: data.symbol?.toUpperCase() || '-',
+                        price: marketData.current_price?.usd,
+                        market_cap: marketData.market_cap?.usd,
+                        fdv: marketData.fully_diluted_valuation?.usd,
+                        volume_24h: marketData.total_volume?.usd,
+                    });
+                    successCount++;
+                } catch (err) {
+                    results.push({
+                        address: addr,
+                        success: false,
+                        error: err.message
+                    });
+                }
+
+                // 除最后一次外，每次请求后延迟
+                if (i < addresses.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, REQUEST_DELAY));
+                }
+            }
+            return { results, successCount };
+        }
+
+        // ---------- 渲染表格 ----------
+        function renderResults(results) {
+            if (!results || results.length === 0) {
+                resultsBody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 40px;">无数据</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            for (const item of results) {
+                if (item.success) {
+                    html += `<tr class="success-row">
+                        <td class="address-cell" title="${item.address}">${shortenAddress(item.address)}</td>
+                        <td>${item.name}</td>
+                        <td>${item.symbol}</td>
+                        <td class="numeric">${item.price ? '$' + item.price.toFixed(6) : '-'}</td>
+                        <td class="numeric">${item.market_cap ? '$' + formatNumber(item.market_cap) : '-'}</td>
+                        <td class="numeric">${item.fdv ? '$' + formatNumber(item.fdv) : '-'}</td>
+                        <td class="numeric">${item.volume_24h ? '$' + formatNumber(item.volume_24h) : '-'}</td>
+                    </tr>`;
+                } else {
+                    html += `<tr class="error-row">
+                        <td class="address-cell" title="${item.address}">${shortenAddress(item.address)}</td>
+                        <td colspan="6" class="error-message">❌ 查询失败: ${item.error}</td>
+                    </tr>`;
+                }
+            }
+            resultsBody.innerHTML = html;
+        }
+
+        // ---------- 查询按钮点击 ----------
+        queryBtn.addEventListener('click', async () => {
+            const rawText = addressesTextarea.value.trim();
+            if (!rawText) {
+                showStatus('请输入或上传合约地址', 'warning');
+                return;
+            }
+
+            // 按行分割，过滤空行和注释行（以#开头）
+            const addresses = rawText.split('\n')
+                .map(line => line.trim())
+                .filter(line => line && !line.startsWith('#'));
+
+            if (addresses.length === 0) {
+                showStatus('没有有效的合约地址', 'warning');
+                return;
+            }
+
+            // 禁用按钮，开始查询
+            queryBtn.disabled = true;
+            clearResults(); // 清空旧结果
+            showStatus(`准备查询 ${addresses.length} 个代币，每个间隔 ${REQUEST_DELAY/1000} 秒，请稍候...`);
+
+            try {
+                const { results, successCount } = await batchQuery(addresses);
+                renderResults(results);
+
+                if (successCount === addresses.length) {
+                    showStatus(`✅ 查询完成！全部 ${addresses.length} 个代币获取成功。`, 'info');
+                } else {
+                    showStatus(`⚠️ 查询完成：${successCount} 成功，${addresses.length - successCount} 失败（失败原因见表格）。`, 'warning');
+                }
+            } catch (err) {
+                showStatus(`❌ 发生错误: ${err.message}`, 'error');
+                console.error(err);
+            } finally {
+                queryBtn.disabled = false;
+            }
+        });
+
+        // 可选：按 Enter 快捷键触发查询（可不用）
+        // 无额外操作
+    })();
+</script>
+</body>
+</html>
