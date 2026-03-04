@@ -96,7 +96,8 @@
       box-shadow: 0 10px 30px rgba(17,24,39,0.12);
       padding: 8px;
       display: none;
-      z-index: 40;
+      z-index: 9999;
+      min-width: 180px;
     }
     .dropdown-content a {
       display: flex;
@@ -109,7 +110,7 @@
       font-size: 0.98rem;
     }
     .dropdown-content a:hover { background: #f3f4f6; }
-    .dropdown-open .dropdown-content { display: block; }
+    .dropdown-open .dropdown-content { display: block !important; z-index: 9999; }
 
     @media (max-width: 600px) {
       h1 {
@@ -207,12 +208,13 @@
 
       // 点击切换（移动端友好）
       moreBtn.addEventListener('click', function(e){
-        e.stopPropagation();
+        e.preventDefault();
+        // 切换显示状态
         if (moreDropdown.classList.contains('dropdown-open')) closeDropdown(); else openDropdown();
       });
 
-      // 点击外部关闭
-      document.addEventListener('click', function(){ closeDropdown(); });
+      // 点击外部关闭（仅当点击目标不在下拉容器内时）
+      document.addEventListener('click', function(e){ if (!moreDropdown.contains(e.target)) closeDropdown(); });
 
       // Esc 关闭
       document.addEventListener('keyup', function(e){ if (e.key === 'Escape') closeDropdown(); });
