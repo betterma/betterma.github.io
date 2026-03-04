@@ -71,6 +71,8 @@
     .more-dropdown {
       position: relative;
       width: 100%;
+      /* 允许下拉内容超出父项显示，避免被 .nav-item 的 overflow:hidden 裁切 */
+      overflow: visible;
     }
     .dropdown-button {
       width: 100%;
