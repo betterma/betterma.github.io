@@ -537,8 +537,8 @@
             if (mediumRows) {
                 // 默认隐藏的 medium 组
                 html += `<tbody id="medium-group" style="display: none;">${mediumRows}</tbody>`;
-                // 切换行
-                html += `<tr id="toggle-medium-row" class="toggle-row"><td colspan="8">⬇️ 点击显示 5M-10M 代币 (${medium.length} 个) ⬇️</td></tr>`;
+                    // 切换行（用<tbody>包装<tr>以确保正规的HTML结构）
+                    html += `<tbody id="toggle-wrapper"><tr id="toggle-medium-row" class="toggle-row"><td colspan="8">⬇️ 点击显示 5M-10M 代币 (${medium.length} 个) ⬇️</td></tr></tbody>`;
             }
             if (failedRows) {
                 html += `<tbody id="failed-group">${failedRows}</tbody>`;
