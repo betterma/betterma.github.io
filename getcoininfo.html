@@ -335,21 +335,16 @@
 
         // ---------- 查询单个合约 (返回Promise) ----------
         async function queryToken(address) {
-            const url = `${BASE_URL}/coins/${PLATFORM}/contract/${address.trim()}`;
-            const response = await fetch(url, {
-                headers: { 'x_cg_demo_api_key': API_KEY }
-            });
-            if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error('未收录');
-                } else if (response.status === 429) {
-                    throw new Error('请求超限');
-                } else {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-            }
-            return response.json();
-        }
+    // 将 API 密钥作为查询参数，而不是 headers
+    const url = `${BASE_URL}/coins/${PLATFORM}/contract/${address.trim()}?x_cg_demo_api_key=${API_KEY}`;
+    const response = await fetch(url);  // 注意：这里没有 headers 了
+    if (!response.ok) {
+        if (response.status === 404) throw new Error('未收录');
+        if (response.status === 429) throw new Error('请求超限');
+        throw new Error(`HTTP ${response.status}`);
+    }
+    return response.json();
+}
 
         // ---------- 批量查询（串行，带延迟）----------
         async function batchQuery(addresses) {
