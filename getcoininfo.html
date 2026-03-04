@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana 代币市值查询 (修复版)</title>
     <style>
         * {
             box-sizing: border-box;
@@ -179,6 +180,15 @@
             font-size: 13px;
             color: #4b5563;
             max-width: 150px;
+            cursor: pointer;
+            position: relative;
+        }
+        .address-cell:hover {
+            background-color: #f0f2f5;
+            border-radius: 4px;
+        }
+        .address-cell:active {
+            opacity: 0.7;
         }
         .address-cell span {
             display: inline-block;
@@ -187,6 +197,7 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             vertical-align: bottom;
+            pointer-events: none; /* 点击事件由td处理 */
         }
         .success-row {
             background-color: #ffffff;
@@ -225,10 +236,40 @@
             font-size: 13px;
             color: #0369a1;
         }
+        /* 复制成功提示 */
+        .copy-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: fadeInOut 1.5s ease;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+            15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+        }
     </style>
 </head>
 <body>
 <div class="container">
+    <h1>
+        ⚡ Solana 代币市值查询 (修复版)
+        <small>点击地址复制 · 折叠可展开</small>
+    </h1>
+
+    <div class="warning">
+        ⚠️ 注意：纯前端实现，API密钥暴露。免费套餐60次/分钟（全局），已设置1秒延迟。如果遇到CORS错误，请改用后端代理（Vercel/Netlify）。
+    </div>
+
     <div class="upload-area">
         <label class="file-label">
             📁 选择 .txt 文件
@@ -251,7 +292,7 @@
         <table id="resultsTable">
             <thead>
                 <tr>
-                    <th>合约地址</th>
+                    <th>合约地址 (点击复制)</th>
                     <th>符号</th>
                     <th class="numeric">市值 (USD)</th>
                     <th class="numeric">价格 (USD)</th>
@@ -273,11 +314,12 @@
         - <strong>FDV</strong>：完全稀释估值（基于总供应量）。<br>
         - <strong>流动性</strong>：DEX中代币的可交易资金池总额，流动性越高交易滑点越低。<br>
         - <strong>24h交易量</strong>：过去24小时美元交易额（v24hUSD）。<br>
-        - <strong>排序规则</strong>：市值≥1000万直接显示；500万≤市值<1000万折叠；<500万不显示；失败项始终显示。
+        - <strong>排序规则</strong>：市值≥1000万直接显示；500万≤市值<1000万折叠；<500万不显示；失败项始终显示。<br>
+        - <strong>复制地址</strong>：点击合约地址单元格即可复制完整地址。
     </div>
 
     <div class="footer-note">
-        ⚡ 数据来源：Birdeye API | 60 rpm → 1秒间隔 | 地址可完整复制
+        ⚡ 数据来源：Birdeye API | 60 rpm → 1秒间隔 | 地址可点击复制
     </div>
 </div>
 
@@ -315,18 +357,23 @@
             statusDiv.style.display = 'none';
         }
 
-        function shortenAddress(addr) {
-            if (!addr) return '';
-            if (addr.length <= 16) return addr;
-            return addr.slice(0, 8) + '...' + addr.slice(-6);
-        }
-
         function formatNumber(num) {
             if (num === null || num === undefined) return '-';
             if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
             if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
             if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
             return num.toFixed(2);
+        }
+
+        // 显示临时提示
+        function showToast(message, duration = 1500) {
+            const toast = document.createElement('div');
+            toast.className = 'copy-toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, duration);
         }
 
         function clearResults() {
@@ -458,7 +505,7 @@
             let highRows = '';
             for (const item of high) {
                 highRows += `<tr class="success-row">
-                    <td class="address-cell" title="${item.address}"><span>${item.address}</span></td>
+                    <td class="address-cell" data-address="${item.address}" title="点击复制地址"><span>${item.address}</span></td>
                     <td>${item.symbol}</td>
                     <td class="numeric">$${formatNumber(item.market_cap)}</td>
                     <td class="numeric">${item.price ? '$' + item.price.toFixed(6) : '-'}</td>
@@ -472,7 +519,7 @@
             let mediumRows = '';
             for (const item of medium) {
                 mediumRows += `<tr class="success-row">
-                    <td class="address-cell" title="${item.address}"><span>${item.address}</span></td>
+                    <td class="address-cell" data-address="${item.address}" title="点击复制地址"><span>${item.address}</span></td>
                     <td>${item.symbol}</td>
                     <td class="numeric">$${formatNumber(item.market_cap)}</td>
                     <td class="numeric">${item.price ? '$' + item.price.toFixed(6) : '-'}</td>
@@ -485,12 +532,9 @@
 
             let failedRows = '';
             for (const item of failed) {
-                if (item.success) {
-                    // 理论上不会到这里，因为成功且有市值已经被过滤，但以防万一（比如市值为0或负数？）
-                    continue;
-                }
+                if (item.success) continue; // 理论上不会到这里
                 failedRows += `<tr class="error-row">
-                    <td class="address-cell" title="${item.address}"><span>${item.address}</span></td>
+                    <td class="address-cell" data-address="${item.address}" title="点击复制地址"><span>${item.address}</span></td>
                     <td colspan="7" class="error-message">❌ 查询失败: ${item.error}</td>
                 </tr>`;
             }
@@ -514,6 +558,28 @@
             }
 
             resultsBody.innerHTML = html;
+
+            // 绑定复制事件：为所有 .address-cell 添加点击复制
+            const addressCells = document.querySelectorAll('.address-cell');
+            addressCells.forEach(cell => {
+                cell.addEventListener('click', (e) => {
+                    const address = cell.getAttribute('data-address');
+                    if (address) {
+                        navigator.clipboard.writeText(address).then(() => {
+                            showToast('✅ 地址已复制');
+                        }).catch(() => {
+                            // 降级处理
+                            const textarea = document.createElement('textarea');
+                            textarea.value = address;
+                            document.body.appendChild(textarea);
+                            textarea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textarea);
+                            showToast('✅ 地址已复制');
+                        });
+                    }
+                });
+            });
 
             // 绑定折叠切换事件
             const toggleRow = document.getElementById('toggle-medium-row');
