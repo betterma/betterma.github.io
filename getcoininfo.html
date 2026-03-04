@@ -337,7 +337,7 @@
         async function queryToken(address) {
             const url = `${BASE_URL}/coins/${PLATFORM}/contract/${address.trim()}`;
             const response = await fetch(url, {
-                headers: { 'x-cg-pro-api-key': API_KEY }
+                headers: { 'x_cg_demo_api_key': API_KEY }
             });
             if (!response.ok) {
                 if (response.status === 404) {
