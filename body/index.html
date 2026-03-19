@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>健身计划 · 长图浏览</title>
+    <style>
+        /* 全局重置 + 移动端友好 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f7fa;   /* 柔和底色，方便预览时辨识边界 */
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding: 12px 8px;       /* 四周留一点空气，避免图片顶边 */
+        }
+
+        /* 卡片容器：轻微圆角 + 阴影，提升质感，同时适配小屏 */
+        .image-container {
+            width: 100%;
+            max-width: 500px;          /* 大手机/小平板也不至于过宽，阅读舒适 */
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            overflow: hidden;           /* 保证圆角裁边 */
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        /* 图片区域：可纵向滑动，因为原始图片细长(2095*16375)，必须滚动 */
+        .scroll-area {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;           /* 移动端视口高度80%，留出上下空间感 */
+            overflow-y: auto;            /* 垂直滚动 */
+            overflow-x: hidden;          /* 禁止横向滚动，图片完全适配宽度 */
+            -webkit-overflow-scrolling: touch;  /* 丝滑滚动 (iOS) */
+            scrollbar-width: thin;       /* 细滚动条 (Firefox) */
+            scrollbar-color: #c0c6d0 #f0f2f5;
+            background: #fafbfc;         /* 预览背景，极浅灰 */
+            border-radius: 20px;          /* 与容器呼应 */
+            margin: 6px;                  /* 内缩一点，透出容器底色 */
+        }
+
+        /* 自定义滚动条样式 (Webkit) */
+        .scroll-area::-webkit-scrollbar {
+            width: 5px;
+        }
+        .scroll-area::-webkit-scrollbar-track {
+            background: #f0f2f5;
+            border-radius: 20px;
+        }
+        .scroll-area::-webkit-scrollbar-thumb {
+            background: #b9c0cb;
+            border-radius: 20px;
+        }
+
+        /* 核心图片：宽度100%自适应，高度自动，保持原始比例 */
+        .plan-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            pointer-events: none;        /* 避免长按保存/菜单干扰滑动（可选） */
+            user-select: none;            /* 禁用选中，滑动更纯粹 */
+            -webkit-touch-callout: none;  /* 禁止长按菜单 */
+        }
+
+        /* 提示条：帮助用户了解可滑动，并且展示图片尺寸信息 (非必须，但很实用) */
+        .hint-bar {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 12px;
+            padding: 10px 18px;
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border-radius: 60px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #2c3e50;
+            border: 1px solid rgba(0,0,0,0.03);
+            font-weight: 450;
+            letter-spacing: 0.2px;
+        }
+
+        .dimension-badge {
+            background: #eef2f6;
+            padding: 5px 14px;
+            border-radius: 40px;
+            font-size: 13px;
+            color: #1e2b3a;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dimension-badge span {
+            font-weight: 600;
+            color: #0f1c2b;
+        }
+
+        .swipe-icon {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .swipe-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+
+        /* 微调小屏下边距 */
+        @media (max-width: 380px) {
+            body { padding: 8px 4px; }
+            .hint-bar { font-size: 12px; padding: 8px 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 主显示卡片 -->
+    <div class="image-container">
+        <div class="scroll-area">
+            <!-- 
+                图片路径: 同级 plan.jpg (根据您提供的说明)
+                尺寸 2095*16375 按宽度100%缩放，高度自动，完美保持比例
+                加上 alt 描述，无障碍体验 
+            -->
+            <img src="plan.jpg"
+                 alt="健身计划表 – 周一至周四训练内容"
+                 class="plan-image"
+                 loading="lazy"                <!-- 长图懒加载，性能优化 -->
+                 decoding="async" />            <!-- 异步解码，减少卡顿 -->
+        </div>
+    </div>
+
+    <!-- 轻提示条：显示尺寸及滑动引导 (完全基于你给的数据) -->
+    <div class="hint-bar">
+        <div class="dimension-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h4"/></svg>
+            <span>2095</span> × <span>16375</span>
+        </div>
+        <div class="swipe-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2v20M17 17l-5 5-5-5M7 7l5-5 5 5"/></svg>
+            <span>上下滑动浏览</span>
+        </div>
+    </div>
+
+    <!-- 额外说明：因为图片极长，用户可能想保存或缩放，保留手势缩放 (由meta viewport允许缩放) -->
+    <div style="font-size: 12px; color: #6b7a8d; margin-top: 12px; opacity: 0.7; max-width: 500px; text-align: center;">
+        双指缩放可查看细节 · 图片路径 /plan.jpg (同目录)
+    </div>
+
+</body>
+</html>
