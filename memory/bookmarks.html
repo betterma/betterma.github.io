@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>资源备忘</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #223046;
+      --muted: #6b7280;
+      --accent: #4f46e5;
+      --accent-soft: #eef2ff;
+      --danger: #ef4444;
+      --border: #e5e7eb;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: linear-gradient(135deg, #eef2ff 0%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .topbar .btn,
+    .card .btn,
+    .item-actions button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .topbar .btn:hover,
+    .card .btn:hover,
+    .item-actions button:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 8px 16px rgba(79, 70, 229, 0.18);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 18px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"], input[type="url"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 13px;
+      min-height: 20px;
+      color: var(--muted);
+    }
+
+    .status.success { color: #0f766e; }
+    .status.error { color: var(--danger); }
+
+    .list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .item {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      background: #fcfdff;
+    }
+
+    .item-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .item-title a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .item-title a:hover {
+      color: var(--accent);
+    }
+
+    .item-url {
+      font-size: 13px;
+      color: var(--muted);
+      word-break: break-all;
+    }
+
+    .item-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .item-actions button {
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    .item-actions .edit-btn {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .item-actions .delete-btn {
+      background: #fef2f2;
+      color: var(--danger);
+    }
+
+    .empty {
+      text-align: center;
+      padding: 28px 12px;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      background: #fcfdff;
+    }
+
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <h1>资源备忘</h1>
+      <a class="btn btn-secondary" href="../index.html">返回首页</a>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2 id="formTitle">新增备忘</h2>
+        <form id="bookmarkForm">
+          <div class="form-group">
+            <label for="bookmarkTitle">标题</label>
+            <input id="bookmarkTitle" name="title" type="text" placeholder="例如：GitHub 仓库" required>
+          </div>
+          <div class="form-group">
+            <label for="bookmarkUrl">链接</label>
+            <input id="bookmarkUrl" name="url" type="url" placeholder="https://example.com" required>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit" id="submitBtn">保存</button>
+            <button class="btn btn-secondary" type="button" id="cancelEditBtn" style="display:none;">取消</button>
+          </div>
+        </form>
+        <div id="statusMessage" class="status">正在加载数据…</div>
+      </section>
+
+      <section class="card">
+        <h2>备忘列表</h2>
+        <div id="bookmarkList"></div>
+      </section>
+    </div>
+  </div>
+
+  <script src="lib/dayjs.min.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/storage.js"></script>
+  <script src="assets/js/bookmarks.js"></script>
+</body>
+</html>

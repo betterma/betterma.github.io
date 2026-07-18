@@ -8,170 +8,271 @@
   <meta http-equiv="Expires" content="0">
   <title>首页导航 - 蚂蚱导航</title>
   <style>
+    :root {
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      padding: 0;
       min-height: 100vh;
-      background: linear-gradient(135deg, #e0e5ec 0%, #f5f6fa 100%);
+      padding: 24px 16px 40px;
       font-family: 'SF Pro Display', 'PingFang SC', 'Hiragino Sans GB', 'Arial', sans-serif;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
+      color: #f8f7ff;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 92, 196, 0.45) 0, rgba(255, 92, 196, 0) 26%),
+        radial-gradient(circle at 80% 20%, rgba(98, 255, 227, 0.35) 0, rgba(98, 255, 227, 0) 22%),
+        radial-gradient(circle at 50% 80%, rgba(120, 122, 255, 0.4) 0, rgba(120, 122, 255, 0) 24%),
+        linear-gradient(135deg, #140d2f 0%, #24185f 45%, #0e2147 100%);
+      overflow-x: hidden;
+      position: relative;
     }
+
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      filter: blur(38px);
+      opacity: 0.4;
+      pointer-events: none;
+      animation: float 10s ease-in-out infinite alternate;
+    }
+
+    body::before {
+      top: -80px;
+      left: -60px;
+      background: rgba(255, 103, 178, 0.35);
+    }
+
+    body::after {
+      bottom: -90px;
+      right: -80px;
+      background: rgba(78, 197, 255, 0.3);
+      animation-duration: 13s;
+    }
+
+    @keyframes float {
+      from { transform: translate3d(0, 0, 0) scale(1); }
+      to { transform: translate3d(20px, -20px, 0) scale(1.08); }
+    }
+
+    .page-shell {
+      width: min(100%, 980px);
+      position: relative;
+      z-index: 1;
+    }
+
     h1 {
-      font-size: 2.2rem;
-      margin-bottom: 2rem;
-      color: #333;
-      letter-spacing: 2px;
-      text-shadow: 0 2px 8px #fff8, 0 1px 0 #fff;
+      margin: 0 0 8px;
+      font-size: clamp(1.9rem, 3.2vw, 2.8rem);
+      letter-spacing: 0.06em;
+      color: #ffffff;
+      text-shadow: 0 0 25px rgba(255, 255, 255, 0.22);
     }
+
+    .subtitle {
+      margin: 0 0 24px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.98rem;
+      letter-spacing: 0.04em;
+    }
+
     .nav-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 2rem;
-      width: 90vw;
-      max-width: 700px;
-      margin: 0 auto;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 1.1rem;
+      margin-bottom: 1.2rem;
     }
+
     .nav-item {
-      background: #f7f8fa;
-      border-radius: 28px;
-      box-shadow: 0 6px 24px #bfc9d8aa, 0 1.5px 0 #fff inset;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 2.2rem 1rem 1.2rem 1rem;
-      transition: transform 0.15s, box-shadow 0.15s;
+      min-height: 128px;
+      padding: 1.2rem 0.9rem;
       text-decoration: none;
-      color: #222;
-      font-size: 1.15rem;
-      font-weight: 500;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.11);
+      box-shadow: 0 12px 32px rgba(8, 15, 37, 0.28);
+      backdrop-filter: blur(16px);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
       position: relative;
       overflow: hidden;
     }
+
+    .nav-item::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.16), transparent 70%);
+      pointer-events: none;
+    }
+
+    .nav-item:hover,
+    .nav-item:focus-visible {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 40px rgba(8, 15, 37, 0.35);
+      background: rgba(255, 255, 255, 0.16);
+    }
+
     .nav-item:active {
       transform: scale(0.97);
-      box-shadow: 0 2px 8px #bfc9d8cc;
     }
-    .nav-icon {
-      width: 48px;
-      height: 48px;
-      margin-bottom: 1rem;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #e0e5ec 0%, #f5f6fa 100%);
-      box-shadow: 0 2px 8px #bfc9d8aa, 0 1.5px 0 #fff inset;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-    }
-    /* 更多 下拉 */
-    .more-dropdown {
-      position: relative;
-      width: 100%;
-      /* 允许下拉内容超出父项显示，避免被 .nav-item 的 overflow:hidden 裁切 */
-      overflow: visible;
-    }
-    .dropdown-button {
-      width: 100%;
-      border-radius: 28px;
-      padding: 1.2rem 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      cursor: pointer;
-      background: linear-gradient(180deg,#fafbfd,#eef2f7);
-      box-shadow: 0 6px 18px #c7d1e1aa;
-    }
-    .dropdown-content {
-      position: absolute;
-      top: calc(100% + 12px);
-      right: 0;
-      left: 0;
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(17,24,39,0.12);
-      padding: 8px;
-      display: none;
-      z-index: 9999;
-      min-width: 180px;
-    }
-    .dropdown-content a {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      color: #111827;
-      text-decoration: none;
-      border-radius: 8px;
-      font-size: 0.98rem;
-    }
-    .dropdown-content a:hover { background: #f3f4f6; }
-    .dropdown-open .dropdown-content { display: block !important; z-index: 9999; }
 
-    @media (max-width: 600px) {
-      h1 {
-        font-size: 1.4rem;
-        margin-bottom: 1.2rem;
+    .nav-icon {
+      width: 50px;
+      height: 50px;
+      margin-bottom: 0.7rem;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      background: linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+
+    .more-section {
+      border-radius: 24px;
+      padding: 16px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 12px 32px rgba(8, 15, 37, 0.22);
+      backdrop-filter: blur(16px);
+    }
+
+    .more-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .more-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+    }
+
+    .more-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 0.92rem;
+      border-radius: 999px;
+      text-decoration: none;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: transform 0.16s ease, background 0.16s ease;
+    }
+
+    .more-chip:hover,
+    .more-chip:focus-visible {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 24px 12px 32px;
       }
+
       .nav-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.2rem;
-        width: 98vw;
-        max-width: 400px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.8rem;
       }
+
       .nav-item {
-        padding: 1.2rem 0.5rem 0.7rem 0.5rem;
-        font-size: 1rem;
-        border-radius: 18px;
+        min-height: 110px;
+        padding: 1rem 0.7rem;
+        font-size: 0.95rem;
+        border-radius: 20px;
       }
+
       .nav-icon {
-        width: 38px;
-        height: 38px;
-        font-size: 1.3rem;
-        border-radius: 10px;
+        width: 42px;
+        height: 42px;
+        font-size: 1.4rem;
+        border-radius: 12px;
       }
-      .dropdown-content { position: static; margin-top: 8px; box-shadow: none; }
+
+      .more-links {
+        gap: 0.6rem;
+      }
+
+      .more-chip {
+        flex: 1 1 calc(50% - 0.6rem);
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .nav-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .more-chip {
+        flex-basis: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>蚂蚱导航</h1>
-  <div class="nav-grid">
-    <!-- 仅保留重点入口，其他收纳到“更多” -->
-    <a class="nav-item" href="https://betterma.github.io/pages" target="_blank">
-      <div class="nav-icon">📊</div>
-      数据处理
-    </a>
-    <a class="nav-item" href="https://betterma.github.io/memory?v=20250105" target="_blank">
-      <div class="nav-icon">🧠</div>
-      蚂蚱记忆
-    </a>
-     <a class="nav-item" href="https://betterma.github.io/body?v=20250105" target="_blank">
-      <div class="nav-icon">🧠</div>
-      蚂蚱计划
-    </a>
+  <main class="page-shell">
+    <h1>蚂蚱导航</h1>
+    <p class="subtitle">把常用入口收纳成一张更轻松的“迷幻主页”</p>
 
-    <div class="more-dropdown nav-item" id="moreDropdown">
-      <div class="dropdown-button" id="moreBtn" role="button" aria-haspopup="true" aria-expanded="false">
-        <div class="nav-icon">⋯</div>
-        更多
-      </div>
-      <div class="dropdown-content" aria-label="更多链接">
-        <a href="https://betterma.github.io/book?v=20250105" target="_blank"><span>📚</span> 阅读资源</a>
-        <a href="https://betterma.github.io/cook?v=20250105" target="_blank"><span>👨‍🍳</span> 我是厨神</a>
-        <a href="jinfeng/index.html?v=20250105" target="_blank"><span>🏠</span> 租赁管理</a>
-        <a href="vedio/index.html?v=20250105" target="_blank"><span>🧭</span> 搬运流程</a>
-        <a href="encry/index.html?v=20250105" target="_blank"><span>MI</span> 加MI工具</a>
-        <a href="ipcheck/ipcheck.html?v=20250105" target="_blank"><span>🔎</span> IP Check</a>
-        <a href="baby_plan/time/index.html?v=20250105" target="_blank"><span>🏖️</span> 请假排期</a>
-      </div>
+    <div class="nav-grid">
+      <a class="nav-item" href="https://betterma.github.io/pages" target="_blank">
+        <div class="nav-icon">📊</div>
+        数据处理
+      </a>
+      <a class="nav-item" href="https://betterma.github.io/memory?v=20250105" target="_blank">
+        <div class="nav-icon">🧠</div>
+        蚂蚱记忆
+      </a>
+      <a class="nav-item" href="https://betterma.github.io/body?v=20250105" target="_blank">
+        <div class="nav-icon">🧠</div>
+        蚂蚱计划
+      </a>
+      <a class="nav-item" href="memory/bookmarks.html?v=20250105" target="_blank">
+        <div class="nav-icon">📝</div>
+        资源备忘
+      </a>
     </div>
-  </div>
-  
+
+    <section class="more-section" aria-label="更多入口">
+      <div class="more-title">更多入口</div>
+      <div class="more-links">
+        <a class="more-chip" href="https://betterma.github.io/book?v=20250105" target="_blank"><span>📚</span> 阅读资源</a>
+        <a class="more-chip" href="https://betterma.github.io/cook?v=20250105" target="_blank"><span>👨‍🍳</span> 我是厨神</a>
+        <a class="more-chip" href="vedio/index.html?v=20250105" target="_blank"><span>🧭</span> 搬运流程</a>
+        <a class="more-chip" href="encry/index.html?v=20250105" target="_blank"><span>MI</span> 加MI工具</a>
+        <a class="more-chip" href="ipcheck/ipcheck.html?v=20250105" target="_blank"><span>🔎</span> IP Check</a>
+        <a class="more-chip" href="baby_plan/time/index.html?v=20250105" target="_blank"><span>🏖️</span> 请假排期</a>
+      </div>
+    </section>
+  </main>
+
   <script>
     // 强制刷新缓存
     if ('serviceWorker' in navigator) {
@@ -195,61 +296,6 @@
     console.log('蚂蚱导航 v20250105 - 缓存已清除');
   </script>
 
-  <script>
-    (function() {
-      var moreBtn = document.getElementById('moreBtn');
-      var moreDropdown = document.getElementById('moreDropdown');
-      if (!moreBtn || !moreDropdown) return;
 
-      var dropdownContent = moreDropdown.querySelector('.dropdown-content');
-
-      function closeDropdown() {
-        // 恢复内联样式并移除类
-        if (dropdownContent) {
-          dropdownContent.style.position = '';
-          dropdownContent.style.left = '';
-          dropdownContent.style.top = '';
-          dropdownContent.style.width = '';
-        }
-        moreDropdown.classList.remove('dropdown-open');
-        moreBtn.setAttribute('aria-expanded','false');
-        console.debug('moreDropdown closed');
-      }
-
-      function openDropdown() {
-        moreDropdown.classList.add('dropdown-open');
-        moreBtn.setAttribute('aria-expanded','true');
-        console.debug('moreDropdown opened (class added)');
-
-        // 强制使用 fixed 定位并计算位置，避免被父容器裁切或 z-index 问题
-        if (dropdownContent) {
-          var rect = moreDropdown.getBoundingClientRect();
-          dropdownContent.style.position = 'fixed';
-          dropdownContent.style.left = rect.left + 'px';
-          dropdownContent.style.top = (rect.bottom + 12) + 'px';
-          dropdownContent.style.width = rect.width + 'px';
-          dropdownContent.style.display = 'block';
-          console.debug('dropdown positioned fixed at', dropdownContent.style.left, dropdownContent.style.top);
-        }
-      }
-
-      // 点击切换（移动端友好）
-      moreBtn.addEventListener('click', function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        // 切换显示状态
-        if (moreDropdown.classList.contains('dropdown-open')) closeDropdown(); else openDropdown();
-      });
-
-      // 点击外部关闭（仅当点击目标不在下拉容器内时）
-      document.addEventListener('click', function(e){ if (!moreDropdown.contains(e.target)) closeDropdown(); });
-
-      // Esc 关闭
-      document.addEventListener('keyup', function(e){ if (e.key === 'Escape') closeDropdown(); });
-
-      // 在窗口调整时关闭
-      window.addEventListener('resize', closeDropdown);
-    })();
-  </script>
 </body>
 </html>
