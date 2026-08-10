@@ -1,3 +1,4 @@
+
 :root {
   color-scheme: light;
   --bg: #f4f7fb;
@@ -124,13 +125,18 @@ textarea {
 }
 
 .history-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  display: flex;
+  flex-wrap: nowrap;
   gap: 16px;
-  align-items: start;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 12px;
+  margin-top: 12px;
 }
 
 .history-column {
+  min-width: 240px;
+  max-width: 280px;
   background: #fbfdff;
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -138,7 +144,6 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  min-height: 220px;
 }
 
 .history-column-header {
@@ -149,27 +154,26 @@ textarea {
   color: var(--muted);
 }
 
-.history-column ul {
+.word-chip-list {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
-.history-column li {
+.word-chip {
+  display: inline-flex;
   padding: 8px 10px;
-  border-radius: 10px;
-  background: #ffffff;
-  border: 1px solid var(--border);
-  word-break: break-word;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.92rem;
+  color: #111827;
 }
 
-.history-column li.highlight {
-  background: #fff7ed;
-  border-color: #fdba74;
-  color: #9a2c00;
+.word-chip.highlight {
+  box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.18);
 }
 
 .history-column-footer {
@@ -196,5 +200,5 @@ textarea {
 @media (max-width: 768px) {
   .tracker-shell { padding: 16px 12px 32px; }
   .tracker-header { flex-direction: column; }
-  .history-grid { grid-template-columns: 1fr; }
+  .history-grid { display: block; }
 }

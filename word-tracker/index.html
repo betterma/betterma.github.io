@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>单词记录台</title>
+  <title>标的记录台</title>
   <link rel="stylesheet" href="assets/css/word-tracker.css" />
 </head>
 <body>
   <div class="tracker-shell">
     <header class="tracker-header">
       <div>
-        <h1>单词记录台</h1>
-        <p>把每次保存的词汇作为一列，查看重复次数并删除某一次记录。</p>
+        <h1>标的记录台</h1>
+        <p>把每次保存的标的作为一列，横向排列并支持单次删除。</p>
       </div>
       <div class="header-actions">
         <a class="btn btn-secondary" href="../index.html">返回首页</a>
@@ -19,8 +19,8 @@
     </header>
 
     <section class="input-panel">
-      <label for="wordInput">本次保存的单词</label>
-      <textarea id="wordInput" placeholder="输入单词，多个单词用换行、空格或逗号隔开"></textarea>
+      <label for="wordInput">本次保存的标的</label>
+      <textarea id="wordInput" placeholder="输入标的，多个标的用换行、空格或逗号隔开"></textarea>
       <div class="input-actions">
         <button id="saveBtn" class="btn btn-primary">保存这一组</button>
         <button id="clearInputBtn" class="btn btn-secondary">清空</button>
@@ -38,12 +38,13 @@
     <section class="history-panel">
       <div class="history-head">
         <h2>保存记录</h2>
-        <p>每次保存会占一列，点击列下方按钮可删除该次记录。</p>
+        <p>每次保存会占一列，并横向排列，支持左右滚动。</p>
       </div>
       <div id="historyGrid" class="history-grid"></div>
     </section>
   </div>
 
+  <script src="assets/js/storage.js"></script>
   <script src="assets/js/word-tracker.js"></script>
 </body>
 </html>
