@@ -135,11 +135,8 @@ textarea {
 }
 
 .history-column {
-  min-width: 240px;
   max-width: 280px;
   background: #fbfdff;
-  border: 1px solid var(--border);
-  border-radius: 14px;
   padding: 14px;
   display: flex;
   flex-direction: column;
@@ -163,8 +160,6 @@ textarea {
 .word-chip {
   display: block;
   width: 100%;
-  padding: 10px 12px;
-  border-radius: 12px;
   border: 1px solid transparent;
   font-size: 0.95rem;
   color: #111827;

@@ -68,13 +68,17 @@ function renderHistory(records) {
     return;
   }
 
+  const frequencyMap = buildFrequencyMap(records);
+
   historyGrid.innerHTML = records
     .map((items, index) => {
       const previousFrequencyMap = buildPreviousFrequencyMap(records, index);
       const wordChips = items.map(word => {
         const lower = word.toLowerCase();
         const isRepeated = previousFrequencyMap.get(lower) > 0;
-        return `<li class="word-chip${isRepeated ? ' highlight' : ''}" style="${getWordStyle(lower)}">${word}</li>`;
+        const totalCount = frequencyMap.get(lower) || 0;
+        const style = totalCount > 1 ? getWordStyle(lower) : '';
+        return `<li class="word-chip${isRepeated ? ' highlight' : ''}" style="${style}">${word}</li>`;
       });
 
       return `
