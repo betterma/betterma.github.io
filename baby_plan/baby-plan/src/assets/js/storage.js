@@ -3,7 +3,7 @@ const BabyStorage = (function() {
   const GITHUB_USERNAME = 'betterma';
   const GITHUB_REPO = 'betterma.github.io';  // 修改为正确的仓库名
   const BASE_PATH = 'baby_plan/data';
-  const TOKEN = 'gith' + 'ub_pat_11AJKESVI04gWNYmNeUflS_IrzWyyWiIJrvY8ZXAss7C7GQYg3OlPnWmBGqSdVFsqsAJPFBPTIE5ksm9jp';
+  const TOKEN = 'gith' + 'ub_pat_11AJKESVI0UcWAPoy2Ozk6_SS8cF48k1D8PakPOyYz2mc6rqAc9Z2U5uNTqX5k7vlL5WYDXCNN3JLagkcb';
 
 
   // 私有方法
