@@ -44,7 +44,9 @@ function buildPreviousFrequencyMap(records, currentIndex) {
 function renderStats(records) {
   const statsList = document.getElementById('statsList');
   const frequencyMap = buildFrequencyMap(records);
-  const sorted = [...frequencyMap.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  const sorted = [...frequencyMap.entries()]
+    .filter(([, count]) => count > 1)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 
   if (!sorted.length) {
     statsList.innerHTML = '<div class="empty-state">暂时还没有统计结果。</div>';
@@ -113,9 +115,24 @@ async function handleSave() {
     return;
   }
 
+  const deduped = [];
+  const seen = new Set();
+  words.forEach(word => {
+    const lower = word.toLowerCase();
+    if (!seen.has(lower)) {
+      seen.add(lower);
+      deduped.push(word);
+    }
+  });
+
+  if (!deduped.length) {
+    alert('本次保存的标的已全部重复，请输入新的内容');
+    return;
+  }
+
   try {
     const records = await storage.getRecords();
-    records.push(words);
+    records.push(deduped);
     await storage.saveRecords(records);
     document.getElementById('wordInput').value = '';
     render(records);
