@@ -158,18 +158,21 @@ textarea {
   list-style: none;
   padding: 0;
   margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
 }
 
 .word-chip {
-  display: inline-flex;
-  padding: 8px 10px;
-  border-radius: 999px;
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
   border: 1px solid transparent;
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   color: #111827;
+  margin-bottom: 10px;
+}
+
+.word-chip:last-child {
+  margin-bottom: 0;
 }
 
 .word-chip.highlight {
