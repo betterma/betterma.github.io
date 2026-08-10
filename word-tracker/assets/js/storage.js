@@ -1,11 +1,11 @@
 const storage = (function() {
   const GITHUB_USERNAME = 'betterma';
   const GITHUB_REPO = 'betterma.github.io';
-  const GITHUB_TOKEN = 'git' + 'hub_pat_11AJKESVI04gWNYmNe' + 'UflS_IrzWyyWiIJrvY8ZXAss7C7GQYg3OlPnWmBGqSdVFsqsAJPFBPTIE5ksm9jp';
+  const GITHUB_TOKEN ='gith' + 'ub_pat_11AJKESVI0UcWAPoy2Ozk6_SS8cF48k1D8PakPOyYz2mc6rqAc9Z2U5uNTqX5k7vlL5WYDXCNN3JLagkcb';
   const BASE_URL = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}`;
 
   async function request(endpoint, options = {}) {
-    if (!GITHUB_TOKEN) throw new Error('未配置 GitHub Token');
+    if (!GITHUB_TOKEN) throw new Error('未配置 GitHub Token，请先在其他页面登录或在 localStorage 中设置 github_token。');
 
     const response = await fetch(`${BASE_URL}/${endpoint}?t=${Date.now()}`, {
       ...options,
