@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>资源备忘 · 操场</title>
+  <style>
+    :root {
+      --sky-top: #87c5e8;
+      --sky-mid: #b8dfc8;
+      --ground: #7cb87a;
+      --ground-deep: #5a9a58;
+      --ink: #1f2d24;
+      --muted: rgba(31, 45, 36, 0.55);
+      --chip: rgba(255, 255, 255, 0.88);
+      --chip-border: rgba(31, 45, 36, 0.12);
+      --accent: #2d6a4f;
+      --danger: #c1121f;
+      --shadow: 0 10px 28px rgba(20, 40, 28, 0.18);
+      --font-display: "DM Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+      --font-note: "Caveat", "Segoe Print", "PingFang SC", cursive;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-display);
+      color: var(--ink);
+      cursor: default;
+      user-select: none;
+    }
+
+    .playground {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background:
+        radial-gradient(ellipse 120% 60% at 50% -10%, rgba(255, 255, 255, 0.45), transparent 55%),
+        linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 42%, var(--ground) 72%, var(--ground-deep) 100%);
+      overflow: hidden;
+    }
+
+    .playground::before {
+      content: "";
+      position: absolute;
+      inset: 58% 0 0;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          transparent 0 46px,
+          rgba(255, 255, 255, 0.06) 46px 48px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          transparent 0 46px,
+          rgba(0, 0, 0, 0.03) 46px 48px
+        );
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .playground::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 68%;
+      width: min(52vw, 420px);
+      height: min(28vw, 220px);
+      transform: translate(-50%, -50%);
+      border: 2px solid rgba(255, 255, 255, 0.28);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .top-bar {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .brand {
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand strong {
+      font-size: 1.15rem;
+      letter-spacing: 0.04em;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+
+    .brand span {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .top-actions {
+      pointer-events: auto;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .ghost-btn {
+      border: 1px solid rgba(31, 45, 36, 0.14);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      text-decoration: none;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .ghost-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .status-pill {
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.55);
+      border-radius: 999px;
+      padding: 6px 10px;
+      max-width: 180px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-pill.ok { color: var(--accent); }
+    .status-pill.err { color: var(--danger); }
+
+    .hint {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 40;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.85);
+      background: rgba(31, 45, 36, 0.35);
+      padding: 8px 14px;
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .hint.hide { opacity: 0; }
+
+    .fab {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 60;
+      width: 56px;
+      height: 56px;
+      border: none;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 1.8rem;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .fab:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 14px 32px rgba(45, 106, 79, 0.35);
+    }
+
+    .item {
+      position: absolute;
+      z-index: 10;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .item.dragging {
+      cursor: grabbing;
+      z-index: 30;
+      opacity: 0.95;
+      transform: scale(1.04);
+    }
+
+    .bookmark {
+      min-width: 88px;
+      max-width: 140px;
+      padding: 12px 10px 10px;
+      border-radius: 18px;
+      background: var(--chip);
+      border: 1px solid var(--chip-border);
+      box-shadow: var(--shadow);
+      text-align: center;
+      transition: box-shadow 0.2s ease;
+    }
+
+    .bookmark:hover {
+      box-shadow: 0 14px 34px rgba(20, 40, 28, 0.22);
+    }
+
+    .bookmark-icon {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto 8px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #fff;
+      background: linear-gradient(145deg, #40916c, #1b4332);
+    }
+
+    .bookmark-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .item-actions {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      display: none;
+      gap: 4px;
+    }
+
+    .item:hover .item-actions,
+    .item:focus-within .item-actions {
+      display: flex;
+    }
+
+    .item-actions button {
+      width: 24px;
+      height: 24px;
+      border: none;
+      border-radius: 50%;
+      font-size: 12px;
+      cursor: pointer;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      color: var(--ink);
+    }
+
+    .item-actions .del { color: var(--danger); }
+
+    .note {
+      min-width: 80px;
+      max-width: 220px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      background: transparent;
+    }
+
+    .note-text,
+    .note-input {
+      font-family: var(--font-note);
+      font-size: 1.35rem;
+      line-height: 1.35;
+      color: var(--ink);
+      background: rgba(255, 252, 230, 0.82);
+      border: 1px dashed rgba(31, 45, 36, 0.25);
+      border-radius: 6px;
+      padding: 8px 10px;
+      min-width: 96px;
+      max-width: 220px;
+      word-break: break-word;
+      white-space: pre-wrap;
+      box-shadow: 0 6px 16px rgba(20, 40, 28, 0.12);
+    }
+
+    .note-input {
+      outline: none;
+      resize: none;
+      width: 180px;
+      min-height: 44px;
+      cursor: text;
+      user-select: text;
+      font-family: var(--font-note);
+    }
+
+    .note.editing { z-index: 40; }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(20, 40, 28, 0.45);
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal.show { display: flex; }
+
+    .modal-panel {
+      width: min(100%, 420px);
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    .modal-panel h2 {
+      font-size: 1.15rem;
+      margin-bottom: 16px;
+    }
+
+    .form-group { margin-bottom: 12px; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      width: 100%;
+      border: 1px solid rgba(31, 45, 36, 0.16);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .form-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.15);
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: rgba(31, 45, 36, 0.08);
+      color: var(--ink);
+    }
+
+    @media (max-width: 640px) {
+      .brand span { display: none; }
+      .hint { font-size: 0.72rem; max-width: 80vw; text-align: center; }
+      .status-pill { display: none; }
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=DM+Sans:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="playground" id="playground">
+    <div class="top-bar">
+      <div class="brand">
+        <strong>资源备忘</strong>
+        <span>拖动摆放 · 双击写字 · 位置云端同步</span>
+      </div>
+      <div class="top-actions">
+        <div class="status-pill" id="statusPill">加载中…</div>
+        <a class="ghost-btn" href="index.html">返回首页</a>
+      </div>
+    </div>
+
+    <p class="hint" id="hint">双击空白处写便签 · 右下角 + 添加网站</p>
+    <button class="fab" id="addBtn" type="button" title="新建网站">+</button>
+  </div>
+
+  <div class="modal" id="siteModal" role="dialog" aria-modal="true">
+    <div class="modal-panel">
+      <h2 id="modalTitle">新建网站</h2>
+      <form id="siteForm">
+        <input type="hidden" id="editId">
+        <div class="form-group">
+          <label for="siteTitle">标题</label>
+          <input id="siteTitle" type="text" placeholder="例如：GitHub" required>
+        </div>
+        <div class="form-group">
+          <label for="siteUrl">链接</label>
+          <input id="siteUrl" type="url" placeholder="https://example.com" required>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-secondary" type="button" id="cancelBtn">取消</button>
+          <button class="btn btn-primary" type="submit">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="memory/assets/js/auth.js"></script>
+  <script src="memory/assets/js/storage.js"></script>
+  <script>
+    (function () {
+      const DATA_PATH = 'bookmarks.json';
+      const playground = document.getElementById('playground');
+      const statusPill = document.getElementById('statusPill');
+      const hint = document.getElementById('hint');
+      const addBtn = document.getElementById('addBtn');
+      const siteModal = document.getElementById('siteModal');
+      const siteForm = document.getElementById('siteForm');
+      const modalTitle = document.getElementById('modalTitle');
+      const editIdInput = document.getElementById('editId');
+      const siteTitle = document.getElementById('siteTitle');
+      const siteUrl = document.getElementById('siteUrl');
+      const cancelBtn = document.getElementById('cancelBtn');
+
+      let data = { bookmarks: [], notes: [] };
+      let saveTimer = null;
+      let saving = false;
+      let dirty = false;
+
+      function setStatus(msg, type) {
+        statusPill.textContent = msg;
+        statusPill.className = 'status-pill' + (type ? ' ' + type : '');
+      }
+
+      function clamp(n, min, max) {
+        return Math.max(min, Math.min(max, n));
+      }
+
+      function pxToPercent(x, y, el) {
+        const w = playground.clientWidth;
+        const h = playground.clientHeight;
+        const ew = el ? el.offsetWidth : 0;
+        const eh = el ? el.offsetHeight : 0;
+        return {
+          x: clamp((x / Math.max(w - ew, 1)) * 100, 0, 100),
+          y: clamp((y / Math.max(h - eh, 1)) * 100, 0, 100)
+        };
+      }
+
+      function percentToPx(xp, yp, el) {
+        const w = playground.clientWidth;
+        const h = playground.clientHeight;
+        const ew = el ? el.offsetWidth : 0;
+        const eh = el ? el.offsetHeight : 0;
+        return {
+          x: clamp((xp / 100) * Math.max(w - ew, 1), 0, Math.max(w - ew, 0)),
+          y: clamp((yp / 100) * Math.max(h - eh, 1), 0, Math.max(h - eh, 0))
+        };
+      }
+
+      function placeEl(el, xp, yp) {
+        const pos = percentToPx(xp, yp, el);
+        el.style.left = pos.x + 'px';
+        el.style.top = pos.y + 'px';
+      }
+
+      function normalizeLoaded(raw) {
+        if (Array.isArray(raw)) {
+          return {
+            bookmarks: raw.map((item, i) => ({
+              id: String(item.id || Date.now() + i),
+              title: item.title || item.name || '未命名',
+              url: item.url || '',
+              x: typeof item.x === 'number' ? item.x : 20 + (i % 5) * 12,
+              y: typeof item.y === 'number' ? item.y : 25 + Math.floor(i / 5) * 14
+            })),
+            notes: []
+          };
+        }
+        return {
+          bookmarks: Array.isArray(raw.bookmarks) ? raw.bookmarks.map((item, i) => ({
+            id: String(item.id || Date.now() + i),
+            title: item.title || '未命名',
+            url: item.url || '',
+            x: typeof item.x === 'number' ? item.x : 20 + (i % 5) * 12,
+            y: typeof item.y === 'number' ? item.y : 25 + Math.floor(i / 5) * 14
+          })) : [],
+          notes: Array.isArray(raw.notes) ? raw.notes.map((item, i) => ({
+            id: String(item.id || 'n' + Date.now() + i),
+            text: item.text || '',
+            x: typeof item.x === 'number' ? item.x : 50,
+            y: typeof item.y === 'number' ? item.y : 50
+          })).filter(n => n.text.trim()) : []
+        };
+      }
+
+      async function loadData() {
+        try {
+          setStatus('加载中…');
+          let raw = null;
+          try {
+            const file = await storage.getFile(DATA_PATH);
+            if (file.content) raw = JSON.parse(file.content);
+          } catch (e) {
+            console.warn('根目录数据读取失败，尝试旧路径', e);
+          }
+          if (!raw) {
+            try {
+              const legacy = await storage.getFile('memory/bookmarks.json');
+              if (legacy.content) raw = JSON.parse(legacy.content);
+            } catch (e) {
+              console.warn(e);
+            }
+          }
+          data = normalizeLoaded(raw || { bookmarks: [], notes: [] });
+          renderAll();
+          setStatus('已同步', 'ok');
+          scheduleSave(true);
+        } catch (err) {
+          console.error(err);
+          setStatus('加载失败', 'err');
+        }
+      }
+
+      function scheduleSave(force) {
+        dirty = true;
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(persist, force ? 0 : 450);
+      }
+
+      async function persist() {
+        if (saving) {
+          scheduleSave();
+          return;
+        }
+        if (!dirty) return;
+        dirty = false;
+        saving = true;
+        setStatus('保存中…');
+        try {
+          const payload = JSON.stringify(data, null, 2);
+          await storage.saveFile(DATA_PATH, payload);
+          setStatus('已同步', 'ok');
+        } catch (err) {
+          console.error(err);
+          dirty = true;
+          setStatus('保存失败', 'err');
+        } finally {
+          saving = false;
+          if (dirty) scheduleSave();
+        }
+      }
+
+      function clearItems() {
+        playground.querySelectorAll('.item').forEach(el => el.remove());
+      }
+
+      function renderAll() {
+        clearItems();
+        data.bookmarks.forEach(renderBookmark);
+        data.notes.forEach(renderNote);
+      }
+
+      function renderBookmark(item) {
+        const el = document.createElement('div');
+        el.className = 'item bookmark';
+        el.dataset.id = item.id;
+        el.dataset.type = 'bookmark';
+        el.innerHTML = `
+          <div class="item-actions">
+            <button type="button" class="edit" title="编辑">✎</button>
+            <button type="button" class="del" title="删除">×</button>
+          </div>
+          <div class="bookmark-icon">${(item.title || '?').charAt(0).toUpperCase()}</div>
+          <div class="bookmark-title"></div>
+        `;
+        el.querySelector('.bookmark-title').textContent = item.title;
+        playground.appendChild(el);
+        placeEl(el, item.x, item.y);
+        enableDrag(el, item);
+
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('.item-actions')) return;
+          if (el.dataset.didDrag === '1') return;
+          if (item.url) window.open(item.url, '_blank', 'noopener,noreferrer');
+        });
+        el.querySelector('.edit').addEventListener('click', (e) => {
+          e.stopPropagation();
+          openEditModal(item);
+        });
+        el.querySelector('.del').addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (!confirm('删除这个网站？')) return;
+          data.bookmarks = data.bookmarks.filter(b => b.id !== item.id);
+          el.remove();
+          scheduleSave();
+        });
+      }
+
+      function renderNote(item) {
+        const el = document.createElement('div');
+        el.className = 'item note';
+        el.dataset.id = item.id;
+        el.dataset.type = 'note';
+        el.innerHTML = `
+          <div class="item-actions">
+            <button type="button" class="del" title="删除">×</button>
+          </div>
+          <div class="note-text"></div>
+        `;
+        el.querySelector('.note-text').textContent = item.text;
+        playground.appendChild(el);
+        placeEl(el, item.x, item.y);
+        enableDrag(el, item);
+
+        el.querySelector('.del').addEventListener('click', (e) => {
+          e.stopPropagation();
+          data.notes = data.notes.filter(n => n.id !== item.id);
+          el.remove();
+          scheduleSave();
+        });
+
+        el.querySelector('.note-text').addEventListener('dblclick', (e) => {
+          e.stopPropagation();
+          beginEditNote(el, item);
+        });
+      }
+
+      function enableDrag(el, item) {
+        let dragging = false;
+        let didDrag = false;
+        let startX = 0;
+        let startY = 0;
+        let originLeft = 0;
+        let originTop = 0;
+        let pointerId = null;
+
+        el.addEventListener('pointerdown', (e) => {
+          if (e.button !== 0) return;
+          if (e.target.closest('.item-actions')) return;
+          if (e.target.closest('.note-input')) return;
+          if (el.classList.contains('editing')) return;
+
+          dragging = true;
+          didDrag = false;
+          el.dataset.didDrag = '0';
+          pointerId = e.pointerId;
+          el.setPointerCapture(pointerId);
+          startX = e.clientX;
+          startY = e.clientY;
+          originLeft = el.offsetLeft;
+          originTop = el.offsetTop;
+          el.classList.add('dragging');
+          e.preventDefault();
+        });
+
+        el.addEventListener('pointermove', (e) => {
+          if (!dragging || e.pointerId !== pointerId) return;
+          const dx = e.clientX - startX;
+          const dy = e.clientY - startY;
+          if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+            didDrag = true;
+            el.dataset.didDrag = '1';
+          }
+          const maxX = playground.clientWidth - el.offsetWidth;
+          const maxY = playground.clientHeight - el.offsetHeight;
+          const nx = clamp(originLeft + dx, 0, maxX);
+          const ny = clamp(originTop + dy, 0, maxY);
+          el.style.left = nx + 'px';
+          el.style.top = ny + 'px';
+        });
+
+        function endDrag(e) {
+          if (!dragging || (e && e.pointerId !== pointerId)) return;
+          dragging = false;
+          el.classList.remove('dragging');
+          if (didDrag) {
+            const pct = pxToPercent(el.offsetLeft, el.offsetTop, el);
+            item.x = Math.round(pct.x * 100) / 100;
+            item.y = Math.round(pct.y * 100) / 100;
+            scheduleSave();
+          }
+        }
+
+        el.addEventListener('pointerup', endDrag);
+        el.addEventListener('pointercancel', endDrag);
+      }
+
+      function openAddModal() {
+        modalTitle.textContent = '新建网站';
+        editIdInput.value = '';
+        siteForm.reset();
+        siteModal.classList.add('show');
+        setTimeout(() => siteTitle.focus(), 50);
+      }
+
+      function openEditModal(item) {
+        modalTitle.textContent = '编辑网站';
+        editIdInput.value = item.id;
+        siteTitle.value = item.title;
+        siteUrl.value = item.url;
+        siteModal.classList.add('show');
+        setTimeout(() => siteTitle.focus(), 50);
+      }
+
+      function closeModal() {
+        siteModal.classList.remove('show');
+      }
+
+      siteForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const title = siteTitle.value.trim();
+        let url = siteUrl.value.trim();
+        if (!title || !url) return;
+        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+        const editId = editIdInput.value;
+        if (editId) {
+          const item = data.bookmarks.find(b => b.id === editId);
+          if (item) {
+            item.title = title;
+            item.url = url;
+          }
+        } else {
+          data.bookmarks.push({
+            id: String(Date.now()),
+            title,
+            url,
+            x: 45 + Math.random() * 10,
+            y: 40 + Math.random() * 10
+          });
+        }
+        renderAll();
+        scheduleSave();
+        closeModal();
+      });
+
+      cancelBtn.addEventListener('click', closeModal);
+      siteModal.addEventListener('click', (e) => {
+        if (e.target === siteModal) closeModal();
+      });
+      addBtn.addEventListener('click', openAddModal);
+
+      function beginEditNote(el, item) {
+        el.classList.add('editing');
+        const textEl = el.querySelector('.note-text');
+        const input = document.createElement('textarea');
+        input.className = 'note-input';
+        input.value = item.text || '';
+        input.rows = 2;
+        textEl.replaceWith(input);
+        input.focus();
+        input.select();
+
+        const finish = () => {
+          const text = input.value.trim();
+          if (!text) {
+            data.notes = data.notes.filter(n => n.id !== item.id);
+            el.remove();
+            scheduleSave();
+            return;
+          }
+          item.text = text;
+          el.classList.remove('editing');
+          const div = document.createElement('div');
+          div.className = 'note-text';
+          div.textContent = text;
+          input.replaceWith(div);
+          div.addEventListener('dblclick', (ev) => {
+            ev.stopPropagation();
+            beginEditNote(el, item);
+          });
+          placeEl(el, item.x, item.y);
+          scheduleSave();
+        };
+
+        input.addEventListener('blur', finish);
+        input.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Escape') {
+            input.value = item.text || '';
+            input.blur();
+          }
+        });
+        input.addEventListener('pointerdown', (ev) => ev.stopPropagation());
+      }
+
+      function createNoteAt(clientX, clientY) {
+        const temp = document.createElement('div');
+        temp.className = 'item note';
+        temp.style.visibility = 'hidden';
+        temp.innerHTML = '<div class="note-text">占位</div>';
+        playground.appendChild(temp);
+        const rect = playground.getBoundingClientRect();
+        const left = clamp(clientX - rect.left, 0, playground.clientWidth - 120);
+        const top = clamp(clientY - rect.top, 0, playground.clientHeight - 48);
+        const pct = pxToPercent(left, top, temp);
+        temp.remove();
+
+        const item = {
+          id: 'n' + Date.now(),
+          text: '',
+          x: Math.round(pct.x * 100) / 100,
+          y: Math.round(pct.y * 100) / 100
+        };
+        data.notes.push(item);
+
+        const el = document.createElement('div');
+        el.className = 'item note editing';
+        el.dataset.id = item.id;
+        el.dataset.type = 'note';
+        el.innerHTML = `
+          <div class="item-actions">
+            <button type="button" class="del" title="删除">×</button>
+          </div>
+        `;
+        const input = document.createElement('textarea');
+        input.className = 'note-input';
+        input.rows = 2;
+        input.placeholder = '写点什么…';
+        el.appendChild(input);
+        playground.appendChild(el);
+        placeEl(el, item.x, item.y);
+        enableDrag(el, item);
+        input.focus();
+
+        el.querySelector('.del').addEventListener('click', (e) => {
+          e.stopPropagation();
+          data.notes = data.notes.filter(n => n.id !== item.id);
+          el.remove();
+          scheduleSave();
+        });
+
+        const finish = () => {
+          const text = input.value.trim();
+          if (!text) {
+            data.notes = data.notes.filter(n => n.id !== item.id);
+            el.remove();
+            return;
+          }
+          item.text = text;
+          el.classList.remove('editing');
+          const div = document.createElement('div');
+          div.className = 'note-text';
+          div.textContent = text;
+          input.replaceWith(div);
+          div.addEventListener('dblclick', (ev) => {
+            ev.stopPropagation();
+            beginEditNote(el, item);
+          });
+          placeEl(el, item.x, item.y);
+          scheduleSave();
+        };
+
+        input.addEventListener('blur', finish);
+        input.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Escape') {
+            input.value = '';
+            input.blur();
+          }
+        });
+        input.addEventListener('pointerdown', (ev) => ev.stopPropagation());
+      }
+
+      playground.addEventListener('dblclick', (e) => {
+        if (e.target !== playground && !e.target.classList.contains('playground')) return;
+        if (e.target.closest('.item') || e.target.closest('.top-bar') || e.target.closest('.fab') || e.target.closest('.hint')) return;
+        createNoteAt(e.clientX, e.clientY);
+        hint.classList.add('hide');
+      });
+
+      window.addEventListener('resize', () => {
+        playground.querySelectorAll('.item').forEach(el => {
+          const id = el.dataset.id;
+          const type = el.dataset.type;
+          const list = type === 'note' ? data.notes : data.bookmarks;
+          const item = list.find(i => i.id === id);
+          if (item) placeEl(el, item.x, item.y);
+        });
+      });
+
+      setTimeout(() => hint.classList.add('hide'), 5000);
+
+      if (!auth.isAuthenticated()) {
+        setStatus('未认证', 'err');
+        return;
+      }
+      loadData();
+    })();
+  </script>
+</body>
+</html>
