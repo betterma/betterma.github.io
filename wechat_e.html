@@ -85,7 +85,7 @@ footer{max-width:1440px;margin:0 auto;padding:0 20px 24px;color:#7b8189;font-siz
     <div class="hint">
       <b>可用标记：</b><br>
       <code>## 小标题</code> → 小标题；<code>**加粗**</code> → 加粗；<code>==核心观点==</code> → 酒红色重点；<code>++需要强调的句子++</code> → 酒红色下划线；<code>{{概念}}</code> → 蓝色概念；<code>&gt; 引用</code> → 引用块。<br>
-      图片位置可写 <code>[图片：图片内容描述]</code>，预览中会生成占位提示，需在公众号编辑器里自行插入有授权的图片。
+      图片占位可写 <code>[图片：图片内容描述]</code>，预览会提供“搜索图片”入口；若要在预览中显示真实图片，请使用 <code>![图片说明](图片直链)</code>。搜索结果需自行核对来源与授权。
     </div>
     <div class="examples">
       <button data-insert="==核心观点==">插入重点标记</button>
@@ -116,7 +116,7 @@ footer{max-width:1440px;margin:0 auto;padding:0 20px 24px;color:#7b8189;font-siz
   </section>
 </main>
 <footer>
-  使用说明：这是一个单文件本地工具，保存后用浏览器打开即可使用。复制富文本功能依赖浏览器权限；若复制失败，可使用“导出 HTML”，或在预览区全选复制。公众号编辑器最终显示效果可能略有差异，发布前请用手机预览。工具不会自动抓取网络图片，也不会自动发布文章。
+  使用说明：这是一个单文件本地工具，保存后用浏览器打开即可使用。图片占位可一键打开图片搜索；只有写入可访问的图片直链（![说明](图片URL)）后，预览才会显示真实图片。图片搜索不会自动取得授权，也不会自动把网络图片上传到公众号。复制富文本功能依赖浏览器权限；若复制失败，可使用“导出 HTML”，或在预览区全选复制。发布前请用手机预览。
 </footer>
 <script>
 const source = document.getElementById('source');
@@ -195,7 +195,7 @@ function renderMarkdown(md){
     const raw=lines[i], line=raw.trim();
     if(!line){flush();continue;}
     const imageMatch=line.match(/^\[图片：(.+?)\]$/);
-    if(imageMatch){flush();out+=`<div class="image-placeholder">图片位置：${inline(imageMatch[1])}<br><small>请在公众号编辑器中插入已获授权的图片</small></div>`;continue;}
+    if(imageMatch){flush();const query=encodeURIComponent(imageMatch[1]);const searchUrl=`https://www.bing.com/images/search?q=${query}`;out+=`<div class="image-placeholder"><strong>图片位置</strong><div style="margin:6px 0 10px">${inline(imageMatch[1])}</div><a href="${searchUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:6px 10px;border:1px solid #cbd2d9;border-radius:7px;text-decoration:none;background:#fff">搜索相关图片 ↗</a><br><small>选定图片后，请核实来源和授权；需要在文章中显示图片，请使用图片直链语法或在公众号编辑器中上传。</small></div>`;continue;}
     if(/^---+$/.test(line)||/^\*\*\*$/.test(line)){flush();out+='<hr>';continue;}
     const h=line.match(/^(#{1,3})\s+(.+)$/);
     if(h){flush();const level=h[1].length;out+=`<h${level}>${inline(h[2])}</h${level}>`;continue;}
