@@ -51,7 +51,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:25px}
 <body>
 <header><div class="wrap">
 <h1>微信公众号 AI 写作工作流</h1>
-<p>横向导航｜AI 联网研究＋Kimi 整理｜去 AI 味｜独立审稿｜135 编辑器排版｜人工发布</p>
+<p>横向导航｜AI 联网研究｜初稿与审稿｜Markdown 排版＋配图建议｜人工微调发布</p>
 </div></header>
 <main>
 <nav>
@@ -228,36 +228,36 @@ D. 任何可能改变事实含义的修改，单独标出供我确认。
 
 
 <article class="platform">
-<div class="platform-head"><h3><span class="num">6</span>135 编辑器｜美化排版</h3>
-<div class="pills"><span class="pill">样式排版</span><span class="pill">标题层级</span><span class="pill">图文布局</span></div>
-<p class="purpose">把审核通过的正文整理成更适合手机阅读的公众号版式。先从免费可用的样式开始，不必一开始购买会员。</p>
-<a class="link" href="https://www.135editor.com/" target="_blank" rel="noopener">打开 135 编辑器 ↗</a>
-<a class="link secondary" href="https://xiumi.us/" target="_blank" rel="noopener">备选：秀米 ↗</a>
-<div class="action"><strong>怎么操作</strong><br>复制最终正文 → 在编辑器里选择简洁模板 → 统一标题、正文、引用和分隔样式 → 复制/导入到公众号编辑器 → 手机预览。具体导入方式以工具当前界面为准。</div>
-<div class="prompt-label">对应提示词 6｜排版方案生成</div>
-<div class="prompt" id="pformat">请为下面这篇微信公众号文章设计一套简洁、适合手机阅读的排版方案。目标是清晰、耐读，不要过度装饰。
+<div class="platform-head"><h3><span class="num">6</span>ChatGPT｜Markdown 排版＋配图规划</h3>
+<div class="pills"><span class="pill">完整 Markdown</span><span class="pill">插图位置</span><span class="pill">图片来源与版权</span></div>
+<p class="purpose">把通过审稿的正文整理成可复制的 Markdown 稿。根据内容判断是否需要配图；需要真实图片时再联网搜索，提供来源和使用权限线索，不为了好看强行塞图。</p>
+<div class="action"><strong>怎么操作</strong><br>把审稿通过的全文发给 ChatGPT → 要求输出完整 Markdown → 需要配图时让 ChatGPT 搜索素材并逐张列明来源、许可状态和图注 → 复制正文到公众号编辑器 → 按标记位置手动插入图片。Markdown 里的图片标记不会自动把图片上传到公众号。</div>
+<div class="prompt-label">对应提示词 6｜Markdown 排版与配图</div>
+<div class="prompt" id="pformat">请将下面的文章整理成适合微信公众号发布的 Markdown 排版稿。
 
 【文章正文】
 [粘贴已审核的最终稿]
 
-请输出：
-1. 标题、副标题、一级小标题、正文、引用和结尾的层级建议；
-2. 哪些段落适合拆分，哪些地方应保留完整逻辑；
-3. 适合用加粗强调的少量关键词，避免整段加粗；
-4. 如确实有必要，建议 1–3 个配图位置，并说明配图内容；不得假设图片版权自动许可；
-5. 给出一套适合 135 编辑器或秀米使用的简约排版建议：字号层级、行距、段距、强调色、分隔方式；
-6. 不要擅自改写正文事实，不要加入未经核实的引语或装饰性内容。
+要求：
+1. 以排版为主，保留原文核心观点、事实和作者风格；不要擅自把任务变成全文重写。
+2. 优化标题层级、段落节奏、少量重点加粗、引用和留白；避免过度碎片化、营销号式排版和一句一段。
+3. 判断哪些位置确实适合插图，不要为了数量强行配图。若不需要图片，直接说明。
+4. 对需要真实图片的位置，请联网搜索合适素材，优先考虑官方来源、公共领域或许可信息明确的素材；明星、电影剧照等素材尤其要注意版权。
+5. 每张建议图片提供：插入位置、来源页面链接、许可信息（能确认时）、建议图注。无法确认使用权限时明确写“需进一步确认”，不能声称可免费商用。
+6. 不要只给搜索结果缩略图链接；尽量提供原始发布页面或素材许可页面。网上能看到或下载不代表可以直接用于公众号。
+7. 最终先输出完整 Markdown 正文，并在适当位置加入清晰标记，例如【配图 1：建议插入某类图片】；文末另列图片清单、来源链接、许可状态及需要我确认的事项。
+8. 发现原文中的事实疑点时不要自行编造修正，请在正文之外单独列出。
 
-风格偏克制、干净、适合手机阅读。请优先使用容易在免费功能中实现的样式，不要要求付费模板。</div>
+风格要求：克制、自然、耐读，有文学感但不矫饰；优先保持原文节奏，不使用机械的总结腔。</div>
 <button class="copy" onclick="copyPrompt('pformat',this)">复制提示词</button>
 </article>
 
 <article class="platform">
-<div class="platform-head"><h3><span class="num">7</span>微信公众号｜发布</h3>
+<div class="platform-head"><h3><span class="num">7</span>微信公众号编辑器｜人工微调与发布</h3>
 <div class="pills"><span class="pill">标题</span><span class="pill">配图</span><span class="pill">预览</span><span class="pill">发布</span></div>
-<p class="purpose">把审核后的稿件排版、选择有合法使用依据的配图、手机预览，并由你本人决定是否发布。</p>
+<p class="purpose">ChatGPT 负责提供 Markdown 正文、插图位置和图片来源清单；你在公众号编辑器里做最后的格式微调、实际上传图片、预览并决定是否发布。</p>
 <a class="link" href="https://mp.weixin.qq.com/" target="_blank" rel="noopener">进入公众号平台 ↗</a>
-<div class="action"><strong>怎么操作</strong><br>复制审稿通过的正文 → 进入公众号编辑器 → 调整标题与段落 → 检查图片授权、引用来源和当前平台要求 → 手机预览 → 人工发布。</div>
+<div class="action"><strong>怎么操作</strong><br>复制 ChatGPT 输出的 Markdown 正文 → 粘贴到公众号编辑器并检查标题、加粗、引用等格式是否保留 → 按图片标记逐张上传你确认可用的图片 → 删除所有内部配图标记 → 检查来源与平台要求 → 手机预览 → 人工发布。</div>
 <div class="prompt-label">对应提示词 5｜标题与发布前检查</div>
 <div class="prompt" id="p5">请为这篇已经审核过的微信公众号文章生成标题候选，并制作发布前检查清单。
 
@@ -334,7 +334,7 @@ D. 任何可能改变事实含义的修改，单独标出供我确认。
 <a class="link secondary" href="https://www.deepseek.com/" target="_blank" rel="noopener">DeepSeek ↗</a>
 </div>
 </section>
-<footer>微信公众号 AI 写作工作流｜七步横向导航版｜免费优先｜请按平台当前规则和实际后台数据持续调整</footer>
+<footer>微信公众号 AI 写作工作流｜七步横向导航版｜Markdown 优先｜免费优先｜请按平台当前规则和实际后台数据持续调整</footer>
 </main>
 <script>
 function copyPrompt(id,btn){
