@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>公众号自动排版工具</title>
+<style>
+:root{
+  --bg:#f4f5f7;--panel:#fff;--text:#24272b;--muted:#747b84;--line:#e4e7eb;
+  --wine:#8c3038;--blue:#315c72;--soft:#f8eeee;--radius:14px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+header{padding:22px 24px 16px;background:#fff;border-bottom:1px solid var(--line)}
+.header-inner{max-width:1440px;margin:auto;display:flex;gap:20px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+h1{font-size:22px;margin:0 0 6px;font-weight:750;letter-spacing:.2px}
+.sub{font-size:13px;color:var(--muted);line-height:1.6}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+button,select,input[type=color]{font:inherit}
+button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 13px;cursor:pointer;color:var(--text);font-size:13px}
+button:hover{border-color:#aeb6c0}
+button.primary{background:var(--wine);border-color:var(--wine);color:#fff}
+button.dark{background:#25282d;color:#fff;border-color:#25282d}
+main{max-width:1440px;margin:18px auto;padding:0 18px 24px;display:grid;grid-template-columns:minmax(320px,1fr) minmax(320px,1fr);gap:18px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;min-width:0}
+.panel-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.panel-head h2{font-size:15px;margin:0}
+.panel-head span{font-size:12px;color:var(--muted)}
+.editor-wrap{padding:14px}
+textarea{display:block;width:100%;min-height:490px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:14px;font:13px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;color:#25282d;outline:none}
+textarea:focus{border-color:#a8787d;box-shadow:0 0 0 3px #8c30381a}
+.hint{font-size:12px;line-height:1.7;color:var(--muted);padding:0 15px 15px}
+.toolbar{display:flex;gap:7px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--line)}
+.toolbar button{padding:7px 9px}
+.preview-wrap{padding:18px;max-height:720px;overflow:auto;background:#fafafa}
+.article{max-width:660px;margin:0 auto;background:#fff;padding:28px 25px 36px;box-shadow:0 1px 6px #18202a0a;font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:16px;line-height:1.95;overflow-wrap:anywhere}
+.article h1{font-size:25px;line-height:1.5;margin:0 0 22px;color:#202328}
+.article h2{font-size:19px;line-height:1.6;margin:34px 0 15px;padding-left:11px;border-left:4px solid var(--wine);color:#27292d}
+.article h3{font-size:17px;margin:25px 0 12px}
+.article p{margin:0 0 18px;text-align:justify}
+.article strong{font-weight:750}
+.article .key{color:var(--wine);font-weight:750}
+.article .concept{color:var(--blue);font-weight:700}
+.article .underlined{text-decoration:underline;text-decoration-color:var(--wine);text-decoration-thickness:1px;text-underline-offset:4px}
+.article blockquote{margin:22px 0;padding:12px 15px;background:#f7f7f7;border-left:3px solid #b7bdc4;color:#5d626a}
+.article ul,.article ol{padding-left:1.5em;margin:8px 0 20px}
+.article li{margin:7px 0}
+.article hr{border:0;border-top:1px solid #e6e7e9;margin:26px 0}
+.article img{max-width:100%;height:auto;border-radius:5px}
+.article .image-placeholder{padding:14px;border:1px dashed #b9c0c8;background:#fafafa;color:#777;font-size:13px;text-align:center;border-radius:8px;margin:18px 0}
+.article .caption{font-size:12px;color:#888;text-align:center;margin-top:-10px}
+.article a{color:var(--blue)}
+.settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:14px;border-top:1px solid var(--line)}
+.setting{font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.setting select{max-width:150px;border:1px solid var(--line);padding:6px;border-radius:7px;background:white;color:var(--text)}
+.setting input[type=color]{width:35px;height:28px;border:0;background:transparent;padding:0}
+.status{font-size:12px;color:var(--muted);padding:0 15px 14px;min-height:28px}
+.examples{display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 14px}
+.examples button{font-size:12px;padding:6px 8px}
+footer{max-width:1440px;margin:0 auto;padding:0 20px 24px;color:#7b8189;font-size:12px;line-height:1.7}
+@media(max-width:900px){main{grid-template-columns:1fr}.preview-wrap{max-height:none}.article{padding:24px 18px}.editor-wrap textarea{min-height:380px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>公众号自动排版工具</h1>
+      <div class="sub">粘贴 Markdown → 自动排版预览 → 复制到微信公众号编辑器。纯本地运行，不上传文章。</div>
+    </div>
+    <div class="actions">
+      <button id="sampleBtn">载入示例</button>
+      <button id="clearBtn">清空</button>
+      <button id="copyMdBtn">复制 Markdown</button>
+      <button class="primary" id="copyRichBtn">复制排版后的文章</button>
+    </div>
+  </div>
+</header>
+<main>
+  <section class="panel">
+    <div class="panel-head"><h2>① 粘贴文章 / Markdown</h2><span>支持标题、列表、引用、加粗、分割线</span></div>
+    <div class="editor-wrap">
+      <textarea id="source" spellcheck="false" aria-label="Markdown文章输入区" placeholder="把文章粘贴到这里……"></textarea>
+    </div>
+    <div class="hint">
+      <b>可用标记：</b><br>
+      <code>## 小标题</code> → 小标题；<code>**加粗**</code> → 加粗；<code>==核心观点==</code> → 酒红色重点；<code>++需要强调的句子++</code> → 酒红色下划线；<code>{{概念}}</code> → 蓝色概念；<code>&gt; 引用</code> → 引用块。<br>
+      图片位置可写 <code>[图片：图片内容描述]</code>，预览中会生成占位提示，需在公众号编辑器里自行插入有授权的图片。
+    </div>
+    <div class="examples">
+      <button data-insert="==核心观点==">插入重点标记</button>
+      <button data-insert="++需要强调的句子++">插入下划线标记</button>
+      <button data-insert="{{概念}}">插入概念标记</button>
+      <button data-insert="[图片：此处填写图片内容]">插入图片位置</button>
+    </div>
+    <div class="status" id="status">输入内容后，右侧会自动预览。</div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2>② 排版预览</h2><span>预览区可滚动</span></div>
+    <div class="toolbar">
+      <button id="copyTitleBtn">复制标题</button>
+      <button id="downloadHtmlBtn">导出 HTML</button>
+      <button id="printBtn">打印 / 另存 PDF</button>
+    </div>
+    <div class="preview-wrap"><article class="article" id="preview"><p style="color:#888">文章预览会显示在这里。</p></article></div>
+    <div class="settings">
+      <label class="setting">重点文字颜色 <input id="keyColor" type="color" value="#8c3038"></label>
+      <label class="setting">概念文字颜色 <input id="conceptColor" type="color" value="#315c72"></label>
+      <label class="setting">正文大小
+        <select id="fontSize"><option value="15">15 px</option><option value="16" selected>16 px</option><option value="17">17 px</option><option value="18">18 px</option></select>
+      </label>
+      <label class="setting">行间距
+        <select id="lineHeight"><option value="1.75">1.75 倍</option><option value="1.9">1.9 倍</option><option value="2" selected>2 倍</option><option value="2.1">2.1 倍</option></select>
+      </label>
+    </div>
+  </section>
+</main>
+<footer>
+  使用说明：这是一个单文件本地工具，保存后用浏览器打开即可使用。复制富文本功能依赖浏览器权限；若复制失败，可使用“导出 HTML”，或在预览区全选复制。公众号编辑器最终显示效果可能略有差异，发布前请用手机预览。工具不会自动抓取网络图片，也不会自动发布文章。
+</footer>
+<script>
+const source = document.getElementById('source');
+const preview = document.getElementById('preview');
+const statusEl = document.getElementById('status');
+const keyColor = document.getElementById('keyColor');
+const conceptColor = document.getElementById('conceptColor');
+const fontSize = document.getElementById('fontSize');
+const lineHeight = document.getElementById('lineHeight');
+
+const sample = `# 赵薇谈到“黄金时代”：过去的高光无法复制，人还能怎样定义成功？
+
+10月20日，在新加坡的一场活动中，赵薇谈及过去的经历与当下的创作。对很多观众来说，“小燕子”是一个鲜明的记忆标签；但一个人的生活和创作，显然不应该永远停留在某个角色里。
+
+## 当一个角色成为一个人的标签
+
+1998年，《还珠格格》播出后，赵薇饰演的“小燕子”迅速走进大众视野。这个角色带来的关注度，成为她职业生涯里很难绕开的一部分。
+
+但角色越深入人心，演员越容易被固定在某种印象里。观众记住了一个形象，也可能不自觉地期待这个人一直保持原样。
+
+==被记住是一种幸运，但它不应该成为一个人此后唯一的定义。==
+
+## “黄金时代”只能在过去吗？
+
+人们常常用“黄金时代”概括一段成绩最突出、关注度最高的时期。这个说法很直观，却也容易让人把人生看成一条只能向上、不能转弯的曲线。
+
+++过去的高光值得珍惜，却不必成为衡量此后每一天的唯一标准。++
+
+## 从台前到幕后，创作不只一种方式
+
+2013年，赵薇执导电影《致我们终将逝去的青春》，开始以导演身份参与电影创作。对创作者来说，角色、岗位和表达方式都可能发生变化。
+
+{{创作}}不只有一种位置：有人站在镜头前，有人站在镜头后，也有人在新的技术与媒介中寻找表达的可能。
+
+[图片：赵薇参加活动的现场照片，使用前请确认图片授权]
+
+## 成功只有一种衡量方式吗？
+
+如果成功只等于持续获得关注，那么任何人的人生都很容易被某个阶段的高峰绑架。但人生并不是一场永远向观众交付成绩的演出。
+
+> 一段经历可以成为人生的高光，却不必成为人生的全部。
+
+## 不必急着证明自己仍在巅峰
+
+回望过去，不意味着只能怀旧；尝试新的方向，也不代表必须立刻得到结果。一个人能否继续创作、学习和选择，本身就比反复证明“自己仍然成功”更值得关注。
+
+或许真正重要的，不是能不能重现某个黄金时代，而是当它过去之后，人是否还拥有重新开始的空间。`;
+
+function esc(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function inline(text){
+  let s=esc(text);
+  // placeholders protect custom syntax from later inline replacements
+  const saved=[];
+  const hold = html => { const token=`@@HOLD${saved.length}@@`; saved.push(html); return token; };
+  s=s.replace(/!\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/g,(_,alt,url)=>hold(`<img src="${url}" alt="${alt}">`));
+  s=s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,(_,label,url)=>hold(`<a href="${url}">${label}</a>`));
+  s=s.replace(/`([^`]+)`/g,(_,x)=>hold(`<code>${x}</code>`));
+  s=s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  s=s.replace(/==(.+?)==/g,'<span class="key">$1</span>');
+  s=s.replace(/\+\+(.+?)\+\+/g,'<span class="underlined">$1</span>');
+  s=s.replace(/\{\{(.+?)\}\}/g,'<span class="concept">$1</span>');
+  s=s.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  s=s.replace(/~~(.+?)~~/g,'<del>$1</del>');
+  s=s.replace(/@@HOLD(\d+)@@/g,(_,n)=>saved[Number(n)]);
+  return s;
+}
+function renderMarkdown(md){
+  const lines=md.replace(/\r/g,'').split('\n');
+  let out='', paragraph=[], listType=null, listItems=[];
+  const flushP=()=>{if(paragraph.length){out+=`<p>${inline(paragraph.join(' '))}</p>`;paragraph=[];}};
+  const flushList=()=>{if(listItems.length){out+=`<${listType}>${listItems.map(x=>`<li>${inline(x)}</li>`).join('')}</${listType}>`;listItems=[];listType=null;}};
+  const flush=()=>{flushP();flushList();};
+  for(let i=0;i<lines.length;i++){
+    const raw=lines[i], line=raw.trim();
+    if(!line){flush();continue;}
+    const imageMatch=line.match(/^\[图片：(.+?)\]$/);
+    if(imageMatch){flush();out+=`<div class="image-placeholder">图片位置：${inline(imageMatch[1])}<br><small>请在公众号编辑器中插入已获授权的图片</small></div>`;continue;}
+    if(/^---+$/.test(line)||/^\*\*\*$/.test(line)){flush();out+='<hr>';continue;}
+    const h=line.match(/^(#{1,3})\s+(.+)$/);
+    if(h){flush();const level=h[1].length;out+=`<h${level}>${inline(h[2])}</h${level}>`;continue;}
+    if(line.startsWith('>')){flush();let quote=[];while(i<lines.length&&lines[i].trim().startsWith('>')){quote.push(lines[i].trim().replace(/^>\s?/,''));i++;}i--;out+=`<blockquote>${quote.map(x=>`<p>${inline(x)}</p>`).join('')}</blockquote>`;continue;}
+    const ul=line.match(/^[-*+]\s+(.+)$/), ol=line.match(/^\d+[.)]\s+(.+)$/);
+    if(ul||ol){flushP();const type=ul?'ul':'ol';if(listType&&listType!==type)flushList();listType=type;listItems.push((ul||ol)[1]);continue;}
+    flushList();paragraph.push(line);
+  }
+  flush();return out;
+}
+function update(){
+  preview.innerHTML = renderMarkdown(source.value);
+  preview.style.setProperty('--wine',keyColor.value);
+  preview.style.setProperty('--blue',conceptColor.value);
+  preview.style.fontSize=fontSize.value+'px';
+  preview.style.lineHeight=lineHeight.value;
+  if(!source.value.trim()) preview.innerHTML='<p style="color:#888">文章预览会显示在这里。</p>';
+  statusEl.textContent=source.value.trim()?`已排版 · ${source.value.trim().length} 个字符`:'输入内容后，右侧会自动预览。';
+}
+source.addEventListener('input',update);
+[keyColor,conceptColor,fontSize,lineHeight].forEach(el=>el.addEventListener('input',update));
+document.getElementById('sampleBtn').onclick=()=>{source.value=sample;update();};
+document.getElementById('clearBtn').onclick=()=>{source.value='';update();};
+document.getElementById('copyMdBtn').onclick=async()=>{try{await navigator.clipboard.writeText(source.value);statusEl.textContent='Markdown 已复制。';}catch(e){source.select();document.execCommand('copy');statusEl.textContent='已尝试复制 Markdown。';}};
+document.getElementById('copyTitleBtn').onclick=async()=>{const m=source.value.match(/^#\s+(.+)$/m);if(!m){statusEl.textContent='没有找到一级标题（# 标题）。';return;}try{await navigator.clipboard.writeText(m[1]);statusEl.textContent='标题已复制。';}catch(e){statusEl.textContent='复制失败，请手动选择标题。';}};
+document.getElementById('copyRichBtn').onclick=async()=>{
+  const html=preview.innerHTML;
+  const textContent=preview.innerText;
+  try{
+    if(navigator.clipboard&&window.ClipboardItem){
+      const item=new ClipboardItem({'text/html':new Blob([`<meta charset="utf-8"><div style="font-family:Arial,'Microsoft YaHei',sans-serif;font-size:${fontSize.value}px;line-height:${lineHeight.value};color:#24272b">${html}</div>`],{type:'text/html'}),'text/plain':new Blob([textContent],{type:'text/plain'})});
+      await navigator.clipboard.write([item]);statusEl.textContent='排版后的富文本已复制，可以粘贴到公众号编辑器。';
+    }else{throw new Error('Clipboard API unavailable');}
+  }catch(e){
+    statusEl.textContent='浏览器未允许直接复制富文本。请点“导出 HTML”，打开导出的文件后全选复制，或在预览区全选复制。';
+  }
+};
+document.getElementById('downloadHtmlBtn').onclick=()=>{
+  const htmlDoc=`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>公众号文章排版</title></head><body><article style="max-width:680px;margin:auto;padding:24px;font-family:Arial,'Microsoft YaHei',sans-serif;font-size:${fontSize.value}px;line-height:${lineHeight.value};color:#24272b">${preview.innerHTML}</article></body></html>`;
+  const blob=new Blob([htmlDoc],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='公众号排版结果.html';a.click();URL.revokeObjectURL(url);statusEl.textContent='HTML 文件已导出。';
+};
+document.getElementById('printBtn').onclick=()=>{
+  const w=window.open('','_blank');if(!w){statusEl.textContent='浏览器拦截了弹窗，请允许此页面打开新窗口。';return;}
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>公众号文章预览</title><style>body{font-family:Arial,'Microsoft YaHei',sans-serif;color:#24272b;line-height:${lineHeight.value};font-size:${fontSize.value}px;max-width:680px;margin:35px auto;padding:0 20px}h1{font-size:25px}h2{font-size:19px;border-left:4px solid ${keyColor.value};padding-left:10px}p{margin:0 0 18px;text-align:justify}blockquote{border-left:3px solid #bbb;background:#f7f7f7;padding:10px 15px;color:#555}.key{color:${keyColor.value};font-weight:bold}.concept{color:${conceptColor.value};font-weight:bold}.underlined{text-decoration:underline;text-decoration-color:${keyColor.value};text-underline-offset:4px}.image-placeholder{border:1px dashed #aaa;padding:14px;color:#777}</style></head><body>${preview.innerHTML}</body></html>`);w.document.close();w.focus();setTimeout(()=>w.print(),300);
+};
+document.querySelectorAll('[data-insert]').forEach(btn=>btn.onclick=()=>{
+  const val=btn.getAttribute('data-insert'),start=source.selectionStart,end=source.selectionEnd;
+  source.setRangeText(val,start,end,'end');source.focus();update();
+});
+source.value=sample;
+update();
+</script>
+</body>
+</html>

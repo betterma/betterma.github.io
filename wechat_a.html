@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>微信公众号 AI 写作工作流｜七步横向导航版</title>
 <style>
 :root{--bg:#f4f6fa;--card:#fff;--text:#182230;--muted:#667085;--line:#e4e7ec;--blue:#2457d6;--bluebg:#edf3ff;--green:#087443;--orange:#a34b08}
 *{box-sizing:border-box}
@@ -55,7 +56,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:25px}
 </div></header>
 <main>
 <nav>
-<a href="#flow">横向工作流</a><a href="#rules">操作原则</a><a href="#metrics">30 天测试记录</a><a href="#check">发布前检查</a>
+<a href="#flow">横向工作流</a><a href="#rules">操作原则</a><a href="#format">Markdown 排版规范</a><a href="#metrics">30 天测试记录</a><a href="#check">发布前检查</a>
 </nav>
 <div class="notice"><strong>这版的核心变化：</strong>不再要求你自己逐条搜索、复制资料。先让 ChatGPT 使用联网搜索完成“选题研究＋来源清单＋事实卡”，再把研究结果交给写作工具。你主要做选题确认、检查少数关键事实、去 AI 味和最终发布。<br><span class="small">说明：AI 联网检索可能漏资料、误读网页或给出不准确链接，所以不能保证完全零核查。尤其是明星近况、婚姻健康、人物关系、数字与时间线，至少抽查关键事实；不要把 AI 生成的来源当作已核实证据。</span></div>
 
@@ -300,8 +301,78 @@ D. 任何可能改变事实含义的修改，单独标出供我确认。
 </div>
 </section>
 
+
+<section id="format">
+<h2>三、Markdown 排版规范与自动排版工具</h2>
+<div class="notice"><strong>固定原则：</strong>文章先完成内容编辑和事实核查，再做 Markdown 样式标记；不要为了排版而改变原意，也不要让颜色、加粗和下划线铺满全文。排版工具负责把标记转换成视觉样式，不负责判断事实真假。</div>
+<div class="card">
+<h3>1. 统一标记表：AI 编辑稿时按此规则输出</h3>
+<table>
+<thead><tr><th>用途</th><th>Markdown 标记</th><th>排版效果 / 使用规则</th></tr></thead>
+<tbody>
+<tr><td>文章主标题</td><td><code># 文章标题</code></td><td>只保留一个一级标题；标题要具体、准确，不做夸张承诺。</td></tr>
+<tr><td>章节标题</td><td><code>## 章节标题</code></td><td>统一的小标题样式；按内容逻辑分段，不要每两段就加一个标题。</td></tr>
+<tr><td>普通强调</td><td><code>**重要词句**</code></td><td>加粗即可；用于关键词或短语，避免整段加粗。</td></tr>
+<tr><td>核心观点</td><td><code>==核心判断或关键结论==</code></td><td>酒红色加粗；整篇通常 2–4 处，只标真正值得读者记住的判断。</td></tr>
+<tr><td>需要停顿的句子</td><td><code>++值得停下来读的一句话++</code></td><td>酒红色下划线；每篇建议 0–2 处，不要与核心观点重复堆叠。</td></tr>
+<tr><td>重要概念</td><td><code>{{概念或术语}}</code></td><td>蓝色加粗；用于解释中的核心概念，不要把普通名词都染色。</td></tr>
+<tr><td>引用内容</td><td><code>&gt; 引用内容</code></td><td>生成独立引用块；真实引用要核对原文与出处，不能编造引语。</td></tr>
+<tr><td>分割线</td><td><code>---</code></td><td>仅在确实需要视觉停顿时使用，默认不必频繁分割。</td></tr>
+<tr><td>图片位置</td><td><code>[图片：图片内容描述]</code></td><td>生成插图占位提示；最终需要人工插入有合法使用依据的图片，并删除占位文字。</td></tr>
+</tbody>
+</table>
+<p class="small">注意：以上 ==、++、{{}} 和 [图片：…] 是本工作流约定的自定义标记，不是所有 Markdown 编辑器都原生支持。请使用本工作流配套的「公众号自动排版工具」转换样式；如果换工具，需先测试这些标记是否兼容。</p>
+</div>
+<div class="card">
+<h3>2. 颜色与版式默认值</h3>
+<table><thead><tr><th>项目</th><th>默认值</th><th>使用原则</th></tr></thead><tbody>
+<tr><td>核心观点色</td><td><code>#8C3038</code> 酒红色</td><td>少量点出判断与结论，不用于大段正文。</td></tr>
+<tr><td>概念色</td><td><code>#315C72</code> 深蓝色</td><td>用于概念、术语或需要辨识的关键词。</td></tr>
+<tr><td>正文大小</td><td>16 px 起步</td><td>以手机阅读舒适为准；公众号粘贴后可能略有差异。</td></tr>
+<tr><td>行间距</td><td>约 1.9–2 倍</td><td>段落之间留白清楚；避免一整篇挤成大块文字。</td></tr>
+<tr><td>段落长度</td><td>通常 2–5 句</td><td>根据语义自然分段，不要为了视觉效果把每句话拆成单独一段。</td></tr>
+<tr><td>图片密度</td><td>按内容需要</td><td>图片要补充信息或营造必要氛围；不为凑数量插图。</td></tr>
+</tbody></table>
+</div>
+<div class="card">
+<h3>3. 复制给 ChatGPT 的固定排版指令</h3>
+<p class="muted">每次文章事实核查和内容编辑完成后，再使用这段指令。它要求 AI 输出兼容本地排版工具的 Markdown，而不是直接生成花哨 HTML。</p>
+<div class="prompt" id="pformat">请将下面这篇已完成内容编辑与事实核查的微信公众号文章，整理成适配我的「公众号自动排版工具」的 Markdown。
+
+严格遵守以下排版规范：
+1. 只使用一个一级标题：# 文章标题。
+2. 章节标题使用 ##；必要时才使用 ###。不要把每个自然段都变成小标题。
+3. 普通关键词可以用 **加粗**，但不要整段加粗。
+4. 全文最多标记 2–4 处核心观点，格式为 ==核心观点==。
+5. 全文最多标记 0–2 处需要读者停顿的句子，格式为 ++值得停下来读的一句话++。尽量不要与核心观点重复。
+6. 重要概念才使用 {{概念}}，通常每篇 0–3 处；不要给普通名词随意加色。
+7. 确有必要时使用 > 引用内容。引用必须有可核查出处，不得编造引语。
+8. 需要图片的位置写成 [图片：具体画面或内容描述]。优先指出图片需要表达什么，不要假装已经找到或取得图片授权。
+9. 保留原文事实、论点和作者真实立场。不要为了排版新增事实、虚构个人经历或夸大表达。
+10. 输出完整 Markdown 正文，不要把排版说明、分析过程或额外寒暄混入正文。
+11. 如果发现事实疑点或图片版权问题，不要用样式掩盖；在正文后另列“待核查事项”，不要擅自补全。
+
+【文章原稿】
+在此粘贴文章</div>
+<button class="copy" onclick="copyPrompt('pformat',this)">复制排版指令</button>
+</div>
+<div class="card">
+<h3>4. 实际排版步骤</h3>
+<ol>
+<li>把最终稿交给 ChatGPT，使用上面的「固定排版指令」生成 Markdown。</li>
+<li>复制 Markdown，打开配套的 <strong>公众号自动排版工具.html</strong>，粘贴到左侧。</li>
+<li>检查右侧标题、段落、重点颜色、概念颜色、引用块和图片占位提示。</li>
+<li>按文章实际需要调整字号、行间距与颜色；不要为了视觉效果把颜色标记越加越多。</li>
+<li>点击「复制排版后的文章」并粘贴到微信公众号编辑器。若浏览器不允许复制富文本，使用「导出 HTML」作为备用方式。</li>
+<li>在公众号编辑器中补入已确认可用的图片，删除所有图片占位提示，检查链接、引用和空行。</li>
+<li>用手机预览，确认颜色、字体、段落和图片顺序正常后再发布。</li>
+</ol>
+<p><strong>重要：</strong>排版工具不会自动联网找图、核实图片版权或发布文章。网络图片能被搜到，不等于可以自由使用；人物近况、作品截图和摄影图片都要检查使用依据。</p>
+</div>
+</section>
+
 <section id="metrics">
-<h2>三、30 天测试记录</h2>
+<h2>四、30 天测试记录</h2>
 <div class="card">
 <p>建议先发约 16 篇，目的是比较题材，不是保证收益：明星近况 6 篇、时代记忆 5 篇、家庭人生 5 篇。</p>
 <table><thead><tr><th>字段</th><th>记录内容</th></tr></thead><tbody>
@@ -317,7 +388,7 @@ D. 任何可能改变事实含义的修改，单独标出供我确认。
 </section>
 
 <section id="check">
-<h2>四、发布前最后检查</h2>
+<h2>五、发布前最后检查</h2>
 <div class="card checklist">
 <label><input type="checkbox"> 标题没有夸大，正文确实支持标题中的结论。</label>
 <label><input type="checkbox"> 关键事实有来源；没有把传闻、猜测、虚构引语写成事实。</label>
@@ -334,7 +405,7 @@ D. 任何可能改变事实含义的修改，单独标出供我确认。
 <a class="link secondary" href="https://www.deepseek.com/" target="_blank" rel="noopener">DeepSeek ↗</a>
 </div>
 </section>
-<footer>微信公众号 AI 写作工作流｜七步横向导航版｜Markdown 优先｜免费优先｜请按平台当前规则和实际后台数据持续调整</footer>
+<footer>微信公众号 AI 写作工作流｜七步横向导航版＋Markdown 排版规范｜Markdown 优先｜免费优先｜请按平台当前规则和实际后台数据持续调整</footer>
 </main>
 <script>
 function copyPrompt(id,btn){
