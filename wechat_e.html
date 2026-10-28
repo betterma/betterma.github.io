@@ -46,10 +46,32 @@ textarea:focus{border-color:#a8787d;box-shadow:0 0 0 3px #8c30381a}
 .article ul,.article ol{padding-left:1.5em;margin:8px 0 20px}
 .article li{margin:7px 0}
 .article hr{border:0;border-top:1px solid #e6e7e9;margin:26px 0}
-.article img{max-width:100%;height:auto;border-radius:5px}
+.article img{display:block;max-width:100%;height:auto;border-radius:5px;margin:18px auto}
+.article .image-error{display:block;padding:12px;border:1px solid #f2c6c6;background:#fff6f6;color:#8c3038;border-radius:8px;font-size:13px;margin:12px 0}
 .article .image-placeholder{padding:14px;border:1px dashed #b9c0c8;background:#fafafa;color:#777;font-size:13px;text-align:center;border-radius:8px;margin:18px 0}
+.article .image-search{display:inline-block;padding:6px 10px;border:1px solid #cbd2d9;border-radius:7px;background:#fff;color:var(--blue);font:inherit;font-size:13px}
 .article .caption{font-size:12px;color:#888;text-align:center;margin-top:-10px}
 .article a{color:var(--blue)}
+.image-dialog{width:min(920px,calc(100vw - 28px));max-width:none;max-height:calc(100vh - 32px);padding:0;border:1px solid var(--line);border-radius:14px;color:var(--text);box-shadow:0 20px 70px #10182840}
+.image-dialog::backdrop{background:#10182899}
+.image-dialog-inner{padding:20px}
+.image-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.image-dialog-head h2{font-size:19px;margin:0 0 5px}
+.image-dialog-head p,.image-disclaimer{font-size:12px;color:var(--muted);line-height:1.6;margin:0 0 12px}
+.image-dialog-close{flex:none}
+.image-search-form{display:flex;gap:8px;margin:14px 0}
+.image-search-form input{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font:inherit}
+.image-search-form input:focus{outline:2px solid #315c7233;border-color:var(--blue)}
+.image-dialog-status{font-size:13px;color:var(--muted);min-height:24px;margin:8px 0}
+.image-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;max-height:min(55vh,620px);overflow:auto;padding:2px}
+.image-result{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;display:flex;flex-direction:column;min-width:0}
+.image-result img{display:block;width:100%;height:160px;object-fit:contain;background:#f4f5f7}
+.image-result-body{padding:10px;display:flex;flex-direction:column;gap:6px;flex:1}
+.image-result-title{font-size:13px;font-weight:650;overflow-wrap:anywhere}
+.image-result-meta{font-size:12px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
+.image-result-actions{display:flex;gap:7px;align-items:center;margin-top:auto;padding-top:5px}
+.image-result-actions a{font-size:12px;color:var(--blue)}
+.image-result-actions button{margin-left:auto;background:var(--wine);color:#fff;border-color:var(--wine)}
 .settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:14px;border-top:1px solid var(--line)}
 .setting{font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:8px}
 .setting select{max-width:150px;border:1px solid var(--line);padding:6px;border-radius:7px;background:white;color:var(--text)}
@@ -84,8 +106,8 @@ footer{max-width:1440px;margin:0 auto;padding:0 20px 24px;color:#7b8189;font-siz
     </div>
     <div class="hint">
       <b>可用标记：</b><br>
-      <code>## 小标题</code> → 小标题；<code>**加粗**</code> → 加粗；<code>==核心观点==</code> → 酒红色重点；<code>++需要强调的句子++</code> → 酒红色下划线；<code>{{概念}}</code> → 蓝色概念；<code>&gt; 引用</code> → 引用块。<br>
-      图片占位可写 <code>[图片：图片内容描述]</code>，预览会提供“搜索图片”入口；若要在预览中显示真实图片，请使用 <code>![图片说明](图片直链)</code>。搜索结果需自行核对来源与授权。
+      <code>## 小标题</code> → 小标题；<code>**加粗**</code> → 加粗；<code>==核心观点==</code> → 酒红色重点；<code>++需要强调的句子++</code> → 酒红色下划线；<code>{{概念}}</code> → 去掉标记并显示蓝色概念文字（不解释或改写词义）；<code>&gt; 引用</code> → 引用块。<br>
+      图片占位可写 <code>[图片：图片内容描述]</code>，点击预览中的搜索按钮可在本页打开 Wikimedia Commons 搜索弹窗，选图后会替换占位符。搜索需要联网；请自行核对来源与授权，显示许可信息不代表已确认可用于公众号。
     </div>
     <div class="examples">
       <button data-insert="==核心观点==">插入重点标记</button>
@@ -112,11 +134,30 @@ footer{max-width:1440px;margin:0 auto;padding:0 20px 24px;color:#7b8189;font-siz
       <label class="setting">行间距
         <select id="lineHeight"><option value="1.75">1.75 倍</option><option value="1.9">1.9 倍</option><option value="2" selected>2 倍</option><option value="2.1">2.1 倍</option></select>
       </label>
+      <button id="resetStyleBtn">恢复默认样式</button>
     </div>
   </section>
 </main>
+<dialog class="image-dialog" id="imageDialog" aria-labelledby="imageDialogTitle">
+  <div class="image-dialog-inner">
+    <div class="image-dialog-head">
+      <div>
+        <h2 id="imageDialogTitle">搜索可用图片</h2>
+        <p>候选来自 Wikimedia Commons。插入前请检查来源页和许可条件；搜索结果不等于已获授权。</p>
+      </div>
+      <button class="image-dialog-close" id="closeImageDialog" type="button" aria-label="关闭图片搜索">关闭</button>
+    </div>
+    <form class="image-search-form" id="imageSearchForm">
+      <input id="imageSearchQuery" type="search" required aria-label="图片搜索词" placeholder="输入图片内容描述">
+      <button class="primary" type="submit">搜索图片</button>
+    </form>
+    <div class="image-dialog-status" id="imageDialogStatus" role="status" aria-live="polite"></div>
+    <div class="image-results" id="imageResults"></div>
+    <p class="image-disclaimer">图片加载、搜索服务和直链需要联网。确认许可适用于你的用途后再插入；公众号编辑器可能仍要求下载并上传图片。</p>
+  </div>
+</dialog>
 <footer>
-  使用说明：这是一个单文件本地工具，保存后用浏览器打开即可使用。图片占位可一键打开图片搜索；只有写入可访问的图片直链（![说明](图片URL)）后，预览才会显示真实图片。图片搜索不会自动取得授权，也不会自动把网络图片上传到公众号。复制富文本功能依赖浏览器权限；若复制失败，可使用“导出 HTML”，或在预览区全选复制。发布前请用手机预览。
+  使用说明：这是一个单文件本地工具，图片搜索通过 Wikimedia Commons API 在页面内显示候选；选中后插入图片直链和来源/许可说明，但不会替你确认授权或上传图片到公众号。富文本复制依赖浏览器权限；失败时请用“导出 HTML”或明确手动选择预览内容。发布前请用手机预览。
 </footer>
 <script>
 const source = document.getElementById('source');
@@ -126,6 +167,14 @@ const keyColor = document.getElementById('keyColor');
 const conceptColor = document.getElementById('conceptColor');
 const fontSize = document.getElementById('fontSize');
 const lineHeight = document.getElementById('lineHeight');
+const imageDialog = document.getElementById('imageDialog');
+const imageSearchForm = document.getElementById('imageSearchForm');
+const imageSearchQuery = document.getElementById('imageSearchQuery');
+const imageDialogStatus = document.getElementById('imageDialogStatus');
+const imageResults = document.getElementById('imageResults');
+let activeImagePlaceholder=null;
+let imageSearchController=null;
+let imageCandidates=[];
 
 const sample = `# 赵薇谈到“黄金时代”：过去的高光无法复制，人还能怎样定义成功？
 
@@ -168,25 +217,34 @@ const sample = `# 赵薇谈到“黄金时代”：过去的高光无法复制�
 function esc(s){
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+function isHttpUrl(value){
+  try{return ['http:','https:'].includes(new URL(value).protocol);}catch(error){return false;}
+}
 function inline(text){
   let s=esc(text);
-  // placeholders protect custom syntax from later inline replacements
   const saved=[];
-  const hold = html => { const token=`@@HOLD${saved.length}@@`; saved.push(html); return token; };
-  s=s.replace(/!\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/g,(_,alt,url)=>hold(`<img src="${url}" alt="${alt}">`));
-  s=s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,(_,label,url)=>hold(`<a href="${url}">${label}</a>`));
+  let marker='\uE000MDHOLD';
+  while(s.includes(marker))marker+='X';
+  const hold = html => { const token=`${marker}${saved.length}\uE001`; saved.push(html); return token; };
+  s=s.replace(/\\([\\`*_{}\[\]()#+.!>~|=+])/g,(_,char)=>hold(char));
+  s=s.replace(/!\[([^\]]*)\]\((https?:\/\/[^)\s<>]+)\)/g,(_,alt,url)=>isHttpUrl(url)?hold(`<img src="${url}" alt="${alt}" loading="lazy">`):`![${alt}](${url})`);
+  s=s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s<>]+)\)/g,(_,label,url)=>isHttpUrl(url)?hold(`<a href="${url}" rel="noopener noreferrer">${label}</a>`):`[${label}](${url})`);
   s=s.replace(/`([^`]+)`/g,(_,x)=>hold(`<code>${x}</code>`));
-  s=s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
-  s=s.replace(/==(.+?)==/g,'<span class="key">$1</span>');
-  s=s.replace(/\+\+(.+?)\+\+/g,'<span class="underlined">$1</span>');
-  s=s.replace(/\{\{(.+?)\}\}/g,'<span class="concept">$1</span>');
-  s=s.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  s=s.replace(/\*\*(\S(?:.*?\S)?)\*\*/g,'<strong>$1</strong>');
+  s=s.replace(/==(\S(?:[^=\n]*?\S)?)==/g,'<span class="key">$1</span>');
+  s=s.replace(/\+\+(\S(?:[^+\n]*?\S)?)\+\+/g,'<span class="underlined">$1</span>');
+  s=s.replace(/\{\{(\S(?:[^{}\n]*?\S)?)\}\}/g,'<span class="concept">$1</span>');
+  s=s.replace(/\*(\S(?:.*?\S)?)\*/g,'<em>$1</em>');
   s=s.replace(/~~(.+?)~~/g,'<del>$1</del>');
-  s=s.replace(/@@HOLD(\d+)@@/g,(_,n)=>saved[Number(n)]);
+  const tokenPattern=new RegExp(`${marker}(\\d+)\\uE001`,'g');
+  s=s.replace(tokenPattern,(_,n)=>saved[Number(n)]);
   return s;
 }
 function renderMarkdown(md){
-  const lines=md.replace(/\r/g,'').split('\n');
+  const lines=md.split('\n');
+  const lineOffsets=[];
+  let sourceOffset=0;
+  lines.forEach(line=>{lineOffsets.push(sourceOffset);sourceOffset+=line.length+1;});
   let out='', paragraph=[], listType=null, listItems=[];
   const flushP=()=>{if(paragraph.length){out+=`<p>${inline(paragraph.join(' '))}</p>`;paragraph=[];}};
   const flushList=()=>{if(listItems.length){out+=`<${listType}>${listItems.map(x=>`<li>${inline(x)}</li>`).join('')}</${listType}>`;listItems=[];listType=null;}};
@@ -194,8 +252,13 @@ function renderMarkdown(md){
   for(let i=0;i<lines.length;i++){
     const raw=lines[i], line=raw.trim();
     if(!line){flush();continue;}
-    const imageMatch=line.match(/^\[图片：(.+?)\]$/);
-    if(imageMatch){flush();const query=encodeURIComponent(imageMatch[1]);const searchUrl=`https://www.bing.com/images/search?q=${query}`;out+=`<div class="image-placeholder"><strong>图片位置</strong><div style="margin:6px 0 10px">${inline(imageMatch[1])}</div><a href="${searchUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:6px 10px;border:1px solid #cbd2d9;border-radius:7px;text-decoration:none;background:#fff">搜索相关图片 ↗</a><br><small>选定图片后，请核实来源和授权；需要在文章中显示图片，请使用图片直链语法或在公众号编辑器中上传。</small></div>`;continue;}
+    const imageMatch=line.match(/^\[图片[：:](.+?)\]$/);
+    if(imageMatch){
+      flush();
+      const markerStart=lineOffsets[i]+raw.indexOf(imageMatch[0]);
+      out+=`<div class="image-placeholder"><strong>图片位置</strong><div style="margin:6px 0 10px">${inline(imageMatch[1])}</div><button class="image-search" type="button" data-placeholder-start="${markerStart}" data-placeholder-length="${imageMatch[0].length}" data-description="${esc(imageMatch[1])}">搜索并选择图片 ↗</button><br><small>候选来自 Wikimedia Commons；选择后会插入图片及来源信息，许可仍需人工核实。</small></div>`;
+      continue;
+    }
     if(/^---+$/.test(line)||/^\*\*\*$/.test(line)){flush();out+='<hr>';continue;}
     const h=line.match(/^(#{1,3})\s+(.+)$/);
     if(h){flush();const level=h[1].length;out+=`<h${level}>${inline(h[2])}</h${level}>`;continue;}
@@ -206,46 +269,323 @@ function renderMarkdown(md){
   }
   flush();return out;
 }
+function cleanMetadata(value){
+  if(!value)return '';
+  return new DOMParser().parseFromString(String(value),'text/html').body.textContent.replace(/\s+/g,' ').trim();
+}
+function markdownLabel(value){
+  return String(value).replace(/[\\[\]]/g,char=>char==='['?'［':char===']'?'］':'／');
+}
+function setImageSearchStatus(message){
+  imageDialogStatus.textContent=message;
+}
+function addImageResult(candidate,index){
+  const card=document.createElement('article');
+  card.className='image-result';
+  const image=document.createElement('img');
+  image.src=candidate.thumbnail;
+  image.alt=candidate.title;
+  image.loading='lazy';
+  image.addEventListener('error',()=>{image.alt='预览图片加载失败';image.removeAttribute('src');},{once:true});
+  const body=document.createElement('div');
+  body.className='image-result-body';
+  const title=document.createElement('div');
+  title.className='image-result-title';
+  title.textContent=candidate.title;
+  const artist=document.createElement('div');
+  artist.className='image-result-meta';
+  artist.textContent=`作者/署名：${candidate.artist||'来源页未提供'}`;
+  const license=document.createElement('div');
+  license.className='image-result-meta';
+  license.textContent=`许可：${candidate.license||'未提供许可信息，需人工核实'}`;
+  const actions=document.createElement('div');
+  actions.className='image-result-actions';
+  const sourceLink=document.createElement('a');
+  sourceLink.href=candidate.descriptionUrl;
+  sourceLink.target='_blank';
+  sourceLink.rel='noopener noreferrer';
+  sourceLink.textContent='查看来源页 ↗';
+  const insertButton=document.createElement('button');
+  insertButton.type='button';
+  insertButton.dataset.resultIndex=String(index);
+  insertButton.textContent='插入到文章';
+  actions.append(sourceLink,insertButton);
+  body.append(title,artist,license,actions);
+  card.append(image,body);
+  imageResults.append(card);
+}
+async function searchCommons(query){
+  if(imageSearchController)imageSearchController.abort();
+  const controller=new AbortController();
+  imageSearchController=controller;
+  imageResults.replaceChildren();
+  setImageSearchStatus('正在搜索 Wikimedia Commons…');
+  const submit=imageSearchForm.querySelector('button[type="submit"]');
+  submit.disabled=true;
+  try{
+    const params=new URLSearchParams({
+      action:'query',
+      generator:'search',
+      gsrsearch:`${query} filetype:bitmap`,
+      gsrnamespace:'6',
+      gsrlimit:'12',
+      prop:'imageinfo',
+      iiprop:'url|extmetadata',
+      iiurlwidth:'420',
+      format:'json',
+      origin:'*'
+    });
+    const response=await fetch(`https://commons.wikimedia.org/w/api.php?${params}`,{signal:controller.signal});
+    if(!response.ok)throw new Error(`图片服务返回 HTTP ${response.status}`);
+    const data=await response.json();
+    if(data.error)throw new Error(data.error.info||'图片服务返回错误。');
+    const pages=Object.values(data.query?.pages||{});
+    imageCandidates=pages.map(page=>{
+      const info=page.imageinfo?.[0];
+      const metadata=info?.extmetadata||{};
+      return {
+        title:page.title.replace(/^File:/,''),
+        thumbnail:info?.thumburl||info?.url,
+        url:info?.url,
+        descriptionUrl:info?.descriptionurl,
+        artist:cleanMetadata(metadata.Artist?.value||metadata.Credit?.value),
+        license:cleanMetadata(metadata.LicenseShortName?.value||metadata.License?.value)
+      };
+    }).filter(candidate=>isHttpUrl(candidate.thumbnail)&&isHttpUrl(candidate.url)&&isHttpUrl(candidate.descriptionUrl));
+    if(!imageCandidates.length){
+      setImageSearchStatus('没有找到可显示的图片结果。可以换更具体的关键词，或稍后重试。');
+      return;
+    }
+    imageCandidates.forEach(addImageResult);
+    setImageSearchStatus(`找到 ${imageCandidates.length} 个候选。请打开来源页核对原始信息和许可，再决定是否插入。`);
+  }catch(error){
+    if(error.name==='AbortError')return;
+    setImageSearchStatus(`搜索失败：${error.message}。请检查网络连接，或稍后重试。`);
+  }finally{
+    if(imageSearchController===controller){
+      imageSearchController=null;
+      submit.disabled=false;
+    }
+  }
+}
+function openImageSearch(button){
+  activeImagePlaceholder={
+    start:Number(button.dataset.placeholderStart),
+    length:Number(button.dataset.placeholderLength),
+    description:button.dataset.description
+  };
+  imageSearchQuery.value=activeImagePlaceholder.description;
+  imageResults.replaceChildren();
+  setImageSearchStatus('');
+  imageDialog.showModal();
+  imageSearchQuery.focus();
+  searchCommons(imageSearchQuery.value.trim());
+}
+function insertCommonsImage(index){
+  const candidate=imageCandidates[index];
+  if(!activeImagePlaceholder||!candidate)return;
+  if(!/^https:/.test(candidate.url)||!/^https:/.test(candidate.descriptionUrl)){
+    setImageSearchStatus('图片或来源链接不是 HTTPS 地址，已阻止插入。');
+    return;
+  }
+  if(!candidate.license&&!window.confirm('来源页没有提供明确许可信息。仍要插入吗？插入不代表图片获准用于公众号。')){
+    return;
+  }
+  const {start,length,description}=activeImagePlaceholder;
+  if(source.value.slice(start,start+length)!==`[图片：${description}]`&&source.value.slice(start,start+length)!==`[图片:${description}]`){
+    imageDialog.close();
+    statusEl.textContent='原图片占位已变化，请重新打开搜索入口后插入。';
+    return;
+  }
+  const imageUrl=candidate.url.replace(/\(/g,'%28').replace(/\)/g,'%29');
+  const sourceLabel=markdownLabel(candidate.artist||candidate.title);
+  const licenseLabel=markdownLabel(candidate.license||'未提供许可信息，需人工核实');
+  const attribution=`[图片来源：${sourceLabel}；许可：${licenseLabel}](${candidate.descriptionUrl})`;
+  const markdown=`![${markdownLabel(description)}](${imageUrl})\n${attribution}`;
+  source.setRangeText(markdown,start,start+length,'end');
+  imageDialog.close();
+  update();
+  source.focus();
+  statusEl.textContent='图片已插入并替换占位符；请在发布前查看来源页并确认许可适用于你的用途。';
+}
+imageSearchForm.addEventListener('submit',event=>{
+  event.preventDefault();
+  const query=imageSearchQuery.value.trim();
+  if(query)searchCommons(query);
+});
+document.getElementById('closeImageDialog').addEventListener('click',()=>imageDialog.close());
+imageDialog.addEventListener('click',event=>{if(event.target===imageDialog)imageDialog.close();});
+imageDialog.addEventListener('close',()=>{
+  if(imageSearchController){imageSearchController.abort();imageSearchController=null;}
+  imageSearchForm.querySelector('button[type="submit"]').disabled=false;
+});
+preview.addEventListener('click',event=>{
+  const button=event.target.closest('.image-search');
+  if(button)openImageSearch(button);
+});
+imageResults.addEventListener('click',event=>{
+  const button=event.target.closest('[data-result-index]');
+  if(button)insertCommonsImage(Number(button.dataset.resultIndex));
+});
+const defaultStyles={keyColor:'#8c3038',conceptColor:'#315c72',fontSize:'16',lineHeight:'2'};
+const storageKey='wechat-markdown-tool-v1';
+let storageNotice='';
+function persistDraft(){
+  try{
+    localStorage.setItem(storageKey,JSON.stringify({text:source.value,keyColor:keyColor.value,conceptColor:conceptColor.value,fontSize:fontSize.value,lineHeight:lineHeight.value}));
+    storageNotice='';
+  }catch(error){
+    storageNotice=' 本地自动保存失败，请复制或导出内容以免丢失。';
+  }
+}
+function applyImageErrorHandling(){
+  preview.querySelectorAll('img').forEach(img=>{
+    img.addEventListener('error',()=>{
+      img.hidden=true;
+      const notice=document.createElement('span');
+      notice.className='image-error';
+      notice.textContent=`图片加载失败：${img.alt||img.src}。请确认图片直链可访问，或改为在公众号编辑器中上传。`;
+      img.insertAdjacentElement('afterend',notice);
+    },{once:true});
+  });
+}
 function update(){
-  preview.innerHTML = renderMarkdown(source.value);
+  preview.innerHTML=renderMarkdown(source.value);
   preview.style.setProperty('--wine',keyColor.value);
   preview.style.setProperty('--blue',conceptColor.value);
   preview.style.fontSize=fontSize.value+'px';
   preview.style.lineHeight=lineHeight.value;
-  if(!source.value.trim()) preview.innerHTML='<p style="color:#888">文章预览会显示在这里。</p>';
-  statusEl.textContent=source.value.trim()?`已排版 · ${source.value.trim().length} 个字符`:'输入内容后，右侧会自动预览。';
+  if(!source.value.trim())preview.innerHTML='<p style="color:#888">文章预览会显示在这里。</p>';
+  applyImageErrorHandling();
+  persistDraft();
+  statusEl.textContent=source.value.trim()?`已排版 · ${source.value.trim().length} 个字符${storageNotice}`:`输入内容后，右侧会自动预览。${storageNotice}`;
+}
+function exportStyles(){
+  return `.article{max-width:660px;margin:0 auto;padding:28px 25px 36px;font-family:"PingFang SC","Microsoft YaHei",Arial,sans-serif;font-size:${fontSize.value}px;line-height:${lineHeight.value};color:#24272b;overflow-wrap:anywhere}.article h1{font-size:25px;line-height:1.5;margin:0 0 22px;color:#202328}.article h2{font-size:19px;line-height:1.6;margin:34px 0 15px;padding-left:11px;border-left:4px solid ${keyColor.value};color:#27292d}.article h3{font-size:17px;margin:25px 0 12px}.article p{margin:0 0 18px;text-align:justify}.article strong{font-weight:750}.article .key{color:${keyColor.value};font-weight:750}.article .concept{color:${conceptColor.value};font-weight:700}.article .underlined{text-decoration:underline;text-decoration-color:${keyColor.value};text-decoration-thickness:1px;text-underline-offset:4px}.article blockquote{margin:22px 0;padding:12px 15px;background:#f7f7f7;border-left:3px solid #b7bdc4;color:#5d626a}.article ul,.article ol{padding-left:1.5em;margin:8px 0 20px}.article li{margin:7px 0}.article hr{border:0;border-top:1px solid #e6e7e9;margin:26px 0}.article img{display:block;max-width:100%;height:auto;border-radius:5px;margin:18px auto}.article .image-placeholder{padding:14px;border:1px dashed #b9c0c8;background:#fafafa;color:#777;font-size:13px;text-align:center;border-radius:8px;margin:18px 0}.article .image-placeholder .image-search{display:inline-block;padding:6px 10px;border:1px solid #cbd2d9;border-radius:7px;background:#fff;color:${conceptColor.value};font:inherit;font-size:13px}.article .image-error{display:block;padding:12px;border:1px solid #f2c6c6;background:#fff6f6;color:${keyColor.value};border-radius:8px;font-size:13px;margin:12px 0}.article .caption{font-size:12px;color:#888;text-align:center;margin-top:-10px}.article a{color:${conceptColor.value}}`;
+}
+function buildHtmlDocument(){
+  const article=preview.cloneNode(true);
+  article.querySelectorAll('.image-search').forEach(button=>{
+    const note=document.createElement('span');
+    note.textContent='图片待选择（请回到排版工具搜索并插入）';
+    button.replaceWith(note);
+  });
+  return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>公众号文章排版</title><style>body{margin:0;padding:20px;background:#fff}${exportStyles()}</style></head><body>${article.outerHTML}</body></html>`;
+}
+function buildRichArticle(){
+  const article=preview.cloneNode(true);
+  article.style.cssText=`max-width:660px;margin:0 auto;padding:28px 25px 36px;font-family:"PingFang SC","Microsoft YaHei",Arial,sans-serif;font-size:${fontSize.value}px;line-height:${lineHeight.value};color:#24272b;overflow-wrap:anywhere`;
+  article.querySelectorAll('.image-search').forEach(button=>{
+    const note=document.createElement('span');
+    note.textContent='图片待选择';
+    button.replaceWith(note);
+  });
+  const styles={
+    h1:{fontSize:'25px',lineHeight:'1.5',margin:'0 0 22px',color:'#202328'},
+    h2:{fontSize:'19px',lineHeight:'1.6',margin:'34px 0 15px',paddingLeft:'11px',borderLeft:`4px solid ${keyColor.value}`,color:'#27292d'},
+    h3:{fontSize:'17px',margin:'25px 0 12px'},
+    p:{margin:'0 0 18px',textAlign:'justify'},
+    blockquote:{margin:'22px 0',padding:'12px 15px',backgroundColor:'#f7f7f7',borderLeft:'3px solid #b7bdc4',color:'#5d626a'},
+    ul:{paddingLeft:'1.5em',margin:'8px 0 20px'},
+    ol:{paddingLeft:'1.5em',margin:'8px 0 20px'},
+    li:{margin:'7px 0'},
+    hr:{border:'0',borderTop:'1px solid #e6e7e9',margin:'26px 0'},
+    img:{display:'block',maxWidth:'100%',height:'auto',borderRadius:'5px',margin:'18px auto'},
+    '.key':{color:keyColor.value,fontWeight:'750'},
+    '.concept':{color:conceptColor.value,fontWeight:'700'},
+    '.underlined':{textDecoration:'underline',textDecorationColor:keyColor.value,textDecorationThickness:'1px',textUnderlineOffset:'4px'},
+    '.image-placeholder':{padding:'14px',border:'1px dashed #b9c0c8',backgroundColor:'#fafafa',color:'#777',fontSize:'13px',textAlign:'center',borderRadius:'8px',margin:'18px 0'},
+    '.image-error':{display:'block',padding:'12px',border:'1px solid #f2c6c6',backgroundColor:'#fff6f6',color:keyColor.value,borderRadius:'8px',fontSize:'13px',margin:'12px 0'}
+  };
+  Object.entries(styles).forEach(([selector,properties])=>article.querySelectorAll(selector).forEach(el=>Object.assign(el.style,properties)));
+  article.querySelectorAll('a').forEach(el=>Object.assign(el.style,{color:conceptColor.value}));
+  article.querySelectorAll('.caption').forEach(el=>Object.assign(el.style,{fontSize:'12px',color:'#888',textAlign:'center',marginTop:'-10px'}));
+  return article.outerHTML;
+}
+function copyFallback(){
+  const selection=window.getSelection();
+  const range=document.createRange();
+  range.selectNodeContents(preview);
+  selection.removeAllRanges();
+  selection.addRange(range);
+  const copied=document.execCommand('copy');
+  selection.removeAllRanges();
+  if(!copied)throw new Error('Rich text copy was rejected');
 }
 source.addEventListener('input',update);
 [keyColor,conceptColor,fontSize,lineHeight].forEach(el=>el.addEventListener('input',update));
 document.getElementById('sampleBtn').onclick=()=>{source.value=sample;update();};
-document.getElementById('clearBtn').onclick=()=>{source.value='';update();};
-document.getElementById('copyMdBtn').onclick=async()=>{try{await navigator.clipboard.writeText(source.value);statusEl.textContent='Markdown 已复制。';}catch(e){source.select();document.execCommand('copy');statusEl.textContent='已尝试复制 Markdown。';}};
-document.getElementById('copyTitleBtn').onclick=async()=>{const m=source.value.match(/^#\s+(.+)$/m);if(!m){statusEl.textContent='没有找到一级标题（# 标题）。';return;}try{await navigator.clipboard.writeText(m[1]);statusEl.textContent='标题已复制。';}catch(e){statusEl.textContent='复制失败，请手动选择标题。';}};
+document.getElementById('clearBtn').onclick=()=>{
+  if(source.value.trim()&&!window.confirm('确定清空当前文章吗？'))return;
+  source.value='';update();
+};
+document.getElementById('resetStyleBtn').onclick=()=>{
+  Object.entries(defaultStyles).forEach(([id,value])=>document.getElementById(id).value=value);
+  update();
+};
+async function copyText(text){
+  if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(text);
+  const field=document.createElement('textarea');
+  field.value=text;field.style.position='fixed';field.style.opacity='0';
+  document.body.appendChild(field);field.select();
+  const copied=document.execCommand('copy');
+  field.remove();
+  if(!copied)throw new Error('Text copy was rejected');
+}
+document.getElementById('copyMdBtn').onclick=async()=>{
+  try{await copyText(source.value);statusEl.textContent='Markdown 原文已复制。';}
+  catch(error){statusEl.textContent='复制 Markdown 失败，请在左侧编辑区手动全选复制。';}
+};
+document.getElementById('copyTitleBtn').onclick=async()=>{
+  const match=source.value.match(/^#\s+(.+)$/m);
+  if(!match){statusEl.textContent='没有找到一级标题（# 标题）。';return;}
+  try{await copyText(match[1]);statusEl.textContent='标题已复制。';}
+  catch(error){statusEl.textContent='复制失败，请手动选择标题。';}
+};
 document.getElementById('copyRichBtn').onclick=async()=>{
-  const html=preview.innerHTML;
-  const textContent=preview.innerText;
+  const wrapper=buildRichArticle();
   try{
     if(navigator.clipboard&&window.ClipboardItem){
-      const item=new ClipboardItem({'text/html':new Blob([`<meta charset="utf-8"><div style="font-family:Arial,'Microsoft YaHei',sans-serif;font-size:${fontSize.value}px;line-height:${lineHeight.value};color:#24272b">${html}</div>`],{type:'text/html'}),'text/plain':new Blob([textContent],{type:'text/plain'})});
-      await navigator.clipboard.write([item]);statusEl.textContent='排版后的富文本已复制，可以粘贴到公众号编辑器。';
-    }else{throw new Error('Clipboard API unavailable');}
-  }catch(e){
-    statusEl.textContent='浏览器未允许直接复制富文本。请点“导出 HTML”，打开导出的文件后全选复制，或在预览区全选复制。';
+      const item=new ClipboardItem({'text/html':new Blob([wrapper],{type:'text/html'}),'text/plain':new Blob([preview.innerText],{type:'text/plain'})});
+      await navigator.clipboard.write([item]);
+    }else copyFallback();
+    statusEl.textContent='排版后的富文本已复制；不同浏览器或公众号编辑器可能会调整部分样式。';
+  }catch(error){
+    statusEl.textContent='富文本复制失败。请使用“导出 HTML”，打开导出文件后手动全选复制。';
   }
 };
 document.getElementById('downloadHtmlBtn').onclick=()=>{
-  const htmlDoc=`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>公众号文章排版</title></head><body><article style="max-width:680px;margin:auto;padding:24px;font-family:Arial,'Microsoft YaHei',sans-serif;font-size:${fontSize.value}px;line-height:${lineHeight.value};color:#24272b">${preview.innerHTML}</article></body></html>`;
-  const blob=new Blob([htmlDoc],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='公众号排版结果.html';a.click();URL.revokeObjectURL(url);statusEl.textContent='HTML 文件已导出。';
+  const blob=new Blob([buildHtmlDocument()],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob),link=document.createElement('a');
+  link.href=url;link.download='公众号排版结果.html';link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  statusEl.textContent='HTML 文件已导出。';
 };
 document.getElementById('printBtn').onclick=()=>{
-  const w=window.open('','_blank');if(!w){statusEl.textContent='浏览器拦截了弹窗，请允许此页面打开新窗口。';return;}
-  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>公众号文章预览</title><style>body{font-family:Arial,'Microsoft YaHei',sans-serif;color:#24272b;line-height:${lineHeight.value};font-size:${fontSize.value}px;max-width:680px;margin:35px auto;padding:0 20px}h1{font-size:25px}h2{font-size:19px;border-left:4px solid ${keyColor.value};padding-left:10px}p{margin:0 0 18px;text-align:justify}blockquote{border-left:3px solid #bbb;background:#f7f7f7;padding:10px 15px;color:#555}.key{color:${keyColor.value};font-weight:bold}.concept{color:${conceptColor.value};font-weight:bold}.underlined{text-decoration:underline;text-decoration-color:${keyColor.value};text-underline-offset:4px}.image-placeholder{border:1px dashed #aaa;padding:14px;color:#777}</style></head><body>${preview.innerHTML}</body></html>`);w.document.close();w.focus();setTimeout(()=>w.print(),300);
+  const printWindow=window.open('','_blank');
+  if(!printWindow){statusEl.textContent='浏览器拦截了打印窗口，请允许弹窗后重试。';return;}
+  printWindow.addEventListener('load',()=>printWindow.print(),{once:true});
+  printWindow.document.open();
+  printWindow.document.write(buildHtmlDocument());
+  printWindow.document.close();
+  printWindow.focus();
 };
 document.querySelectorAll('[data-insert]').forEach(btn=>btn.onclick=()=>{
   const val=btn.getAttribute('data-insert'),start=source.selectionStart,end=source.selectionEnd;
   source.setRangeText(val,start,end,'end');source.focus();update();
 });
-source.value=sample;
+try{
+  const saved=JSON.parse(localStorage.getItem(storageKey)||'null');
+  if(saved&&typeof saved==='object'){
+    source.value=typeof saved.text==='string'?saved.text:sample;
+    for(const id of ['keyColor','conceptColor','fontSize','lineHeight']){
+      if(typeof saved[id]==='string')document.getElementById(id).value=saved[id];
+    }
+  }else source.value=sample;
+}catch(error){
+  source.value=sample;
+  storageNotice=' 本地保存不可用，刷新页面后编辑内容可能丢失。';
+}
 update();
 </script>
 </body>

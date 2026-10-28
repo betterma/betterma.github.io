@@ -44,6 +44,17 @@ th,td{text-align:left;padding:9px;border-bottom:1px solid var(--line);vertical-a
 th{background:#f8fafc}
 .checklist label{display:flex;gap:9px;padding:6px 0;align-items:flex-start}
 .checklist input{margin-top:7px;accent-color:var(--blue)}
+.workflow-status{font-size:13px;color:var(--muted);margin:10px 0}
+.stage-workspace{border-top:1px solid var(--line);margin-top:12px;padding-top:12px}
+.stage-workspace label{display:block;font-size:12px;color:var(--muted);margin:8px 0 4px}
+.stage-workspace textarea{width:100%;min-height:84px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:9px;font:13px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--text)}
+.stage-workspace textarea:focus{outline:2px solid #2457d633;border-color:var(--blue)}
+.stage-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+.stage-actions button{border:1px solid var(--line);border-radius:8px;background:#fff;padding:7px 9px;cursor:pointer;color:var(--text);font-size:12px}
+.stage-actions button:hover{border-color:var(--blue);color:var(--blue)}
+.stage-state{font-size:12px;color:var(--muted)}
+.prompt[contenteditable="true"]{outline:2px dashed transparent;cursor:text}
+.prompt[contenteditable="true"]:focus{outline-color:#93b4ff}
 footer{color:var(--muted);font-size:12px;text-align:center;padding:25px}
 @media(max-width:700px){main{padding:15px 12px 40px}.workflow{grid-template-columns:repeat(7,minmax(275px,84vw))}header{padding:25px 16px}.purpose{min-height:auto}}
 @media print{body{background:#fff}header{background:#fff;color:#111;padding:12px 0}header p{color:#333}nav,.link,button.copy{display:none}.workflow{display:grid;grid-template-columns:repeat(2,1fr);overflow:visible}.platform{break-inside:avoid}.prompt{color:#111;background:#f2f2f2}.card{break-inside:avoid}main{padding:0}}
@@ -63,6 +74,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:25px}
 <section id="flow">
 <h2>一、从左到右：七个环节、每个平台做什么，提示词放在对应平台下方</h2>
 <p class="muted">电脑端横向排列；屏幕较窄时可左右滑动。建议按 1 → 7 顺序执行。不是每一步都要换平台，但分开角色能减少 AI 自己写、自己夸的情况。</p>
+<div class="workflow-status" id="workflowStatus" role="status">提示词、阶段输入与产出会保存在当前浏览器；AI 搜索和生成仍需在外部工具中实际执行。</div>
 <div class="workflow">
 <article class="platform">
 <div class="platform-head"><h3><span class="num">1</span>ChatGPT｜联网研究</h3>
@@ -131,7 +143,7 @@ C. 家庭关系、代际沟通、人生选择。
 <p class="purpose">把第 1 步的研究包整体粘贴过来，生成文章初稿。要求围绕一个具体问题写，不能把来源文章拼接或换词重写。</p>
 <a class="link" href="https://www.deepseek.com/" target="_blank" rel="noopener">打开 DeepSeek ↗</a>
 <div class="action"><strong>怎么操作</strong><br>复制 ChatGPT 的研究包 → 粘贴到下方提示词的“研究包”位置 → 生成初稿。没有自己的观点时，让它先问你 3 个问题。</div>
-<div class="prompt-label">对应提示词 2｜原创初稿</div>
+<div class="prompt-label">对应提示词 3｜原创初稿</div>
 <div class="prompt" id="p2">你是我的微信公众号写作搭档。请根据下面的研究包写一篇有信息价值的原创初稿。
 
 【研究包】
@@ -151,6 +163,7 @@ C. 家庭关系、代际沟通、人生选择。
 8. 对研究包中未确认的事实直接删去，或标为【待核实】。
 9. 段落长短自然，不为凑字数重复表达。
 10. 先给 3 个标题候选，再给大纲和正文。
+11. 对普通读者不熟悉的专业概念，优先在正文中自然解释；确需保留时，在首次出现处给出简短准确的白话解释。不要给普通词语随意加概念标记，也不要改变原意。
 
 文末附上：使用了哪些事实、每项对应哪个来源链接、仍需核查的内容、文章独立观点在哪里。长度以内容需要为准。</div>
 <button class="copy" onclick="copyPrompt('p2',this)">复制提示词</button>
@@ -162,7 +175,7 @@ C. 家庭关系、代际沟通、人生选择。
 <p class="purpose">重点不是把文字“伪装成人类”，而是删掉模板句、空话和机械结构，让文章更具体、更有作者自己的判断。</p>
 <a class="link" href="https://chatgpt.com/" target="_blank" rel="noopener">打开 ChatGPT ↗</a>
 <div class="action"><strong>怎么操作</strong><br>粘贴初稿和研究包。把你真实的想法补进“作者的真实观察”；不要让 AI 编造生活经历、口头禅或情绪。</div>
-<div class="prompt-label">对应提示词 3｜去 AI 味编辑</div>
+<div class="prompt-label">对应提示词 4｜去 AI 味编辑</div>
 <div class="prompt" id="p3">你现在是资深中文编辑，任务是把下面的稿子编辑得自然、具体、有作者自己的判断，而不是通过伪装来欺骗 AI 检测。
 
 【文章初稿】
@@ -203,7 +216,7 @@ D. 任何可能改变事实含义的修改，单独标出供我确认。
 <a class="link" href="https://chatgpt.com/" target="_blank" rel="noopener">用 ChatGPT 审稿 ↗</a>
 <a class="link secondary" href="https://www.deepseek.com/" target="_blank" rel="noopener">或用 DeepSeek ↗</a>
 <div class="action"><strong>怎么操作</strong><br>最好用与写初稿不同的模型。粘贴最终稿、研究包和来源链接，让它指出问题；不要让它无依据地润色成另一篇文章。</div>
-<div class="prompt-label">对应提示词 4｜事实与质量审稿</div>
+<div class="prompt-label">对应提示词 5｜事实与质量审稿</div>
 <div class="prompt" id="p4">你不是作者，而是严格的独立审稿人。请审核下面的微信公众号文章。
 
 【文章】
@@ -233,8 +246,9 @@ D. 任何可能改变事实含义的修改，单独标出供我确认。
 <div class="pills"><span class="pill">完整 Markdown</span><span class="pill">插图位置</span><span class="pill">图片来源与版权</span></div>
 <p class="purpose">把通过审稿的正文整理成可复制的 Markdown 稿。根据内容判断是否需要配图；需要真实图片时再联网搜索，提供来源和使用权限线索，不为了好看强行塞图。</p>
 <div class="action"><strong>怎么操作</strong><br>把审稿通过的全文发给 ChatGPT → 要求输出完整 Markdown → 需要配图时让 ChatGPT 搜索素材并逐张列明来源、许可状态和图注 → 复制正文到公众号编辑器 → 按标记位置手动插入图片。Markdown 里的图片标记不会自动把图片上传到公众号。</div>
+<a class="link secondary" href="./wechat_e.html">打开本地 Markdown 排版工具 ↗</a>
 <div class="prompt-label">对应提示词 6｜Markdown 排版与配图</div>
-<div class="prompt" id="pformat">请将下面的文章整理成适合微信公众号发布的 Markdown 排版稿。
+<div class="prompt" id="pformatResearch">请将下面的文章整理成适合微信公众号发布的 Markdown 排版稿。
 
 【文章正文】
 [粘贴已审核的最终稿]
@@ -243,14 +257,14 @@ D. 任何可能改变事实含义的修改，单独标出供我确认。
 1. 以排版为主，保留原文核心观点、事实和作者风格；不要擅自把任务变成全文重写。
 2. 优化标题层级、段落节奏、少量重点加粗、引用和留白；避免过度碎片化、营销号式排版和一句一段。
 3. 判断哪些位置确实适合插图，不要为了数量强行配图。若不需要图片，直接说明。
-4. 对需要真实图片的位置，请联网搜索合适素材，优先考虑官方来源、公共领域或许可信息明确的素材；明星、电影剧照等素材尤其要注意版权。
+4. 只有当前模型确实具备联网搜索能力时，才搜索真实图片素材；否则明确说明无法搜索并保留图片占位，不得编造图片、链接、来源、作者或授权信息。优先考虑官方来源、公共领域或许可信息明确的素材；明星、电影剧照等素材尤其要注意版权。
 5. 每张建议图片提供：插入位置、来源页面链接、许可信息（能确认时）、建议图注。无法确认使用权限时明确写“需进一步确认”，不能声称可免费商用。
 6. 不要只给搜索结果缩略图链接；尽量提供原始发布页面或素材许可页面。网上能看到或下载不代表可以直接用于公众号。
 7. 最终先输出完整 Markdown 正文，并在适当位置加入清晰标记，例如【配图 1：建议插入某类图片】；文末另列图片清单、来源链接、许可状态及需要我确认的事项。
 8. 发现原文中的事实疑点时不要自行编造修正，请在正文之外单独列出。
 
 风格要求：克制、自然、耐读，有文学感但不矫饰；优先保持原文节奏，不使用机械的总结腔。</div>
-<button class="copy" onclick="copyPrompt('pformat',this)">复制提示词</button>
+<button class="copy" onclick="copyPrompt('pformatResearch',this)">复制提示词</button>
 </article>
 
 <article class="platform">
@@ -259,7 +273,7 @@ D. 任何可能改变事实含义的修改，单独标出供我确认。
 <p class="purpose">ChatGPT 负责提供 Markdown 正文、插图位置和图片来源清单；你在公众号编辑器里做最后的格式微调、实际上传图片、预览并决定是否发布。</p>
 <a class="link" href="https://mp.weixin.qq.com/" target="_blank" rel="noopener">进入公众号平台 ↗</a>
 <div class="action"><strong>怎么操作</strong><br>复制 ChatGPT 输出的 Markdown 正文 → 粘贴到公众号编辑器并检查标题、加粗、引用等格式是否保留 → 按图片标记逐张上传你确认可用的图片 → 删除所有内部配图标记 → 检查来源与平台要求 → 手机预览 → 人工发布。</div>
-<div class="prompt-label">对应提示词 5｜标题与发布前检查</div>
+<div class="prompt-label">对应提示词 7｜标题与发布前检查</div>
 <div class="prompt" id="p5">请为这篇已经审核过的微信公众号文章生成标题候选，并制作发布前检查清单。
 
 【文章正文】
@@ -337,7 +351,7 @@ D. 任何可能改变事实含义的修改，单独标出供我确认。
 <div class="card">
 <h3>3. 复制给 ChatGPT 的固定排版指令</h3>
 <p class="muted">每次文章事实核查和内容编辑完成后，再使用这段指令。它要求 AI 输出兼容本地排版工具的 Markdown，而不是直接生成花哨 HTML。</p>
-<div class="prompt" id="pformat">请将下面这篇已完成内容编辑与事实核查的微信公众号文章，整理成适配我的「公众号自动排版工具」的 Markdown。
+<div class="prompt" id="pformatFinal">请将下面这篇已完成内容编辑与事实核查的微信公众号文章，整理成适配我的「公众号自动排版工具」的 Markdown。
 
 严格遵守以下排版规范：
 1. 只使用一个一级标题：# 文章标题。
@@ -347,20 +361,20 @@ D. 任何可能改变事实含义的修改，单独标出供我确认。
 5. 全文最多标记 0–2 处需要读者停顿的句子，格式为 ++值得停下来读的一句话++。尽量不要与核心观点重复。
 6. 重要概念才使用 {{概念}}，通常每篇 0–3 处；不要给普通名词随意加色。
 7. 确有必要时使用 > 引用内容。引用必须有可核查出处，不得编造引语。
-8. 需要图片的位置写成 [图片：具体画面或内容描述]。优先指出图片需要表达什么，不要假装已经找到或取得图片授权。
+8. 需要图片的位置写成 [图片：具体画面或内容描述]。真实图片仅使用 ![图片说明](https://可访问的图片直链)；不要把占位描述当成图片 URL，也不要假装已经找到或取得图片授权。
 9. 保留原文事实、论点和作者真实立场。不要为了排版新增事实、虚构个人经历或夸大表达。
 10. 输出完整 Markdown 正文，不要把排版说明、分析过程或额外寒暄混入正文。
 11. 如果发现事实疑点或图片版权问题，不要用样式掩盖；在正文后另列“待核查事项”，不要擅自补全。
 
 【文章原稿】
 在此粘贴文章</div>
-<button class="copy" onclick="copyPrompt('pformat',this)">复制排版指令</button>
+<button class="copy" onclick="copyPrompt('pformatFinal',this)">复制排版指令</button>
 </div>
 <div class="card">
 <h3>4. 实际排版步骤</h3>
 <ol>
 <li>把最终稿交给 ChatGPT，使用上面的「固定排版指令」生成 Markdown。</li>
-<li>复制 Markdown，打开配套的 <strong>公众号自动排版工具.html</strong>，粘贴到左侧。</li>
+<li>复制 Markdown，打开配套的 <a href="./wechat_e.html">wechat_e.html 排版工具</a>，粘贴到左侧。</li>
 <li>检查右侧标题、段落、重点颜色、概念颜色、引用块和图片占位提示。</li>
 <li>按文章实际需要调整字号、行间距与颜色；不要为了视觉效果把颜色标记越加越多。</li>
 <li>点击「复制排版后的文章」并粘贴到微信公众号编辑器。若浏览器不允许复制富文本，使用「导出 HTML」作为备用方式。</li>
@@ -408,17 +422,104 @@ D. 任何可能改变事实含义的修改，单独标出供我确认。
 <footer>微信公众号 AI 写作工作流｜七步横向导航版＋Markdown 排版规范｜Markdown 优先｜免费优先｜请按平台当前规则和实际后台数据持续调整</footer>
 </main>
 <script>
-function copyPrompt(id,btn){
- const el=document.getElementById(id),txt=el.innerText;
- if(navigator.clipboard&&window.isSecureContext){
-  navigator.clipboard.writeText(txt).then(()=>flash(btn)).catch(()=>fallbackCopy(txt,btn));
- }else fallbackCopy(txt,btn);
+const workflowStorageKey='wechat-workflow-v1';
+const workflowStatus=document.getElementById('workflowStatus');
+const workflowCards=[...document.querySelectorAll('.platform')];
+let workflowData={};
+
+try{
+ const stored=JSON.parse(localStorage.getItem(workflowStorageKey)||'{}');
+ workflowData=stored&&typeof stored==='object'&&!Array.isArray(stored)?stored:{};
+}catch(error){
+ workflowStatus.textContent='无法读取本地保存内容；本次使用仍可继续，但刷新页面后未必保留。';
 }
-function flash(btn){const old=btn.textContent;btn.textContent='已复制';setTimeout(()=>btn.textContent=old,1300)}
-function fallbackCopy(txt,btn){
- const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
- try{document.execCommand('copy');flash(btn)}catch(e){alert('复制失败，请手动选择提示词复制。')}
- ta.remove();
+
+function saveWorkflow(){
+ try{
+  localStorage.setItem(workflowStorageKey,JSON.stringify(workflowData));
+  workflowStatus.textContent='提示词、阶段输入与产出已保存到当前浏览器；AI 搜索和生成仍需在外部工具中实际执行。';
+  return true;
+ }catch(error){
+  workflowStatus.textContent='本地保存失败，请复制重要内容，避免刷新后丢失。';
+  return false;
+ }
 }
+
+function copyText(text){
+ if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(text);
+ return new Promise((resolve,reject)=>{
+  const field=document.createElement('textarea');
+  field.value=text;field.style.position='fixed';field.style.opacity='0';
+  document.body.appendChild(field);field.select();
+  const copied=document.execCommand('copy');
+  field.remove();
+  copied?resolve():reject(new Error('Clipboard copy was rejected'));
+ });
+}
+
+async function copyPrompt(id,btn){
+ const el=document.getElementById(id);
+ if(!el)return;
+ try{
+  await copyText(el.innerText);
+  const old=btn.textContent;btn.textContent='已复制';setTimeout(()=>btn.textContent=old,1300);
+ }catch(error){
+  workflowStatus.textContent='复制失败，请选中提示词手动复制。';
+ }
+}
+
+workflowCards.forEach((card,index)=>{
+ const key=`stage-${index+1}`;
+ const saved=workflowData[key]||{};
+ const prompts=[...card.querySelectorAll('.prompt')];
+ prompts.forEach((prompt,promptIndex)=>{
+  const promptKey=`${key}-prompt-${promptIndex}`;
+  prompt.contentEditable='true';
+  prompt.setAttribute('role','textbox');
+  prompt.setAttribute('aria-label',`第 ${index+1} 阶段提示词，可编辑`);
+  prompt.spellcheck=false;
+  if(typeof workflowData[promptKey]==='string')prompt.innerText=workflowData[promptKey];
+  prompt.addEventListener('input',()=>{
+   workflowData[promptKey]=prompt.innerText;
+   saveWorkflow();
+  });
+ });
+
+ const workspace=document.createElement('div');
+ workspace.className='stage-workspace';
+ workspace.innerHTML=`<label for="${key}-input">本阶段输入 / 上一步材料</label><textarea id="${key}-input" data-field="input" placeholder="粘贴上一阶段结果或补充本阶段材料"></textarea><label for="${key}-output">本阶段产出</label><textarea id="${key}-output" data-field="output" placeholder="粘贴 AI 产出或记录本阶段结论"></textarea><div class="stage-actions"><button type="button" data-action="complete">${saved.complete?'取消完成':'标记完成'}</button><button type="button" data-action="next">${index===workflowCards.length-1?'复制最终 Markdown':'传递到下一阶段'}</button><span class="stage-state" role="status">${saved.complete?'已完成':'未完成'}</span></div>`;
+ card.appendChild(workspace);
+ workspace.querySelectorAll('textarea').forEach(field=>{
+  field.value=saved[field.dataset.field]||'';
+  field.addEventListener('input',()=>{
+   workflowData[key]||={};
+   workflowData[key][field.dataset.field]=field.value;
+   saveWorkflow();
+  });
+ });
+ workspace.querySelector('[data-action="complete"]').addEventListener('click',event=>{
+  workflowData[key]||={};
+  workflowData[key].complete=!workflowData[key].complete;
+  event.currentTarget.textContent=workflowData[key].complete?'取消完成':'标记完成';
+  workspace.querySelector('.stage-state').textContent=workflowData[key].complete?'已完成':'未完成';
+  saveWorkflow();
+ });
+ workspace.querySelector('[data-action="next"]').addEventListener('click',async()=>{
+  const output=workspace.querySelector('[data-field="output"]').value;
+  if(index===workflowCards.length-1){
+   if(!output.trim()){workflowStatus.textContent='请先填写最终 Markdown，再复制。';return;}
+   try{await copyText(output);workflowStatus.textContent='最终 Markdown 已复制。请在排版工具中检查预览后再发布。';}
+   catch(error){workflowStatus.textContent='复制失败，请手动复制最终 Markdown。';}
+   return;
+  }
+  const next=workflowCards[index+1].querySelector('[data-field="input"]');
+  if(!output.trim()){workflowStatus.textContent='请先填写本阶段产出，再传递给下一阶段。';return;}
+  next.value=output;
+  next.dispatchEvent(new Event('input',{bubbles:true}));
+  workflowCards[index+1].scrollIntoView({behavior:'smooth',block:'start'});
+  next.focus({preventScroll:true});
+  workflowStatus.textContent=`第 ${index+1} 阶段产出已传入第 ${index+2} 阶段。`;
+ });
+});
 </script>
 </body></html>
