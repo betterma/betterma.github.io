@@ -10,296 +10,332 @@
   <style>
     :root {
       color-scheme: dark;
+      --void: #03060e;
+      --panel: rgba(11, 21, 40, 0.72);
+      --panel-hi: rgba(18, 34, 60, 0.9);
+      --line: rgba(125, 190, 255, 0.16);
+      --line-hi: rgba(92, 225, 255, 0.58);
+      --ink: #e9f3ff;
+      --muted: #88a0bf;
+      --cyan: #5ce1ff;
+      --violet: #a08cff;
+      --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Consolas, "Liberation Mono", monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      margin: 0;
       min-height: 100vh;
-      padding: 24px 16px 40px;
-      font-family: 'SF Pro Display', 'PingFang SC', 'Hiragino Sans GB', 'Arial', sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #f8f7ff;
-      background:
-        radial-gradient(circle at 20% 20%, rgba(255, 92, 196, 0.45) 0, rgba(255, 92, 196, 0) 26%),
-        radial-gradient(circle at 80% 20%, rgba(98, 255, 227, 0.35) 0, rgba(98, 255, 227, 0) 22%),
-        radial-gradient(circle at 50% 80%, rgba(120, 122, 255, 0.4) 0, rgba(120, 122, 255, 0) 24%),
-        linear-gradient(135deg, #140d2f 0%, #24185f 45%, #0e2147 100%);
+      color: var(--ink);
+      font-family: var(--sans);
+      background-color: var(--void);
+      background-image:
+        radial-gradient(ellipse 70% 48% at 14% -4%, rgba(91, 110, 255, 0.22), transparent 62%),
+        radial-gradient(ellipse 60% 46% at 88% 4%, rgba(0, 200, 255, 0.15), transparent 62%),
+        radial-gradient(ellipse 90% 42% at 50% 102%, rgba(123, 80, 255, 0.16), transparent 66%),
+        linear-gradient(180deg, #03060e 0%, #061024 55%, #03070f 100%);
+      background-attachment: fixed;
       overflow-x: hidden;
       position: relative;
     }
 
-    body::before,
-    body::after {
-      content: '';
-      position: fixed;
-      width: 320px;
-      height: 320px;
-      border-radius: 50%;
-      filter: blur(38px);
-      opacity: 0.4;
-      pointer-events: none;
-      animation: float 10s ease-in-out infinite alternate;
-    }
-
     body::before {
-      top: -80px;
-      left: -60px;
-      background: rgba(255, 103, 178, 0.35);
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle, rgba(200, 230, 255, 0.55) 1px, transparent 1.4px),
+        radial-gradient(circle, rgba(150, 190, 255, 0.32) 1px, transparent 1.4px);
+      background-size: 113px 113px, 167px 167px;
+      background-position: 0 0, 37px 59px;
+      opacity: 0.5;
+      -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.45) 70%, transparent 100%);
+      mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.45) 70%, transparent 100%);
     }
 
     body::after {
-      bottom: -90px;
-      right: -80px;
-      background: rgba(78, 197, 255, 0.3);
-      animation-duration: 13s;
-    }
-
-    @keyframes float {
-      from { transform: translate3d(0, 0, 0) scale(1); }
-      to { transform: translate3d(20px, -20px, 0) scale(1.08); }
-    }
-
-    .page-shell {
-      width: min(100%, 980px);
-      position: relative;
-      z-index: 1;
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: clamp(1.9rem, 3.2vw, 2.8rem);
-      letter-spacing: 0.06em;
-      color: #ffffff;
-      text-shadow: 0 0 25px rgba(255, 255, 255, 0.22);
-    }
-
-    .subtitle {
-      margin: 0 0 24px;
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 0.98rem;
-      letter-spacing: 0.04em;
-    }
-
-    .nav-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 1.1rem;
-      margin-bottom: 1.2rem;
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 128px;
-      padding: 1.2rem 0.9rem;
-      text-decoration: none;
-      color: #fff;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      background: rgba(255, 255, 255, 0.11);
-      box-shadow: 0 12px 32px rgba(8, 15, 37, 0.28);
-      backdrop-filter: blur(16px);
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .nav-item::before {
-      content: '';
-      position: absolute;
+      content: "";
+      position: fixed;
       inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.16), transparent 70%);
+      z-index: 0;
       pointer-events: none;
+      background-image:
+        linear-gradient(rgba(90, 160, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(90, 160, 255, 0.05) 1px, transparent 1px);
+      background-size: 64px 64px;
+      -webkit-mask-image: radial-gradient(ellipse 80% 62% at 50% 38%, #000 0%, transparent 82%);
+      mask-image: radial-gradient(ellipse 80% 62% at 50% 38%, #000 0%, transparent 82%);
     }
 
-    .nav-item:hover,
-    .nav-item:focus-visible {
-      transform: translateY(-3px);
-      box-shadow: 0 16px 40px rgba(8, 15, 37, 0.35);
-      background: rgba(255, 255, 255, 0.16);
+    .cosmos { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+    .orbit { position: absolute; border: 1px solid rgba(120, 190, 255, 0.1); border-radius: 50%; }
+    .orbit::before {
+      content: "";
+      position: absolute;
+      top: 11%; left: 12%;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 14px var(--cyan);
+    }
+    .orbit-a { width: 760px; height: 760px; top: -430px; right: -250px; animation: spin 60s linear infinite; }
+    .orbit-b {
+      width: 520px; height: 520px; bottom: -330px; left: -180px;
+      border-color: rgba(160, 140, 255, 0.12);
+      animation: spin 45s linear infinite reverse;
+    }
+    .orbit-b::before { background: var(--violet); box-shadow: 0 0 14px var(--violet); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .shell { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 40px 20px 64px; }
+
+    .topbar {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 12px 20px;
+      padding-bottom: 14px; margin-bottom: 38px;
+      border-bottom: 1px solid var(--line);
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+      color: var(--muted); text-transform: uppercase;
+    }
+    .sys { color: var(--ink); }
+    .sys .sep { color: var(--cyan); padding: 0 6px; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+    .status { display: inline-flex; align-items: center; gap: 8px; color: var(--cyan); }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--cyan); box-shadow: 0 0 12px var(--cyan);
+      animation: pulse 2.6s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    .build { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: var(--muted); }
+
+    .hero { margin-bottom: 38px; }
+    .kicker {
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.3em;
+      color: var(--cyan); text-transform: uppercase; margin-bottom: 12px;
+    }
+    h1 {
+      font-size: clamp(2.3rem, 6vw, 3.7rem); font-weight: 600;
+      letter-spacing: -0.025em; line-height: 1.08; margin-bottom: 14px;
+    }
+    h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--cyan), var(--violet));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .lede { max-width: 44rem; color: var(--muted); font-size: 0.94rem; line-height: 1.75; }
+    .telemetry { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .telemetry span {
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+      color: var(--muted); border: 1px solid var(--line); border-radius: 4px;
+      padding: 5px 9px; background: rgba(8, 16, 30, 0.55);
     }
 
-    .nav-item:active {
-      transform: scale(0.97);
+    .section { margin-bottom: 30px; }
+    .section-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .idx {
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+      color: var(--cyan); border: 1px solid var(--line-hi);
+      border-radius: 4px; padding: 3px 7px;
+    }
+    .section-head h2 {
+      font-family: var(--mono); font-size: 12px; font-weight: 500;
+      letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink);
+    }
+    .section-head .sub { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+    .section-head .rule { flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
+    .section-head .count { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+    .grid.compact { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+    .card {
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; gap: 8px;
+      min-height: 132px; padding: 18px 18px 16px;
+      text-decoration: none; color: var(--ink);
+      background: linear-gradient(160deg, var(--panel-hi), var(--panel));
+      border: 1px solid var(--line); border-radius: 10px;
+      transition: transform 0.2s ease, border-color 0.2s, box-shadow 0.2s;
+    }
+    .card.compact { min-height: 104px; padding: 15px 16px; }
+    .card::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(320px circle at 100% 0%, rgba(92, 225, 255, 0.11), transparent 62%);
+    }
+    .card::after {
+      content: ""; position: absolute; top: 0; left: 12px; right: 12px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--line-hi), transparent); opacity: 0.55;
+    }
+    .edge {
+      position: absolute; left: 0; top: 16px; bottom: 16px; width: 2px;
+      background: linear-gradient(180deg, var(--cyan), transparent); opacity: 0.75;
+    }
+    .num { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--cyan); }
+    .label { font-size: 1.05rem; font-weight: 600; letter-spacing: 0.01em; }
+    .hint { font-family: var(--mono); font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .arrow { position: absolute; right: 15px; top: 15px; font-family: var(--mono); font-size: 13px; color: var(--muted); transition: transform 0.2s, color 0.2s; }
+    .card:hover, .card:focus-visible {
+      transform: translateY(-3px); border-color: var(--line-hi);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(92, 225, 255, 0.08);
+    }
+    .card:hover .arrow, .card:focus-visible .arrow { color: var(--cyan); transform: translate(2px, -2px); }
+
+    .footer {
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px;
+      margin-top: 38px; padding-top: 16px; border-top: 1px solid var(--line);
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; color: var(--muted);
     }
 
-    .nav-icon {
-      width: 50px;
-      height: 50px;
-      margin-bottom: 0.7rem;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.7rem;
-      background: linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08));
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+    @media (max-width: 640px) {
+      .shell { padding: 26px 14px 48px; }
+      .topbar { margin-bottom: 28px; letter-spacing: 0.1em; }
+      .grid, .grid.compact { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .card { min-height: 108px; padding: 14px; }
+      .hint { display: none; }
+      .section-head .sub { display: none; }
+      h1 { font-size: 2.1rem; }
     }
 
-    .more-section {
-      border-radius: 24px;
-      padding: 16px 18px;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      background: rgba(255, 255, 255, 0.1);
-      box-shadow: 0 12px 32px rgba(8, 15, 37, 0.22);
-      backdrop-filter: blur(16px);
-    }
-
-    .more-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      color: rgba(255, 255, 255, 0.9);
-      margin-bottom: 10px;
-      text-transform: uppercase;
-    }
-
-    .more-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.7rem;
-    }
-
-    .more-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 0.92rem;
-      border-radius: 999px;
-      text-decoration: none;
-      color: #fff;
-      font-size: 0.95rem;
-      font-weight: 600;
-      background: rgba(255, 255, 255, 0.14);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      transition: transform 0.16s ease, background 0.16s ease;
-    }
-
-    .more-chip:hover,
-    .more-chip:focus-visible {
-      transform: translateY(-2px);
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    @media (max-width: 720px) {
-      body {
-        padding: 24px 12px 32px;
-      }
-
-      .nav-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.8rem;
-      }
-
-      .nav-item {
-        min-height: 110px;
-        padding: 1rem 0.7rem;
-        font-size: 0.95rem;
-        border-radius: 20px;
-      }
-
-      .nav-icon {
-        width: 42px;
-        height: 42px;
-        font-size: 1.4rem;
-        border-radius: 12px;
-      }
-
-      .more-links {
-        gap: 0.6rem;
-      }
-
-      .more-chip {
-        flex: 1 1 calc(50% - 0.6rem);
-        justify-content: center;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .nav-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .more-chip {
-        flex-basis: 100%;
-      }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
 <body>
-  <main class="page-shell">
-    <h1>蚂蚱导航</h1>
-    <p class="subtitle">把常用入口收纳成一张更轻松的“迷幻主页”</p>
-
-    <div class="nav-grid">
-      <a class="nav-item" href="https://betterma.github.io/memory?v=20250105" target="_blank">
-        <div class="nav-icon">🧠</div>
-        蚂蚱记忆
-      </a>
-      <a class="nav-item" href="https://betterma.github.io/body?v=20250105" target="_blank">
-        <div class="nav-icon">🧠</div>
-        蚂蚱计划
-      </a>
-      <a class="nav-item" href="bookmarks.html?v=20261026" target="_blank">
-        <div class="nav-icon">📝</div>
-        资源备忘
-      </a>
-      <a class="nav-item" href="https://betterma.github.io/pages/baby/?v=20261007" target="_blank">
-        <div class="nav-icon">🍼</div>
-        葫芦宝手册
-      </a>
-      <a class="nav-item" href="https://betterma.github.io/pages/babyChat/?v=20261030" target="_blank">
-        <div class="nav-icon">📔</div>
-        葫芦包日记
-      </a>
+  <div class="cosmos" aria-hidden="true">
+    <span class="orbit orbit-a"></span>
+    <span class="orbit orbit-b"></span>
+  </div>
+  <div class="shell">
+    <div class="topbar">
+      <div class="sys">MAZHA <span class="sep">/</span> NAVIGATION SYSTEM</div>
+      <div class="topbar-right">
+        <span class="status"><i class="dot"></i>SYSTEM ONLINE</span>
+        <span class="build">v2026.11</span>
+      </div>
     </div>
 
-    <section class="more-section" aria-label="更多入口">
-      <div class="more-title">更多入口</div>
-      <div class="more-links">
-        <a class="more-chip" href="https://betterma.github.io/book?v=20250105" target="_blank"><span>📚</span> 阅读资源</a>
-        <a class="more-chip" href="encry/index.html?v=20250105" target="_blank"><span>MI</span> 加MI工具</a>
-        <a class="more-chip" href="ipcheck/ipcheck.html?v=20250105" target="_blank"><span>🔎</span> IP Check</a>
-        <a class="more-chip" href="https://betterma.github.io/pages/" target="_blank"><span>📊</span> Pages 交易台</a>
-        <a class="more-chip" href="wechat_a.html" target="_blank"><span>📊</span>文章创作流</a>
-        <a class="more-chip" href="wechat_e.html" target="_blank"><span>📊</span>文章排版</a>
+    <header class="hero">
+      <div class="kicker">SECTOR 00 · HOME BASE</div>
+      <h1>蚂蚱<em>导航</em></h1>
+      <p class="lede">常用入口收纳成一张星际控制台，点击任意模块即可跃迁。</p>
+      <div class="telemetry">
+        <span>NODES 11</span><span>UPLINK ACTIVE</span><span>STATIC BUILD</span>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="section-head">
+        <span class="idx">01</span>
+        <h2>Core links</h2>
+        <span class="sub">主入口</span>
+        <span class="rule"></span>
+        <span class="count">05</span>
+      </div>
+      <div class="grid">
+        <a class="card" href="https://betterma.github.io/memory?v=20261111" target="_blank" rel="noopener noreferrer">
+          <span class="edge"></span><span class="num">01 / MEMORY</span>
+          <span class="label">蚂蚱记忆</span>
+          <span class="hint">数字记忆本 · 便签与归档</span>
+          <span class="arrow">↗</span>
+        </a>
+        <a class="card" href="https://betterma.github.io/body?v=20261111" target="_blank" rel="noopener noreferrer">
+          <span class="edge"></span><span class="num">02 / PLAN</span>
+          <span class="label">蚂蚱计划</span>
+          <span class="hint">健身计划 · 长图浏览</span>
+          <span class="arrow">↗</span>
+        </a>
+        <a class="card" href="bookmarks.html?v=20261111" target="_blank" rel="noopener noreferrer">
+          <span class="edge"></span><span class="num">03 / BOARD</span>
+          <span class="label">资源备忘</span>
+          <span class="hint">可拖拽书签 · 便签板</span>
+          <span class="arrow">↗</span>
+        </a>
+        <a class="card" href="https://betterma.github.io/pages/baby/?v=20261111" target="_blank" rel="noopener noreferrer">
+          <span class="edge"></span><span class="num">04 / BABY</span>
+          <span class="label">葫芦宝手册</span>
+          <span class="hint">成长曲线 · 月龄便签</span>
+          <span class="arrow">↗</span>
+        </a>
+        <a class="card" href="https://betterma.github.io/pages/babyChat/?v=20261111" target="_blank" rel="noopener noreferrer">
+          <span class="edge"></span><span class="num">05 / JOURNAL</span>
+          <span class="label">葫芦包日记</span>
+          <span class="hint">日记与对话记录</span>
+          <span class="arrow">↗</span>
+        </a>
       </div>
     </section>
-  </main>
+
+    <section class="section">
+      <div class="section-head">
+        <span class="idx">02</span>
+        <h2>Extended</h2>
+        <span class="sub">更多入口</span>
+        <span class="rule"></span>
+        <span class="count">06</span>
+      </div>
+      <div class="grid compact">
+        <a class="card compact" href="https://betterma.github.io/book?v=20261111" target="_blank" rel="noopener noreferrer">
+          <span class="edge"></span><span class="num">06 / READ</span>
+          <span class="label">阅读资源</span>
+          <span class="hint">电子书目录</span>
+          <span class="arrow">↗</span>
+        </a>
+        <a class="card compact" href="encry/index.html?v=20261111" target="_blank" rel="noopener noreferrer">
+          <span class="edge"></span><span class="num">07 / CIPHER</span>
+          <span class="label">加MI工具</span>
+          <span class="hint">字母轮转工具</span>
+          <span class="arrow">↗</span>
+        </a>
+        <a class="card compact" href="ipcheck/ipcheck.html?v=20261111" target="_blank" rel="noopener noreferrer">
+          <span class="edge"></span><span class="num">08 / NET</span>
+          <span class="label">IP Check</span>
+          <span class="hint">网络环境检测</span>
+          <span class="arrow">↗</span>
+        </a>
+        <a class="card compact" href="https://betterma.github.io/pages/?v=20261111" target="_blank" rel="noopener noreferrer">
+          <span class="edge"></span><span class="num">09 / PAGES</span>
+          <span class="label">Pages 交易台</span>
+          <span class="hint">Binance · OKX · 发现</span>
+          <span class="arrow">↗</span>
+        </a>
+        <a class="card compact" href="wechat_a.html?v=20261111" target="_blank" rel="noopener noreferrer">
+          <span class="edge"></span><span class="num">10 / WRITE</span>
+          <span class="label">文章创作流</span>
+          <span class="hint">七步写作工作流</span>
+          <span class="arrow">↗</span>
+        </a>
+        <a class="card compact" href="wechat_e.html?v=20261111" target="_blank" rel="noopener noreferrer">
+          <span class="edge"></span><span class="num">11 / FORMAT</span>
+          <span class="label">文章排版</span>
+          <span class="hint">公众号自动排版</span>
+          <span class="arrow">↗</span>
+        </a>
+      </div>
+    </section>
+
+    <div class="footer">
+      <span>MAZHA NAV / STATIC CONSOLE · 2026</span>
+      <span>11 LINKS · NO TRACKING</span>
+    </div>
+  </div>
 
   <script>
-    // 强制刷新缓存
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for(let registration of registrations) {
-          registration.unregister();
-        }
-      });
-    }
-    
-    // 清除浏览器缓存
-    if ('caches' in window) {
-      caches.keys().then(function(names) {
-        for (let name of names) {
-          caches.delete(name);
-        }
-      });
-    }
-    
-    // 添加版本信息到控制台
-    console.log('蚂蚱导航 v20261007 - 缓存已清除');
+    // 只清理根作用域可能残留的旧 Service Worker，不动同源其它应用
+    // （cook PWA、/pages/ 等）的注册与 CacheStorage。
+    (function () {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function (list) {
+          list.forEach(function (item) {
+            if (item.scope === location.origin + "/") item.unregister();
+          });
+        }).catch(function () {});
+      }
+      console.log("mazha-nav v20261111");
+    })();
   </script>
-
-
 </body>
 </html>
