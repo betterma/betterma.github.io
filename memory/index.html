@@ -7,6 +7,65 @@
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/index.css">
   <link rel="stylesheet" href="lib/quill/quill.snow.css">
+  <style>
+    /* 令牌状态条与设置弹层：跟随站点浅色主题 */
+    .mz-banner {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      max-width: 600px; margin: 0 auto 16px; padding: 11px 14px;
+      background: #fff8e6; border: 1px solid #f5d68a; border-left: 4px solid #f0a500;
+      border-radius: 8px; color: #7a5410; font-size: 13px; line-height: 1.5;
+    }
+    .mz-banner[hidden] { display: none; }
+    .mz-banner.is-error { background: #fff0f0; border-color: #f3b6b6; border-left-color: #e04b4b; color: #9b2c2c; }
+    .mz-banner-icon {
+      flex: 0 0 auto; width: 18px; height: 18px; border-radius: 50%;
+      background: currentColor; color: #f0a500; text-align: center;
+      line-height: 18px; font-weight: 700; font-size: 12px; color: #fff;
+    }
+    .mz-banner.is-error .mz-banner-icon { background: #e04b4b; }
+    .mz-banner span#authBannerText { flex: 1 1 220px; }
+    .mz-banner button {
+      margin: 0; padding: 5px 11px; font-size: 12px; border-radius: 6px;
+      background: #3370ff; color: #fff;
+    }
+    .mz-banner .mz-banner-close {
+      background: transparent; color: inherit; font-size: 16px; padding: 2px 6px;
+    }
+    .mz-user-trigger {
+      min-width: 40px; padding: 8px 12px; font-size: 15px;
+      background: #eef2ff; color: #3370ff; border: 1px solid #d9e2ff;
+    }
+    .mz-user-trigger:hover { background: #dfe8ff; }
+    .mz-modal {
+      position: fixed; inset: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(20, 28, 45, 0.45); padding: 18px;
+    }
+    .mz-modal[hidden] { display: none; }
+    .mz-modal-card {
+      width: 100%; max-width: 460px; background: #fff; border-radius: 12px;
+      padding: 22px; box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+    }
+    .mz-modal-card h3 { margin: 0 0 10px; font-size: 18px; color: #222; }
+    .mz-modal-note { font-size: 12px; line-height: 1.7; color: #666; margin-bottom: 16px; }
+    .mz-modal-note code { background: #f2f4f8; padding: 1px 4px; border-radius: 3px; }
+    .mz-modal-card label { display: block; font-size: 13px; color: #444; margin-bottom: 6px; }
+    .mz-modal-card input[type="password"] {
+      width: 100%; box-sizing: border-box; padding: 10px 12px;
+      border: 1px solid #d9dde6; border-radius: 7px; font-size: 14px;
+      font-family: Consolas, Menlo, monospace;
+    }
+    .mz-modal-status { margin-top: 10px; font-size: 12px; color: #777; }
+    .mz-modal-hint { min-height: 18px; margin-top: 8px; font-size: 12px; color: #c0392b; }
+    .mz-modal-hint.is-ok { color: #1a8a4a; }
+    .mz-modal-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .mz-modal-actions button { margin: 0; padding: 9px 14px; font-size: 13px; background: #eef0f5; color: #444; }
+    .mz-modal-actions .mz-primary { background: #3370ff; color: #fff; }
+    .mz-modal-actions button:disabled { opacity: 0.6; cursor: not-allowed; }
+    @media (max-width: 640px) {
+      .mz-banner { margin: 0 12px 14px; }
+    }
+  </style>
 </head>
 <body>
   <!-- 头部导航 -->
@@ -21,11 +80,13 @@
           写记忆
         </button>
         <div class="dropdown">
+          <button id="userDropdown" class="mz-user-trigger" type="button" aria-haspopup="true" aria-expanded="false" aria-label="更多操作">☰</button>
           <div class="dropdown-menu" id="userMenu">
             <button id="refresh">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align:middle;margin-right:4px;"><path d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 1 1 .894-.448A4 4 0 1 0 8 4V1.5a.5.5 0 0 1 1 0v3A.5.5 0 0 1 8.5 5h-3a.5.5 0 0 1 0-1H8z"/></svg>
               刷新数据
             </button>
+            <button id="tokenSettings">设置令牌</button>
             <button id="logout">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align:middle;margin-right:4px;"><path d="M6 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H6zm4 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4zm-2 3.5a.5.5 0 0 0-.5.5v1.5H5.5a.5.5 0 0 0 0 1H7.5V11a.5.5 0 0 0 1 0V8.5h2a.5.5 0 0 0 0-1H8.5V6a.5.5 0 0 0-.5-.5z"/></svg>
               退出登录
@@ -35,7 +96,15 @@
       </div>
     </div>
   </header>
-  
+
+  <!-- 令牌 / 加载状态提示条 -->
+  <div id="authBanner" class="mz-banner" hidden>
+    <span class="mz-banner-icon">!</span>
+    <span id="authBannerText"></span>
+    <button type="button" id="authBannerAction">设置令牌</button>
+    <button type="button" id="authBannerClose" class="mz-banner-close" aria-label="关闭">&times;</button>
+  </div>
+
   <!-- 主内容区域 -->
   <main class="container">
     <div class="row">
@@ -60,7 +129,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- 记忆列表 -->
       <div class="col-md-7">
         <div class="entries-card">
@@ -71,11 +140,29 @@
         </div>
       </div>
     </div>
-    
-    <!-- 仓库设置模态框 -->
-    <!-- 已移除 -->
   </main>
-  
+
+  <!-- GitHub 令牌设置 -->
+  <div id="tokenModal" class="mz-modal" hidden>
+    <div class="mz-modal-card" role="dialog" aria-modal="true" aria-labelledby="tokenModalTitle">
+      <h3 id="tokenModalTitle">GitHub 访问令牌</h3>
+      <p class="mz-modal-note">
+        令牌只保存在本机浏览器（localStorage），不会提交到仓库。请创建对
+        <code>betterma/betterma.github.io</code> 具有 <b>Contents 读写</b> 权限的
+        fine-grained PAT。不设置令牌也可以正常浏览历史记忆，只是不能写入。
+      </p>
+      <label for="tokenInput">令牌</label>
+      <input type="password" id="tokenInput" autocomplete="off" spellcheck="false" placeholder="github_pat_...">
+      <div class="mz-modal-status">当前：<span id="tokenStatus">未设置</span></div>
+      <div id="tokenHint" class="mz-modal-hint"></div>
+      <div class="mz-modal-actions">
+        <button type="button" id="tokenSave" class="mz-primary">验证并保存</button>
+        <button type="button" id="tokenClear">清除令牌</button>
+        <button type="button" id="tokenCancel">关闭</button>
+      </div>
+    </div>
+  </div>
+
   <script src="lib/dayjs.min.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/storage.js"></script>
