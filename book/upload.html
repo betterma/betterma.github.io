@@ -29,6 +29,7 @@
       <span id="loadingText" style="margin-left:12px;">正在上传...</span>
     </div>
   </div>
+  <script src="../github-token-vault.js"></script>
   <script src="assets/js/auth.js" id="auth-js"></script>
   <script src="assets/js/storage.js" id="storage-js"></script>
   <script src="assets/js/upload.js" id="upload-js"></script>
@@ -40,6 +41,15 @@
       document.getElementById('auth-js').src += '?v=' + ts;
       document.getElementById('storage-js').src += '?v=' + ts;
       document.getElementById('upload-js').src += '?v=' + ts;
+    })();
+    void (async function () {
+      try {
+        if (window.auth && typeof auth.ensureUnlocked === 'function') {
+          await auth.ensureUnlocked();
+        }
+      } catch (error) {
+        console.warn('book upload vault unlock', error);
+      }
     })();
   </script>
 </body>

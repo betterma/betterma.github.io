@@ -28,6 +28,7 @@
     </div>
     <ul id="bookList" class="book-list"></ul>
   </div>
+  <script src="../github-token-vault.js"></script>
   <script src="assets/js/auth.js" id="auth-js"></script>
   <script src="assets/js/storage.js" id="storage-js"></script>
   <script src="assets/js/books.js" id="books-js"></script>
@@ -39,6 +40,16 @@
       document.getElementById('auth-js').src += '?v=' + ts;
       document.getElementById('storage-js').src += '?v=' + ts;
       document.getElementById('books-js').src += '?v=' + ts;
+    })();
+    // 与 Pages 同款密码解锁写权限（记住后自动）
+    void (async function () {
+      try {
+        if (window.auth && typeof auth.ensureUnlocked === 'function') {
+          await auth.ensureUnlocked();
+        }
+      } catch (error) {
+        console.warn('book vault unlock', error);
+      }
     })();
   </script>
   <div id="globalLoading" style="display:none;position:fixed;left:0;top:0;right:0;bottom:0;z-index:999;background:rgba(255,255,255,0.7);align-items:center;justify-content:center;font-size:1.2em;color:#3370ff;">

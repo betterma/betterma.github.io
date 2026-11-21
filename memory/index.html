@@ -86,7 +86,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align:middle;margin-right:4px;"><path d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 1 1 .894-.448A4 4 0 1 0 8 4V1.5a.5.5 0 0 1 1 0v3A.5.5 0 0 1 8.5 5h-3a.5.5 0 0 1 0-1H8z"/></svg>
               刷新数据
             </button>
-            <button id="tokenSettings">设置令牌</button>
+            <button id="tokenSettings">解锁写权限</button>
             <button id="logout">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align:middle;margin-right:4px;"><path d="M6 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H6zm4 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4zm-2 3.5a.5.5 0 0 0-.5.5v1.5H5.5a.5.5 0 0 0 0 1H7.5V11a.5.5 0 0 0 1 0V8.5h2a.5.5 0 0 0 0-1H8.5V6a.5.5 0 0 0-.5-.5z"/></svg>
               退出登录
@@ -101,7 +101,7 @@
   <div id="authBanner" class="mz-banner" hidden>
     <span class="mz-banner-icon">!</span>
     <span id="authBannerText"></span>
-    <button type="button" id="authBannerAction">设置令牌</button>
+    <button type="button" id="authBannerAction">解锁写权限</button>
     <button type="button" id="authBannerClose" class="mz-banner-close" aria-label="关闭">&times;</button>
   </div>
 
@@ -145,24 +145,27 @@
   <!-- GitHub 令牌设置 -->
   <div id="tokenModal" class="mz-modal" hidden>
     <div class="mz-modal-card" role="dialog" aria-modal="true" aria-labelledby="tokenModalTitle">
-      <h3 id="tokenModalTitle">GitHub 访问令牌</h3>
+      <h3 id="tokenModalTitle">解锁写权限</h3>
       <p class="mz-modal-note">
-        令牌只保存在本机浏览器（localStorage），不会提交到仓库。请创建对
-        <code>betterma/betterma.github.io</code> 具有 <b>Contents 读写</b> 权限的
-        fine-grained PAT。不设置令牌也可以正常浏览历史记忆，只是不能写入。
+        与 Pages 交易台同一套密码，解锁内嵌 GitHub Token。勾选记住后下次自动解锁。不解锁也可浏览历史记忆（只读）。
       </p>
-      <label for="tokenInput">令牌</label>
-      <input type="password" id="tokenInput" autocomplete="off" spellcheck="false" placeholder="github_pat_...">
-      <div class="mz-modal-status">当前：<span id="tokenStatus">未设置</span></div>
+      <label for="tokenInput">密码</label>
+      <input type="password" id="tokenInput" autocomplete="current-password" spellcheck="false" placeholder="解密密码">
+      <label style="display:flex;align-items:center;gap:8px;margin:10px 0;font-size:13px">
+        <input type="checkbox" id="tokenRemember" checked />
+        记住密码
+      </label>
+      <div class="mz-modal-status">当前：<span id="tokenStatus">未解锁</span></div>
       <div id="tokenHint" class="mz-modal-hint"></div>
       <div class="mz-modal-actions">
-        <button type="button" id="tokenSave" class="mz-primary">验证并保存</button>
-        <button type="button" id="tokenClear">清除令牌</button>
+        <button type="button" id="tokenSave" class="mz-primary">解锁</button>
+        <button type="button" id="tokenClear">锁定并清除记住</button>
         <button type="button" id="tokenCancel">关闭</button>
       </div>
     </div>
   </div>
 
+  <script src="../github-token-vault.js"></script>
   <script src="lib/dayjs.min.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/storage.js"></script>

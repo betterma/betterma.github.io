@@ -1,18 +1,38 @@
-// auth.js - 认证模块
-const auth = (function() {
-    // GitHub Personal Access Token
-    const GITHUB_TOKEN = 'gith'+'ub_pat_11AJKESVI0UcWAPoy2Ozk6_SS8cF48k1D8PakPOyYz2mc6rqAc9Z2U5uNTqX5k7vlL5WYDXCNN3JLagkcb'; // 请替换为实际的token
-    
-    return {
-        // 获取GitHub token
-        getToken: function() {
-            return GITHUB_TOKEN;
-        },
-        
-        // 检查是否已认证
-        isAuthenticated: function() {
-            return !!GITHUB_TOKEN;
-        }
-    };
-})();
+// auth.js - 与 pages 共用 GithubTokenVault（密码解锁，无明文 PAT）
+const auth = (function () {
+  function vault() {
+    return (
+      (typeof globalThis !== "undefined" && globalThis.GithubTokenVault) ||
+      (typeof window !== "undefined" && window.GithubTokenVault) ||
+      null
+    );
+  }
 
+  function readToken() {
+    const v = vault();
+    if (!v || !v.isUnlocked()) return "";
+    try {
+      return String(v.getToken() || "").trim();
+    } catch (_) {
+      return "";
+    }
+  }
+
+  return {
+    getToken: function () {
+      return readToken();
+    },
+
+    isAuthenticated: function () {
+      return !!readToken();
+    },
+
+    ensureUnlocked: async function () {
+      const v = vault();
+      if (!v) throw new Error("GithubTokenVault 未加载");
+      if (v.isUnlocked()) return v.getToken();
+      if (await v.tryAutoUnlock()) return v.getToken();
+      return v.ensureUnlocked();
+    },
+  };
+})();

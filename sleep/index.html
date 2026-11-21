@@ -242,9 +242,21 @@
     </div>
   </div>
 
+  <script src="../github-token-vault.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/storage.js"></script>
   <script src="assets/js/sleep.js"></script>
+  <script>
+    void (async function () {
+      try {
+        if (window.auth && typeof auth.ensureUnlocked === 'function') {
+          await auth.ensureUnlocked();
+        }
+      } catch (error) {
+        console.warn('sleep vault unlock', error);
+      }
+    })();
+  </script>
   <div id="globalLoading" class="loading-mask" style="display:none;">
     <div class="loading-spinner"></div>
     <span id="loadingText">加载中...</span>

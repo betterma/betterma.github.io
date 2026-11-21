@@ -425,6 +425,7 @@
     </div>
   </div>
 
+  <script src="./github-token-vault.js"></script>
   <script src="memory/assets/js/auth.js"></script>
   <script src="memory/assets/js/storage.js"></script>
   <script>
@@ -900,11 +901,22 @@
 
       setTimeout(() => hint.classList.add('hide'), 5000);
 
-      if (!auth.isAuthenticated()) {
-        setStatus('未认证', 'err');
-        return;
-      }
-      loadData();
+      void (async function () {
+        try {
+          if (typeof auth.tryUnlock === 'function') await auth.tryUnlock();
+          if (!auth.hasToken() && window.GithubTokenVault) {
+            await window.GithubTokenVault.ensureUnlocked();
+          }
+          if (!auth.hasToken()) {
+            setStatus('未解锁', 'err');
+            return;
+          }
+          loadData();
+        } catch (error) {
+          setStatus('解锁失败', 'err');
+          console.warn(error);
+        }
+      })();
     })();
   </script>
 </body>

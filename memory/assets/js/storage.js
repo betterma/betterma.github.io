@@ -56,7 +56,7 @@ const storage = (function () {
     if (!token) {
       throw codedError(
         'AUTH_REQUIRED',
-        '尚未设置 GitHub 令牌，无法保存。请在「设置令牌」中填入具有 Contents 读写权限的 PAT。'
+        '尚未解锁写权限，无法保存。请用 Pages 同款密码解锁。'
       );
     }
 
@@ -79,7 +79,7 @@ const storage = (function () {
     if (response.status === 401) {
       throw codedError(
         'TOKEN_INVALID',
-        'GitHub 令牌已失效（401 Bad credentials），请在「设置令牌」中更换。'
+        'GitHub 令牌已失效（401），请更新 github-token-vault.js 密文后重新解锁。'
       );
     }
     if (response.status === 404) throw codedError('NOT_FOUND', '文件不存在');

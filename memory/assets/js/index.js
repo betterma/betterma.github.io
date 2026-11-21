@@ -27,6 +27,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     return;
   }
 
+  // 与 pages 同库：有记住密码则自动解锁写权限
+  if (typeof auth.tryUnlock === 'function') {
+    await auth.tryUnlock();
+  }
+
   // ---------- 状态提示条 ----------
   function showBanner(text, isError) {
     const banner = $('authBanner');
@@ -44,13 +49,13 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   function refreshAuthBanner() {
     if (typeof auth.hasToken === 'function' && !auth.hasToken()) {
-      showBanner('只读模式：历史记忆可正常浏览；写入 / 删除需要设置 GitHub 令牌。', false);
+      showBanner('只读模式：历史记忆可浏览；写入需用 Pages 同款密码解锁。', false);
     } else {
       hideBanner();
     }
   }
 
-  // 已设置令牌时静默探活一次：已失效就提前提示，避免等到写入才发现
+  // 已解锁时静默探活一次：已失效就提前提示
   async function verifyTokenSilently() {
     if (typeof auth.hasToken !== 'function' || !auth.hasToken()) return;
     try {
@@ -61,7 +66,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
       });
       if (response.status === 401) {
-        showBanner('GitHub 令牌已失效（401），写入功能不可用，请点「设置令牌」更换。', true);
+        showBanner('GitHub 令牌已失效（401），请重新用密码解锁或更新密文。', true);
       }
     } catch (e) {
       // 网络不通不打扰用户，浏览仍走静态文件
@@ -122,36 +127,44 @@ document.addEventListener('DOMContentLoaded', async function () {
   on('tokenClear', 'click', function () {
     auth.clearToken();
     const status = $('tokenStatus');
-    if (status) status.textContent = '未设置';
-    setTokenHint('已清除本机令牌，页面回到只读模式。', true);
+    if (status) status.textContent = '未解锁';
+    setTokenHint('已锁定并清除记住的密码，页面回到只读模式。', true);
     refreshAuthBanner();
   });
 
   on('tokenSave', 'click', async function () {
     const input = $('tokenInput');
     const saveBtn = $('tokenSave');
+    const rememberEl = $('tokenRemember');
     const value = input ? input.value.trim() : '';
     if (!value) {
-      setTokenHint('请先粘贴令牌。');
+      setTokenHint('请输入密码。');
       return;
     }
     if (saveBtn) saveBtn.disabled = true;
-    setTokenHint('正在验证令牌…', true);
+    setTokenHint('正在解锁…', true);
     try {
+      if (typeof auth.unlockWithPassword !== 'function') {
+        throw new Error('解锁接口未就绪');
+      }
+      await auth.unlockWithPassword(value, {
+        remember: !!(rememberEl && rememberEl.checked),
+      });
+      const token = auth.getToken();
+      if (!token) throw new Error('解锁失败');
       const response = await fetch('https://api.github.com/user', {
         headers: {
-          Authorization: `Bearer ${value}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/vnd.github+json'
         }
       });
       if (response.status === 401) {
-        throw new Error('令牌无效或已被吊销（401），请重新生成。');
+        throw new Error('令牌已失效（401），请更新 github-token-vault.js 密文。');
       }
       if (!response.ok) {
         throw new Error(`GitHub 返回 ${response.status}，请稍后重试。`);
       }
-      auth.saveToken(value);
-      setTokenHint('验证通过，已保存到本机。', true);
+      setTokenHint('已解锁。', true);
       const status = $('tokenStatus');
       if (status && typeof auth.tokenMask === 'function') {
         status.textContent = auth.tokenMask();

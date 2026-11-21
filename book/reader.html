@@ -40,8 +40,20 @@
       <a href="index.html" class="btn btn-link" style="margin-top:16px;display:inline-block;">返回目录</a>
     </div>
   </div>
+  <script src="../github-token-vault.js"></script>
   <script src="assets/js/auth.js"></script>
   <script src="assets/js/storage.js"></script>
+  <script>
+    void (async function () {
+      try {
+        if (window.auth && typeof auth.ensureUnlocked === 'function') {
+          await auth.ensureUnlocked();
+        }
+      } catch (error) {
+        console.warn('book reader vault unlock', error);
+      }
+    })();
+  </script>
   <script src="assets/js/pdf.min.js"></script>
   <script src="assets/js/epub.min.js"></script>
   <script src="assets/js/marked.min.js"></script>
