@@ -3,20 +3,6 @@
   "updatedAt": "2026-11-22",
   "groups": [
     {
-      "id": "g-core",
-      "title": "Core Payloads",
-      "sub": "主载荷",
-      "compact": false,
-      "links": []
-    },
-    {
-      "id": "g-extended",
-      "title": "Extended",
-      "sub": "扩展载荷",
-      "compact": true,
-      "links": []
-    },
-    {
       "id": "g-mwrzkxie-errti",
       "title": "生活",
       "sub": "LIFE",
