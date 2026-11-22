@@ -6,7 +6,7 @@
       "id": "g-mwrzkxie-errti",
       "title": "生活",
       "sub": "LIFE",
-      "compact": true,
+      "compact": false,
       "links": [
         {
           "id": "pl-01",
