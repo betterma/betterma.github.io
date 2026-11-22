@@ -43,7 +43,15 @@
       "title": "自媒体",
       "sub": "自媒体之路",
       "compact": true,
-      "links": []
+      "links": [
+        {
+          "id": "pl-mws2eduk-plph8",
+          "code": "LINK-wechat",
+          "label": "公众号",
+          "hint": "说明",
+          "url": "https://mp.weixin.qq.com/"
+        }
+      ]
     },
     {
       "id": "g-mwrzkzop-bvroz",
