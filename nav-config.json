@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "updatedAt": "2026-11-22",
+  "groups": [
+    {
+      "id": "g-core",
+      "title": "Core Payloads",
+      "sub": "主载荷",
+      "compact": false,
+      "links": [
+        {
+          "id": "pl-01",
+          "code": "PL-01 / MEMORY",
+          "label": "蚂蚱记忆",
+          "hint": "数字记忆本 · 便签与归档",
+          "url": "https://betterma.github.io/memory"
+        },
+        {
+          "id": "pl-02",
+          "code": "PL-02 / PLAN",
+          "label": "蚂蚱计划",
+          "hint": "健身计划 · 长图浏览",
+          "url": "https://betterma.github.io/body"
+        },
+        {
+          "id": "pl-04",
+          "code": "PL-04 / BABY",
+          "label": "葫芦宝手册",
+          "hint": "成长曲线 · 月龄便签",
+          "url": "https://betterma.github.io/pages/baby/"
+        },
+        {
+          "id": "pl-05",
+          "code": "PL-05 / JOURNAL",
+          "label": "葫芦包日记",
+          "hint": "日记与对话记录",
+          "url": "https://betterma.github.io/pages/babyChat/"
+        }
+      ]
+    },
+    {
+      "id": "g-extended",
+      "title": "Extended",
+      "sub": "扩展载荷",
+      "compact": true,
+      "links": [
+        {
+          "id": "pl-06",
+          "code": "PL-06 / READ",
+          "label": "阅读资源",
+          "hint": "电子书目录",
+          "url": "https://betterma.github.io/book"
+        },
+        {
+          "id": "pl-07",
+          "code": "PL-07 / CIPHER",
+          "label": "加MI工具",
+          "hint": "字母轮转工具",
+          "url": "encry/index.html"
+        },
+        {
+          "id": "pl-08",
+          "code": "PL-08 / NET",
+          "label": "IP Check",
+          "hint": "网络环境检测",
+          "url": "ipcheck/ipcheck.html"
+        },
+        {
+          "id": "pl-09",
+          "code": "PL-09 / PAGES",
+          "label": "Pages 交易台",
+          "hint": "Binance · OKX · 发现",
+          "url": "https://betterma.github.io/pages/"
+        }
+      ]
+    }
+  ]
+}

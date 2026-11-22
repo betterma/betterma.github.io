@@ -20,7 +20,7 @@ const auth = (function () {
   }
 
   return {
-    // 页面访问由 login.html 密码门负责；保留兼容 bookmarks 等。
+    // 页面访问由 login.html 密码门负责。
     isAuthenticated: function () {
       try {
         return sessionStorage.getItem("isAuthed") === "1";

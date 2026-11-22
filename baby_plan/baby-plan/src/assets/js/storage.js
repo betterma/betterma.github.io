@@ -1,23 +1,45 @@
 // storage.js
+// 读取：公开 Contents API，无需令牌；写入：必须先解锁 github-token-vault.js（见 auth.js）。
 const BabyStorage = (function() {
   const GITHUB_USERNAME = 'betterma';
-  const GITHUB_REPO = 'betterma.github.io';  // 修改为正确的仓库名
+  const GITHUB_REPO = 'betterma.github.io';
   const BASE_PATH = 'baby_plan/data';
-  const TOKEN = 'gith' + 'ub_pat_11AJKESVI0UcWAPoy2Ozk6_SS8cF48k1D8PakPOyYz2mc6rqAc9Z2U5uNTqX5k7vlL5WYDXCNN3JLagkcb';
 
+  function tokenProvider() {
+    return (typeof window !== 'undefined' && window.auth) ||
+           (typeof auth !== 'undefined' ? auth : null);
+  }
+
+  // 写操作强制解锁；读操作有令牌则带上（避免限流），无令牌则匿名读取公开仓库。
+  async function authHeaders(isWrite) {
+    const provider = tokenProvider();
+    const headers = {
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Content-Type': 'application/json'
+    };
+    let token = provider && typeof provider.getToken === 'function' ? provider.getToken() : '';
+    if (!token && isWrite && provider && typeof provider.ensureUnlocked === 'function') {
+      token = await provider.ensureUnlocked();
+    } else if (!token && provider && typeof provider.hasSavedPass === 'function' && provider.hasSavedPass()) {
+      try { token = await provider.tryUnlock() ? provider.getToken() : ''; } catch (_) {}
+    }
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    else if (isWrite) throw new Error('尚未解锁写权限，请先用保险库密码登录。');
+    return headers;
+  }
 
   // 私有方法
   async function request(endpoint, options = {}) {
     const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/${endpoint}`;
-    console.log('请求URL:', url);
+    const method = String(options.method || 'GET').toUpperCase();
+    const isWrite = method !== 'GET' && method !== 'HEAD';
 
     try {
       const response = await fetch(url, {
         ...options,
         headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'Authorization': `token ${TOKEN}`,  // 修正认证头格式
-          'Content-Type': 'application/json',
+          ...(await authHeaders(isWrite)),
           ...(options.headers || {})
         }
       });

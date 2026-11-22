@@ -3,44 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录 - 宝贝计划</title>
+    <title>解锁 - 宝贝计划</title>
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/theme.css">
     <link rel="stylesheet" href="assets/css/components.css">
+    <style>
+      .login-hint { color: #666; font-size: 13px; line-height: 1.6; margin: 10px 0 18px; }
+      #errorMsg { color: #c62828; font-size: 13px; min-height: 1.2em; margin-top: 10px; }
+      .remember { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #555; margin-bottom: 14px; }
+    </style>
 </head>
 <body>
     <main class="login-container">
         <div class="login-box">
             <h1>宝贝计划</h1>
-            <p>请输入GitHub Personal Access Token继续</p>
-            
+            <p>输入解密密码</p>
+            <p class="login-hint">与 Pages 交易台、蚂蚱记忆共用同一套保险库密码；解锁后才有 GitHub 写权限。已不再支持明文 Token 登录。</p>
+
             <form id="login-form">
-                <input type="password" id="token" placeholder="输入 GitHub Token" required>
-                <button type="submit" class="primary-btn">登录</button>
+                <input type="password" id="password" placeholder="解密密码" autocomplete="current-password" required>
+                <label class="remember">
+                    <input type="checkbox" id="remember" checked>
+                    记住密码（下次自动解锁）
+                </label>
+                <button type="submit" class="primary-btn">确认并进入</button>
             </form>
-            
-            <div class="login-help">
-                <p>如何获取Token?</p>
-                <ol>
-                    <li>访问 <a href="https://github.com/settings/tokens" target="_blank">GitHub Tokens</a></li>
-                    <li>点击 "Generate new token"</li>
-                    <li>勾选 "repo" 权限</li>
-                    <li>生成并复制token</li>
-                </ol>
-            </div>
+            <div id="errorMsg" aria-live="polite"></div>
         </div>
     </main>
 
+    <script src="../../../github-token-vault.js"></script>
     <script src="assets/js/auth.js"></script>
     <script>
-        document.getElementById('login-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const token = document.getElementById('token').value.trim();
-            if (token) {
-                auth.setToken(token);
-                window.location.href = 'index.html';
-            }
-        });
+      (function () {
+        var form = document.getElementById('login-form');
+        var pass = document.getElementById('password');
+        var remember = document.getElementById('remember');
+        var err = document.getElementById('errorMsg');
+
+        function goApp() {
+          window.location.href = 'index.html';
+        }
+
+        async function submit(e) {
+          e.preventDefault();
+          if (err) err.textContent = '';
+          try {
+            await auth.unlockWithPassword(pass.value, !!(remember && remember.checked));
+            goApp();
+          } catch (error) {
+            if (err) err.textContent = (error && error.message) || '密码错误或密文损坏';
+          }
+        }
+
+        form.addEventListener('submit', function (e) { void submit(e); });
+        pass.focus();
+
+        // 已记住密码时自动放行
+        void auth.tryUnlock().then(function (ok) { if (ok) goApp(); }).catch(function () {});
+      })();
     </script>
 </body>
 </html>

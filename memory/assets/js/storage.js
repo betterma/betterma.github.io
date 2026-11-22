@@ -272,7 +272,7 @@ const storage = (function () {
       return result;
     },
 
-    // 读取任意文件（bookmarks.json / nav-links.json 等）
+    // 读取仓库内任意 JSON 文件
     getFile: async function (filename) {
       if (hasToken()) {
         try {

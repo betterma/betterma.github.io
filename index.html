@@ -82,12 +82,14 @@
     @keyframes blink { 0%, 78% { opacity: 1; } 79%, 100% { opacity: 0.35; } }
     .clock { color: var(--blue); font-variant-numeric: tabular-nums; }
     .build { border: 1px solid var(--line); padding: 4px 8px; }
-    .return {
-      color: var(--muted); text-decoration: none; letter-spacing: 0.06em;
-      border: 1px solid var(--line-2); padding: 5px 9px;
+    .edit-toggle {
+      color: var(--muted); letter-spacing: 0.06em;
+      border: 1px solid var(--line-2); padding: 5px 9px; background: transparent;
+      font: 11px/1.4 var(--mono); cursor: pointer;
       transition: color 0.18s, border-color 0.18s, background 0.18s;
     }
-    .return:hover { color: var(--orange); border-color: var(--orange); background: rgba(255, 139, 61, 0.08); }
+    .edit-toggle:hover { color: var(--orange); border-color: var(--orange); background: rgba(255, 139, 61, 0.08); }
+    .edit-toggle.active { color: var(--ink); border-color: var(--orange); background: rgba(255, 139, 61, 0.14); }
 
     .hero { margin-bottom: 40px; }
     .kicker {
@@ -186,6 +188,83 @@
       font: 10px/1.5 var(--mono); letter-spacing: 0.12em; color: var(--muted);
     }
 
+    /* —— 编辑模式 —— */
+    .edit-banner {
+      display: none; align-items: center; flex-wrap: wrap; gap: 8px 12px;
+      margin: 0 0 24px; padding: 10px 12px;
+      border: 1px solid var(--orange); background: rgba(255, 139, 61, 0.07);
+      font: 11px/1.4 var(--mono); letter-spacing: 0.08em; color: var(--orange);
+    }
+    body.editing .edit-banner { display: flex; }
+    .edit-banner .spacer { flex: 1; }
+    .btn {
+      border: 1px solid var(--line-2); background: rgba(16, 28, 41, 0.8);
+      color: var(--ink); padding: 6px 11px; cursor: pointer;
+      font: 10px/1.4 var(--mono); letter-spacing: 0.1em;
+      transition: color 0.18s, border-color 0.18s, background 0.18s;
+    }
+    .btn:hover { color: var(--orange); border-color: var(--orange); }
+    .btn.primary { color: #08121c; background: var(--orange); border-color: var(--orange); font-weight: 700; }
+    .btn.primary:hover { background: #ff9d59; color: #08121c; }
+    .btn.danger:hover { color: #ff7a7a; border-color: #ff7a7a; }
+    .btn:disabled { opacity: 0.5; cursor: wait; }
+    .edit-group {
+      position: relative; border: 1px dashed rgba(255, 139, 61, 0.45);
+      padding: 12px; margin-bottom: 12px; background: rgba(255, 139, 61, 0.03);
+    }
+    body:not(.editing) .edit-group { display: contents; }
+    .group-fields { display: none; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    body.editing .group-fields { display: flex; }
+    .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .field label { font: 9px/1 var(--mono); letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; }
+    .field input, .field select {
+      background: #0b1622; border: 1px solid var(--line-2); color: var(--ink);
+      padding: 7px 9px; font: 12px/1.3 var(--sans); min-width: 0; border-radius: 0;
+    }
+    .field input:focus, .field select:focus { outline: none; border-color: var(--blue); }
+    .field.grow { flex: 1 1 160px; }
+    .link-editor { position: relative; }
+    body.editing .card { border-style: dashed; border-color: rgba(255, 139, 61, 0.4); }
+    body.editing .card:hover { transform: none; }
+    body.editing .card .arrow { display: none; }
+    body.editing .card .edit-fields { display: flex; }
+    .edit-fields { display: none; flex-direction: column; gap: 6px; margin-top: 4px; }
+    .edit-fields .row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .edit-fields .row .field { flex: 1 1 120px; }
+    .edit-fields .row .field.url { flex: 2 1 220px; }
+    .link-actions { display: none; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    body.editing .link-actions { display: flex; }
+    .link-actions .field { flex: 1 1 140px; }
+    .add-link, .add-group { display: none; }
+    body.editing .add-link, body.editing .add-group { display: flex; }
+    .add-link { margin-top: 10px; }
+    .add-group { margin-top: 4px; }
+    .modal {
+      position: fixed; inset: 0; z-index: 20; display: none;
+      align-items: center; justify-content: center; padding: 20px;
+      background: rgba(4, 10, 16, 0.78);
+    }
+    .modal.open { display: flex; }
+    .modal-box {
+      width: 100%; max-width: 420px; padding: 24px;
+      background: var(--panel); border: 1px solid var(--orange);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    .modal-box h3 { font: 600 13px/1.4 var(--mono); letter-spacing: 0.16em; color: var(--orange); margin-bottom: 12px; }
+    .modal-box p { font-size: 12px; line-height: 1.7; color: var(--muted); margin-bottom: 16px; }
+    .modal-box .field { margin-bottom: 12px; }
+    .modal-box input { width: 100%; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+    .toast {
+      position: fixed; left: 50%; bottom: 28px; z-index: 30;
+      transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+      padding: 10px 16px; background: var(--panel-hi); border: 1px solid var(--go);
+      color: var(--go); font: 11px/1.4 var(--mono); letter-spacing: 0.08em;
+      transition: opacity 0.2s, transform 0.2s; max-width: 90vw;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .toast.error { border-color: #ff7a7a; color: #ff9b9b; }
+
     @media (max-width: 640px) {
       .shell { padding: 30px 15px 52px; }
       .topbar { margin-bottom: 28px; letter-spacing: 0.08em; }
@@ -195,6 +274,8 @@
       .hint, .section-head .sub, .traj-tag, .frame-tag { display: none; }
       h1 { font-size: 2rem; }
       h1 sup { font-size: 10px; padding: 5px 6px; margin-left: 8px; }
+      .edit-group { padding: 8px; }
+      .field input, .field select { font-size: 16px; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -216,7 +297,16 @@
         <span class="status"><i class="go-dot"></i> ALL SYSTEMS GO</span>
         <span class="clock" id="utcClock">--:--:-- UTC</span>
         <span class="build">FLIGHT 2026.11</span>
+        <button type="button" class="edit-toggle" id="editToggle">EDIT LAYOUT</button>
       </div>
+    </div>
+
+    <div class="edit-banner" id="editBanner">
+      <span>EDIT MODE / 编辑布局</span>
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="addGroupTopBtn">+ 新建组别</button>
+      <button type="button" class="btn" id="cancelBtn">取消</button>
+      <button type="button" class="btn primary" id="saveBtn">保存到仓库</button>
     </div>
 
     <header class="hero">
@@ -224,7 +314,8 @@
       <h1>蚂蚱<span>导航</span><sup>SEQ 01</sup></h1>
       <p class="lede">常用入口按舱段编组，点击任意载荷模块即可接入对应系统。</p>
       <div class="telemetry">
-        <span><b>PAYLOADS</b> 11</span>
+        <span><b>PAYLOADS</b> <span id="payloadCount">--</span></span>
+        <span><b>GROUPS</b> <span id="groupCount">--</span></span>
         <span><b>ORBIT</b> LEO</span>
         <span><b>UPLINK</b> NOMINAL</span>
         <span><b>BUILD</b> STATIC</span>
@@ -249,102 +340,37 @@
       </div>
     </header>
 
-    <section class="section">
-      <div class="section-head">
-        <span class="idx"></span>
-        <h2>Core Payloads</h2>
-        <span class="sub">主载荷</span>
-        <span class="rule"></span>
-        <span class="count">05 MODULES</span>
-      </div>
-      <div class="grid">
-        <a class="card" href="https://betterma.github.io/memory?v=20261111" target="_blank" rel="noopener noreferrer">
-          <span class="card-top"><span class="num">PL-01 / MEMORY</span><span class="go">GO</span></span>
-          <span class="label">蚂蚱记忆</span>
-          <span class="hint">数字记忆本 · 便签与归档</span>
-          <span class="arrow">↗</span>
-        </a>
-        <a class="card" href="https://betterma.github.io/body?v=20261111" target="_blank" rel="noopener noreferrer">
-          <span class="card-top"><span class="num">PL-02 / PLAN</span><span class="go">GO</span></span>
-          <span class="label">蚂蚱计划</span>
-          <span class="hint">健身计划 · 长图浏览</span>
-          <span class="arrow">↗</span>
-        </a>
-        <a class="card" href="bookmarks.html?v=20261111" target="_blank" rel="noopener noreferrer">
-          <span class="card-top"><span class="num">PL-03 / BOARD</span><span class="go">GO</span></span>
-          <span class="label">资源备忘</span>
-          <span class="hint">可拖拽书签 · 便签板</span>
-          <span class="arrow">↗</span>
-        </a>
-        <a class="card" href="https://betterma.github.io/pages/baby/?v=20261111" target="_blank" rel="noopener noreferrer">
-          <span class="card-top"><span class="num">PL-04 / BABY</span><span class="go">GO</span></span>
-          <span class="label">葫芦宝手册</span>
-          <span class="hint">成长曲线 · 月龄便签</span>
-          <span class="arrow">↗</span>
-        </a>
-        <a class="card" href="https://betterma.github.io/pages/babyChat/?v=20261111" target="_blank" rel="noopener noreferrer">
-          <span class="card-top"><span class="num">PL-05 / JOURNAL</span><span class="go">GO</span></span>
-          <span class="label">葫芦包日记</span>
-          <span class="hint">日记与对话记录</span>
-          <span class="arrow">↗</span>
-        </a>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-head">
-        <span class="idx"></span>
-        <h2>Extended</h2>
-        <span class="sub">扩展载荷</span>
-        <span class="rule"></span>
-        <span class="count">06 MODULES</span>
-      </div>
-      <div class="grid compact">
-        <a class="card compact" href="https://betterma.github.io/book?v=20261111" target="_blank" rel="noopener noreferrer">
-          <span class="card-top"><span class="num">PL-06 / READ</span><span class="go">GO</span></span>
-          <span class="label">阅读资源</span>
-          <span class="hint">电子书目录</span>
-          <span class="arrow">↗</span>
-        </a>
-        <a class="card compact" href="encry/index.html?v=20261111" target="_blank" rel="noopener noreferrer">
-          <span class="card-top"><span class="num">PL-07 / CIPHER</span><span class="go">GO</span></span>
-          <span class="label">加MI工具</span>
-          <span class="hint">字母轮转工具</span>
-          <span class="arrow">↗</span>
-        </a>
-        <a class="card compact" href="ipcheck/ipcheck.html?v=20261111" target="_blank" rel="noopener noreferrer">
-          <span class="card-top"><span class="num">PL-08 / NET</span><span class="go">GO</span></span>
-          <span class="label">IP Check</span>
-          <span class="hint">网络环境检测</span>
-          <span class="arrow">↗</span>
-        </a>
-        <a class="card compact" href="https://betterma.github.io/pages/?v=20261111" target="_blank" rel="noopener noreferrer">
-          <span class="card-top"><span class="num">PL-09 / PAGES</span><span class="go">GO</span></span>
-          <span class="label">Pages 交易台</span>
-          <span class="hint">Binance · OKX · 发现</span>
-          <span class="arrow">↗</span>
-        </a>
-        <a class="card compact" href="wechat_a.html?v=20261111" target="_blank" rel="noopener noreferrer">
-          <span class="card-top"><span class="num">PL-10 / WRITE</span><span class="go">GO</span></span>
-          <span class="label">文章创作流</span>
-          <span class="hint">七步写作工作流</span>
-          <span class="arrow">↗</span>
-        </a>
-        <a class="card compact" href="wechat_e.html?v=20261111" target="_blank" rel="noopener noreferrer">
-          <span class="card-top"><span class="num">PL-11 / FORMAT</span><span class="go">GO</span></span>
-          <span class="label">文章排版</span>
-          <span class="hint">公众号自动排版</span>
-          <span class="arrow">↗</span>
-        </a>
-      </div>
-    </section>
+    <main id="navRoot" aria-live="polite"></main>
 
     <div class="footer">
       <span>MZ-01 / FLIGHT DECK &middot; 2026</span>
-      <span>11 LINKS &middot; NO TRACKING &middot; ALL SYSTEMS GO</span>
+      <span id="footerMeta">STATIC BUILD &middot; NO TRACKING</span>
     </div>
   </div>
 
+  <div class="modal" id="unlockModal" role="dialog" aria-modal="true" aria-labelledby="unlockTitle">
+    <div class="modal-box">
+      <h3 id="unlockTitle">解锁写权限</h3>
+      <p>与 Pages 交易台、蚂蚱记忆共用同一套保险库密码。解锁后可将导航分组保存到仓库。</p>
+      <div class="field">
+        <label for="unlockPass">解密密码</label>
+        <input type="password" id="unlockPass" autocomplete="current-password" placeholder="输入密码">
+      </div>
+      <label style="font:11px/1.4 var(--mono);color:var(--muted);display:flex;gap:8px;align-items:center;margin-bottom:4px;">
+        <input type="checkbox" id="rememberPass" checked>
+        记住密码（下次自动解锁）
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="unlockCancel">取消</button>
+        <button type="button" class="btn primary" id="unlockSubmit">解锁</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="github-token-vault.js"></script>
+  <script src="nav-admin.js"></script>
   <script>
     // 任务时钟：显示 UTC，纯展示、无网络请求。
     (function () {
@@ -355,8 +381,389 @@
       tick();
       setInterval(tick, 1000);
     })();
-    // 只清理根作用域可能残留的旧 Service Worker，不动同源其它应用
-    // （cook PWA、/pages/ 等）的注册与 CacheStorage。
+
+    (function () {
+      "use strict";
+
+      var FALLBACK = {
+        version: 1,
+        groups: [
+          { id: "g-core", title: "Core Payloads", sub: "主载荷", compact: false, links: [
+            { id: "pl-01", code: "PL-01 / MEMORY", label: "蚂蚱记忆", hint: "数字记忆本 · 便签与归档", url: "https://betterma.github.io/memory" },
+            { id: "pl-02", code: "PL-02 / PLAN", label: "蚂蚱计划", hint: "健身计划 · 长图浏览", url: "https://betterma.github.io/body" }
+          ]},
+          { id: "g-extended", title: "Extended", sub: "扩展载荷", compact: true, links: [
+            { id: "pl-07", code: "PL-07 / CIPHER", label: "加MI工具", hint: "字母轮转工具", url: "encry/index.html" }
+          ]}
+        ]
+      };
+
+      var root = document.getElementById("navRoot");
+      var editToggle = document.getElementById("editToggle");
+      var unlockModal = document.getElementById("unlockModal");
+      var toastEl = document.getElementById("toast");
+      var config = null;
+      var editing = false;
+      var toastTimer = null;
+
+      function toast(message, isError) {
+        if (!toastEl) return;
+        toastEl.textContent = message;
+        toastEl.className = "toast show" + (isError ? " error" : "");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toastEl.className = "toast"; }, 3200);
+      }
+
+      function uid(prefix) {
+        return (prefix || "id") + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7);
+      }
+
+      function safeUrl(url) {
+        var value = String(url || "").trim();
+        if (!value) return null;
+        try {
+          var parsed = new URL(value, document.baseURI);
+          if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+          return { href: parsed.href, external: parsed.origin !== location.origin };
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function normalize(data) {
+        var raw = data && Array.isArray(data.groups) ? data : FALLBACK;
+        return {
+          version: 1,
+          updatedAt: raw.updatedAt || "",
+          groups: raw.groups.map(function (group) {
+            return {
+              id: group.id || uid("g"),
+              title: String(group.title || "New Group"),
+              sub: String(group.sub || "新组别"),
+              compact: !!group.compact,
+              links: (Array.isArray(group.links) ? group.links : []).map(function (link) {
+                return {
+                  id: link.id || uid("pl"),
+                  code: String(link.code || "PL / LINK"),
+                  label: String(link.label || "新导航"),
+                  hint: String(link.hint || ""),
+                  url: String(link.url || "")
+                };
+              })
+            };
+          })
+        };
+      }
+
+      function makeField(labelText, input) {
+        var wrap = document.createElement("div");
+        wrap.className = "field";
+        var label = document.createElement("label");
+        label.textContent = labelText;
+        wrap.appendChild(label);
+        wrap.appendChild(input);
+        return wrap;
+      }
+
+      function makeInput(type, value, placeholder) {
+        var input = document.createElement("input");
+        input.type = type;
+        input.value = value || "";
+        if (placeholder) input.placeholder = placeholder;
+        return input;
+      }
+
+      function makeButton(text, className, onClick) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = className || "btn";
+        btn.textContent = text;
+        if (onClick) btn.addEventListener("click", onClick);
+        return btn;
+      }
+
+      function bindLive(input, target, key) {
+        input.addEventListener("input", function () { target[key] = input.value; });
+      }
+
+      function render() {
+        if (!root) return;
+        root.innerHTML = "";
+        var count = 0;
+
+        config.groups.forEach(function (group) {
+          count += group.links.length;
+          var section = document.createElement("section");
+          section.className = "section";
+
+          var head = document.createElement("div");
+          head.className = "section-head";
+          var idx = document.createElement("span");
+          idx.className = "idx";
+          var title = document.createElement("h2");
+          title.textContent = group.title;
+          var sub = document.createElement("span");
+          sub.className = "sub";
+          sub.textContent = group.sub;
+          var rule = document.createElement("span");
+          rule.className = "rule";
+          var countEl = document.createElement("span");
+          countEl.className = "count";
+          countEl.textContent = String(group.links.length).padStart(2, "0") + " MODULES";
+          head.appendChild(idx); head.appendChild(title); head.appendChild(sub);
+          head.appendChild(rule); head.appendChild(countEl);
+          section.appendChild(head);
+
+          var editor = document.createElement("div");
+          editor.className = "edit-group";
+
+          var groupFields = document.createElement("div");
+          groupFields.className = "group-fields";
+          var titleIn = makeInput("text", group.title, "组别名称");
+          titleIn.className = "grow";
+          var subIn = makeInput("text", group.sub, "中文说明");
+          subIn.className = "grow";
+          bindLive(titleIn, group, "title");
+          bindLive(subIn, group, "sub");
+          var compactLabel = document.createElement("label");
+          compactLabel.style.cssText = "font:10px/1.4 var(--mono);color:var(--muted);display:flex;align-items:center;gap:6px;";
+          var compactIn = document.createElement("input");
+          compactIn.type = "checkbox";
+          compactIn.checked = !!group.compact;
+          compactIn.addEventListener("change", function () { group.compact = compactIn.checked; render(); });
+          compactLabel.appendChild(compactIn);
+          compactLabel.appendChild(document.createTextNode("紧凑卡片"));
+          groupFields.appendChild(makeField("组别", titleIn));
+          groupFields.appendChild(makeField("副标题", subIn));
+          groupFields.appendChild(compactLabel);
+          groupFields.appendChild(makeButton("删除组别", "btn danger", function () {
+            if (config.groups.length <= 1) { toast("至少保留一个组别", true); return; }
+            if (!window.confirm("删除组别「" + group.title + "」？组内导航将一并删除。")) return;
+            config.groups = config.groups.filter(function (g) { return g.id !== group.id; });
+            render();
+          }));
+          editor.appendChild(groupFields);
+
+          var grid = document.createElement("div");
+          grid.className = "grid" + (group.compact ? " compact" : "");
+
+          group.links.forEach(function (link) {
+            var safe = safeUrl(link.url);
+            var card = document.createElement(safe ? "a" : "div");
+            card.className = "card" + (group.compact ? " compact" : "");
+            if (safe) {
+              card.href = safe.href;
+              card.target = "_blank";
+              card.rel = "noopener noreferrer";
+            } else {
+              card.setAttribute("data-invalid-url", "1");
+            }
+
+            var cardTop = document.createElement("span");
+            cardTop.className = "card-top";
+            var num = document.createElement("span");
+            num.className = "num";
+            num.textContent = link.code;
+            var go = document.createElement("span");
+            go.className = "go";
+            go.textContent = "GO";
+            cardTop.appendChild(num); cardTop.appendChild(go);
+            var label = document.createElement("span");
+            label.className = "label";
+            label.textContent = link.label;
+            var hint = document.createElement("span");
+            hint.className = "hint";
+            hint.textContent = link.hint;
+            card.appendChild(cardTop); card.appendChild(label); card.appendChild(hint);
+            if (!editing && safe) {
+              var arrow = document.createElement("span");
+              arrow.className = "arrow";
+              arrow.textContent = "\u2197";
+              card.appendChild(arrow);
+            }
+
+            if (editing) {
+              var fields = document.createElement("span");
+              fields.className = "edit-fields";
+              var row1 = document.createElement("span");
+              row1.className = "row";
+              var codeIn = makeInput("text", link.code, "编号");
+              var labelIn = makeInput("text", link.label, "名称");
+              bindLive(codeIn, link, "code");
+              bindLive(labelIn, link, "label");
+              row1.appendChild(makeField("编号", codeIn));
+              row1.appendChild(makeField("名称", labelIn));
+              var row2 = document.createElement("span");
+              row2.className = "row";
+              var hintIn = makeInput("text", link.hint, "说明");
+              var urlIn = makeInput("url", link.url, "https://...");
+              urlIn.className = "url";
+              bindLive(hintIn, link, "hint");
+              bindLive(urlIn, link, "url");
+              row2.appendChild(makeField("说明", hintIn));
+              row2.appendChild(makeField("链接", urlIn));
+              fields.appendChild(row1); fields.appendChild(row2);
+              card.appendChild(fields);
+
+              var actions = document.createElement("span");
+              actions.className = "link-actions";
+              var moveIn = document.createElement("select");
+              config.groups.forEach(function (g) {
+                var option = document.createElement("option");
+                option.value = g.id;
+                option.textContent = "移至：" + g.title;
+                if (g.id === group.id) option.selected = true;
+                moveIn.appendChild(option);
+              });
+              moveIn.addEventListener("change", function () {
+                var target = config.groups.find(function (g) { return g.id === moveIn.value; });
+                if (!target || target.id === group.id) return;
+                group.links = group.links.filter(function (l) { return l.id !== link.id; });
+                target.links.push(link);
+                render();
+                toast("已移至「" + target.title + "」");
+              });
+              actions.appendChild(makeField("归属组别", moveIn));
+              actions.appendChild(makeButton("删除", "btn danger", function () {
+                if (!window.confirm("删除导航「" + link.label + "」？")) return;
+                group.links = group.links.filter(function (l) { return l.id !== link.id; });
+                render();
+              }));
+              card.appendChild(actions);
+            }
+            grid.appendChild(card);
+          });
+
+          if (editing) {
+            var addLink = document.createElement("div");
+            addLink.className = "add-link";
+            addLink.appendChild(makeButton("+ 在此组别新建导航", "btn", function () {
+              group.links.push({
+                id: uid("pl"), code: "PL / LINK", label: "新导航", hint: "说明", url: "https://"
+              });
+              render();
+            }));
+            editor.appendChild(addLink);
+          }
+
+          editor.appendChild(grid);
+          section.appendChild(editor);
+          root.appendChild(section);
+        });
+
+        if (editing) {
+          var addGroupBottom = document.createElement("div");
+          addGroupBottom.className = "add-group";
+          addGroupBottom.appendChild(makeButton("+ 新建组别", "btn", function () {
+            config.groups.push({ id: uid("g"), title: "New Group", sub: "新组别", compact: false, links: [] });
+            render();
+          }));
+          root.appendChild(addGroupBottom);
+        }
+
+        var pc = document.getElementById("payloadCount");
+        var gc = document.getElementById("groupCount");
+        if (pc) pc.textContent = String(count);
+        if (gc) gc.textContent = String(config.groups.length);
+        var fm = document.getElementById("footerMeta");
+        if (fm) fm.textContent = String(count) + " LINKS · " + String(config.groups.length) + " GROUPS · NO TRACKING";
+      }
+
+      function setEditing(next) {
+        editing = next;
+        document.body.classList.toggle("editing", editing);
+        if (editToggle) {
+          editToggle.textContent = editing ? "EXIT EDIT" : "EDIT LAYOUT";
+          editToggle.classList.toggle("active", editing);
+        }
+        render();
+      }
+
+      function openUnlock() {
+        if (!unlockModal) return;
+        var pass = document.getElementById("unlockPass");
+        unlockModal.classList.add("open");
+        if (pass) { pass.value = ""; pass.focus(); }
+      }
+      function closeUnlock() {
+        if (unlockModal) unlockModal.classList.remove("open");
+      }
+
+      async function onSave() {
+        var saveBtn = document.getElementById("saveBtn");
+        if (!window.NavAdmin) { toast("导航管理脚本未加载", true); return; }
+        if (!window.NavAdmin.isUnlocked()) {
+          var auto = await window.NavAdmin.tryAutoUnlock();
+          if (!auto) { openUnlock(); return; }
+        }
+        if (saveBtn) saveBtn.disabled = true;
+        try {
+          config.updatedAt = new Date().toISOString().slice(0, 10);
+          await window.NavAdmin.save(config);
+          toast("已保存到仓库，Pages 部署约需 1 分钟");
+          setEditing(false);
+        } catch (e) {
+          toast((e && e.message) || "保存失败", true);
+        } finally {
+          if (saveBtn) saveBtn.disabled = false;
+        }
+      }
+
+      async function init() {
+        var loaded = null;
+        if (window.NavAdmin) loaded = await window.NavAdmin.loadStatic();
+        config = normalize(loaded || FALLBACK);
+        if (!loaded) toast("静态配置读取失败，已使用内置兜底数据", true);
+        render();
+
+        if (editToggle) editToggle.addEventListener("click", function () {
+          if (editing) { if (window.NavAdmin) window.NavAdmin.lock(); setEditing(false); toast("已退出编辑并锁定"); }
+          else { setEditing(true); toast("编辑模式：可直接修改卡片与组别"); }
+        });
+        var cancelBtn = document.getElementById("cancelBtn");
+        if (cancelBtn) cancelBtn.addEventListener("click", async function () {
+          var fresh = window.NavAdmin ? await window.NavAdmin.loadStatic() : null;
+          config = normalize(fresh || FALLBACK);
+          if (window.NavAdmin) window.NavAdmin.lock();
+          setEditing(false);
+          toast("已放弃修改");
+        });
+        var saveBtn = document.getElementById("saveBtn");
+        if (saveBtn) saveBtn.addEventListener("click", function () { void onSave(); });
+        function pushGroup() {
+          config.groups.push({ id: uid("g"), title: "New Group", sub: "新组别", compact: false, links: [] });
+          render();
+        }
+        var addGroupTop = document.getElementById("addGroupTopBtn");
+        if (addGroupTop) addGroupTop.addEventListener("click", pushGroup);
+
+        var unlockCancel = document.getElementById("unlockCancel");
+        var unlockSubmit = document.getElementById("unlockSubmit");
+        var unlockPass = document.getElementById("unlockPass");
+        if (unlockCancel) unlockCancel.addEventListener("click", closeUnlock);
+        if (unlockSubmit) unlockSubmit.addEventListener("click", async function () {
+          unlockSubmit.disabled = true;
+          try {
+            var rememberEl = document.getElementById("rememberPass");
+            var remember = !!(rememberEl && rememberEl.checked);
+            await window.NavAdmin.unlock(unlockPass ? unlockPass.value : "", remember);
+            closeUnlock();
+            toast("解锁成功，请再次点击保存");
+          } catch (e) {
+            toast((e && e.message) || "解锁失败", true);
+          } finally {
+            unlockSubmit.disabled = false;
+          }
+        });
+        if (unlockPass) unlockPass.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" && unlockSubmit) unlockSubmit.click();
+        });
+      }
+
+      void init();
+    })();
+
+    // 只清理根作用域可能残留的旧 Service Worker，不动同源其它应用的注册与 CacheStorage。
     (function () {
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.getRegistrations().then(function (list) {
