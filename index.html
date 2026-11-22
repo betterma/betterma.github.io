@@ -6,276 +6,228 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>首页导航 - 蚂蚱导航</title>
+  <title>蚂蚱导航 · 工作台</title>
   <style>
     :root {
-      color-scheme: dark;
-      --bg: #080f17;
-      --panel: #101c29;
-      --panel-hi: #162637;
-      --line: rgba(150, 184, 212, 0.18);
-      --line-2: rgba(160, 198, 228, 0.38);
-      --ink: #eaf2fa;
-      --muted: #8ea6bb;
-      --blue: #6fb6e8;
-      --orange: #ff8b3d;
-      --go: #8fe3ab;
-      --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Consolas, "Liberation Mono", monospace;
+      color-scheme: light;
+      --bg: #f5f6f8;
+      --surface: #ffffff;
+      --surface-alt: #fafbfc;
+      --line: #e5e8ed;
+      --line-strong: #d3d9e2;
+      --ink: #1d2430;
+      --ink-2: #4a5566;
+      --muted: #8993a3;
+      --accent: #3b6fe0;
+      --accent-soft: #edf3ff;
+      --danger: #d64545;
+      --success: #1f9d63;
+      --radius: 10px;
+      --shadow: 0 1px 2px rgba(22, 31, 44, 0.05), 0 4px 14px rgba(22, 31, 44, 0.04);
+      --shadow-hover: 0 6px 20px rgba(22, 31, 44, 0.10);
+      --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Consolas, monospace;
       --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      min-height: 100vh;
-      color: var(--ink);
-      font-family: var(--sans);
-      background-color: var(--bg);
-      background-image:
-        linear-gradient(rgba(120, 165, 200, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(120, 165, 200, 0.05) 1px, transparent 1px),
-        linear-gradient(180deg, #0c1722 0%, #080f17 52%, #0b1622 100%);
-      background-size: 44px 44px, 44px 44px, 100% 100%;
-      background-attachment: fixed;
-      position: relative;
-      overflow-x: hidden;
+      min-height: 100vh; color: var(--ink); font-family: var(--sans);
+      background: var(--bg); -webkit-font-smoothing: antialiased;
     }
-    .hazard {
-      position: fixed; top: 0; left: 0; right: 0; height: 4px; z-index: 5;
-      background: repeating-linear-gradient(115deg, var(--orange) 0 13px, #16232f 13px 26px);
-      opacity: 0.8;
-    }
-    .earth {
-      position: fixed; left: 50%; bottom: -1230px; width: 2200px; height: 1450px;
-      transform: translateX(-50%); border-radius: 50%;
-      border-top: 1px solid rgba(111, 182, 232, 0.4);
-      background: radial-gradient(ellipse 65% 24% at 50% 0%, rgba(111, 182, 232, 0.15), transparent 72%);
-      z-index: 0; pointer-events: none;
-    }
-    .frame { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-    .frame i { position: absolute; width: 16px; height: 16px; border: 0 solid rgba(160, 198, 228, 0.32); }
-    .frame i:nth-child(1) { top: 18px; left: 18px; border-top-width: 1px; border-left-width: 1px; }
-    .frame i:nth-child(2) { top: 18px; right: 18px; border-top-width: 1px; border-right-width: 1px; }
-    .frame i:nth-child(3) { bottom: 18px; left: 18px; border-bottom-width: 1px; border-left-width: 1px; }
-    .frame i:nth-child(4) { bottom: 18px; right: 18px; border-bottom-width: 1px; border-right-width: 1px; }
-    .frame-tag {
-      position: absolute; right: 22px; bottom: 22px;
-      font: 10px/1 var(--mono); letter-spacing: 0.18em;
-      color: rgba(142, 166, 187, 0.5);
-    }
-    .shell { position: relative; z-index: 1; max-width: 1020px; margin: 0 auto; padding: 44px 22px 68px; }
+
+    /* —— 顶栏 —— */
     .topbar {
-      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-      gap: 10px 18px; padding: 0 0 14px; margin-bottom: 36px;
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--line);
-      font: 11px/1.4 var(--mono); letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--muted);
     }
-    .sys { color: var(--ink); }
-    .sys b { color: var(--orange); font-weight: 700; }
-    .sys .sep { color: rgba(142, 166, 187, 0.45); padding: 0 5px; }
-    .topbar-right { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px; }
-    .status { display: inline-flex; align-items: center; gap: 7px; color: var(--go); }
-    .go-dot {
-      width: 7px; height: 7px; background: var(--go);
-      box-shadow: 0 0 0 2px rgba(143, 227, 171, 0.16);
-      animation: blink 3s steps(1, end) infinite;
+    .topbar-inner {
+      max-width: 1080px; margin: 0 auto; padding: 14px 24px;
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
     }
-    @keyframes blink { 0%, 78% { opacity: 1; } 79%, 100% { opacity: 0.35; } }
-    .clock { color: var(--blue); font-variant-numeric: tabular-nums; }
-    .build { border: 1px solid var(--line); padding: 4px 8px; }
-    .edit-toggle {
-      color: var(--muted); letter-spacing: 0.06em;
-      border: 1px solid var(--line-2); padding: 5px 9px; background: transparent;
-      font: 11px/1.4 var(--mono); cursor: pointer;
-      transition: color 0.18s, border-color 0.18s, background 0.18s;
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-mark {
+      width: 30px; height: 30px; border-radius: 8px; flex: 0 0 auto;
+      background: var(--accent); color: #fff; display: grid; place-items: center;
+      font: 700 14px/1 var(--sans);
     }
-    .edit-toggle:hover { color: var(--orange); border-color: var(--orange); background: rgba(255, 139, 61, 0.08); }
-    .edit-toggle.active { color: var(--ink); border-color: var(--orange); background: rgba(255, 139, 61, 0.14); }
+    .brand-name { font-size: 15px; font-weight: 650; letter-spacing: 0.01em; }
+    .brand-sub { font-size: 11px; color: var(--muted); margin-left: 2px; }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+    .clock { font: 12px/1 var(--mono); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+    .btn {
+      border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink-2);
+      padding: 7px 13px; border-radius: 7px; cursor: pointer;
+      font: 500 12px/1.3 var(--sans); white-space: nowrap;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+    .btn.primary:hover { background: #2f60c9; color: #fff; }
+    .btn.ghost-danger:hover { border-color: var(--danger); color: var(--danger); }
+    .btn:disabled { opacity: 0.5; cursor: wait; }
 
-    .hero { margin-bottom: 40px; }
-    .kicker {
-      display: flex; align-items: center; gap: 9px;
-      font: 11px/1.4 var(--mono); letter-spacing: 0.24em;
-      color: var(--blue); text-transform: uppercase; margin-bottom: 14px;
-    }
-    .kicker i { width: 16px; height: 3px; background: var(--orange); }
-    h1 {
-      font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 700;
-      letter-spacing: 0.02em; line-height: 1.1; margin-bottom: 14px;
-    }
-    h1 span { color: var(--blue); }
-    h1 sup {
-      display: inline-block; vertical-align: top; margin-left: 12px;
-      font: 600 11px/1 var(--mono); letter-spacing: 0.14em;
-      color: #08121c; background: var(--orange); padding: 6px 8px;
-    }
-    .lede { max-width: 44rem; color: var(--muted); font-size: 0.94rem; line-height: 1.8; }
-    .telemetry { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
-    .telemetry span {
-      font: 10px/1.4 var(--mono); letter-spacing: 0.13em; color: var(--muted);
-      border: 1px solid var(--line); border-left: 2px solid var(--line-2);
-      padding: 6px 10px; background: rgba(14, 26, 38, 0.7);
-    }
-    .telemetry b { color: var(--blue); font-weight: 600; margin-right: 6px; }
-    .traj { position: relative; margin-top: 26px; }
-    .traj svg { display: block; width: 100%; aspect-ratio: 10 / 1; height: auto; }
-    .ruler {
-      height: 7px; border-top: 1px solid var(--line-2);
-      background: repeating-linear-gradient(90deg, rgba(160, 198, 228, 0.32) 0 1px, transparent 1px 24px);
-    }
-    .traj-tag {
-      position: absolute; right: 0; top: -16px;
-      font: 9px/1 var(--mono); letter-spacing: 0.16em; color: rgba(142, 166, 187, 0.6);
-    }
+    .shell { max-width: 1080px; margin: 0 auto; padding: 34px 24px 64px; }
 
-    .section { margin-bottom: 30px; }
-    .section-head { display: flex; align-items: center; gap: 11px; margin-bottom: 14px; }
-    .idx { width: 9px; height: 9px; background: var(--orange); flex: 0 0 auto; }
-    .section-head h2 {
-      font: 600 12px/1.4 var(--mono); letter-spacing: 0.2em;
-      text-transform: uppercase; color: var(--ink);
+    /* —— 概览 —— */
+    .overview {
+      display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: end;
+      margin-bottom: 26px;
     }
-    .section-head .sub { font: 11px/1.4 var(--mono); color: var(--muted); }
-    .section-head .rule {
-      flex: 1; height: 1px;
-      background: repeating-linear-gradient(90deg, var(--line-2) 0 4px, transparent 4px 9px);
+    .overview h1 { font-size: 27px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 7px; }
+    .overview p { color: var(--ink-2); font-size: 13.5px; line-height: 1.6; }
+    .stats { display: flex; gap: 10px; }
+    .stat {
+      min-width: 84px; padding: 12px 14px; background: var(--surface);
+      border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
     }
-    .section-head .count { font: 10px/1.4 var(--mono); letter-spacing: 0.12em; color: var(--muted); }
+    .stat b { display: block; font-size: 22px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: 11px; color: var(--muted); }
+    .toolbar {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 30px;
+    }
+    .search {
+      flex: 1 1 260px; position: relative;
+    }
+    .search input {
+      width: 100%; padding: 11px 13px 11px 38px; font: 13px/1.4 var(--sans);
+      color: var(--ink); background: var(--surface);
+      border: 1px solid var(--line-strong); border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .search input::placeholder { color: var(--muted); }
+    .search-icon {
+      position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+      width: 15px; height: 15px; color: var(--muted); pointer-events: none;
+    }
+    .toolbar-hint { font-size: 12px; color: var(--muted); }
 
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(214px, 1fr)); gap: 11px; }
-    .grid.compact { grid-template-columns: repeat(auto-fill, minmax(174px, 1fr)); }
+    /* —— 分组 —— */
+    .group { margin-bottom: 26px; }
+    .group-head {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding: 0 2px;
+    }
+    .group-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: 0 0 auto; }
+    .group-title { font-size: 14px; font-weight: 650; }
+    .group-sub { font-size: 12px; color: var(--muted); }
+    .group-count {
+      font: 11px/1 var(--mono); color: var(--muted);
+      background: #eef0f4; padding: 4px 8px; border-radius: 20px;
+    }
+    .group-line { flex: 1; height: 1px; background: var(--line); }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(228px, 1fr)); gap: 12px; }
+    .grid.compact { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+
     .card {
-      position: relative; display: flex; flex-direction: column; gap: 7px;
-      min-height: 134px; padding: 17px 17px 20px; overflow: hidden;
-      text-decoration: none; color: var(--ink);
-      background: linear-gradient(180deg, var(--panel-hi), var(--panel));
-      border: 1px solid var(--line);
-      transition: border-color 0.18s, background 0.18s, transform 0.18s;
+      position: relative; display: flex; align-items: flex-start; gap: 12px;
+      min-height: 92px; padding: 16px; text-decoration: none; color: var(--ink);
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
     }
-    .card.compact { min-height: 108px; padding: 14px 15px 18px; }
-    .card::before {
-      content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-      background: var(--orange); opacity: 0.75; transition: width 0.18s, opacity 0.18s;
-    }
-    .card::after {
-      content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 6px;
-      background: repeating-linear-gradient(90deg, rgba(160, 198, 228, 0.34) 0 1px, transparent 1px 11px);
-      opacity: 0.7;
-    }
-    .card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .num { font: 10px/1.4 var(--mono); letter-spacing: 0.15em; color: var(--blue); }
-    .go {
-      font: 9px/1 var(--mono); letter-spacing: 0.1em; color: var(--go);
-      display: inline-flex; align-items: center; gap: 4px;
-    }
-    .go::before { content: ""; width: 5px; height: 5px; background: var(--go); }
-    .label { font-size: 1.06rem; font-weight: 650; letter-spacing: 0.01em; }
-    .hint { font: 11px/1.5 var(--mono); color: var(--muted); }
-    .arrow {
-      position: absolute; right: 15px; bottom: 17px;
-      font: 13px/1 var(--mono); color: var(--muted);
-      transition: color 0.18s, transform 0.18s;
-    }
+    .card.compact { min-height: 78px; padding: 14px; }
     .card:hover, .card:focus-visible {
-      border-color: var(--orange); transform: translateY(-2px);
-      background: linear-gradient(180deg, #1a2c3f, var(--panel));
+      transform: translateY(-2px); box-shadow: var(--shadow-hover);
+      border-color: var(--line-strong); outline: none;
     }
-    .card:hover::before, .card:focus-visible::before { width: 5px; opacity: 1; }
-    .card:hover .arrow, .card:focus-visible .arrow { color: var(--orange); transform: translate(2px, -2px); }
+    .card-icon {
+      width: 34px; height: 34px; border-radius: 8px; flex: 0 0 auto;
+      display: grid; place-items: center; font: 600 14px/1 var(--mono);
+      background: var(--accent-soft); color: var(--accent);
+    }
+    .card-body { min-width: 0; flex: 1; }
+    .card-code { display: block; font: 10px/1.2 var(--mono); color: var(--muted); margin-bottom: 5px; letter-spacing: 0.03em; }
+    .card-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .card-hint { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.5; }
+    .card-arrow {
+      position: absolute; right: 14px; top: 16px; color: var(--muted); font-size: 15px;
+      opacity: 0; transition: opacity 0.15s, transform 0.15s;
+    }
+    .card:hover .card-arrow { opacity: 1; transform: translate(2px, -2px); color: var(--accent); }
+    .card[data-invalid-url] { border-style: dashed; }
 
-    .footer {
-      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px;
-      margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
-      font: 10px/1.5 var(--mono); letter-spacing: 0.12em; color: var(--muted);
-    }
+    .empty { padding: 22px; text-align: center; color: var(--muted); font-size: 13px;
+      background: var(--surface); border: 1px dashed var(--line-strong); border-radius: var(--radius); }
 
     /* —— 编辑模式 —— */
-    .edit-banner {
-      display: none; align-items: center; flex-wrap: wrap; gap: 8px 12px;
-      margin: 0 0 24px; padding: 10px 12px;
-      border: 1px solid var(--orange); background: rgba(255, 139, 61, 0.07);
-      font: 11px/1.4 var(--mono); letter-spacing: 0.08em; color: var(--orange);
+    .edit-bar {
+      display: none; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding: 14px 16px; margin-bottom: 24px; background: var(--accent-soft);
+      border: 1px solid #cddcf8; border-radius: var(--radius);
     }
-    body.editing .edit-banner { display: flex; }
-    .edit-banner .spacer { flex: 1; }
-    .btn {
-      border: 1px solid var(--line-2); background: rgba(16, 28, 41, 0.8);
-      color: var(--ink); padding: 6px 11px; cursor: pointer;
-      font: 10px/1.4 var(--mono); letter-spacing: 0.1em;
-      transition: color 0.18s, border-color 0.18s, background 0.18s;
-    }
-    .btn:hover { color: var(--orange); border-color: var(--orange); }
-    .btn.primary { color: #08121c; background: var(--orange); border-color: var(--orange); font-weight: 700; }
-    .btn.primary:hover { background: #ff9d59; color: #08121c; }
-    .btn.danger:hover { color: #ff7a7a; border-color: #ff7a7a; }
-    .btn:disabled { opacity: 0.5; cursor: wait; }
+    body.editing .edit-bar { display: flex; }
+    .edit-bar .tag { font: 600 12px/1 var(--mono); color: var(--accent); letter-spacing: 0.05em; }
+    .edit-bar .spacer { flex: 1; }
     .edit-group {
-      position: relative; border: 1px dashed rgba(255, 139, 61, 0.45);
-      padding: 12px; margin-bottom: 12px; background: rgba(255, 139, 61, 0.03);
+      border: 1px dashed var(--line-strong); border-radius: var(--radius);
+      padding: 14px; margin-bottom: 12px; background: rgba(255,255,255,0.6);
     }
     body:not(.editing) .edit-group { display: contents; }
-    .group-fields { display: none; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .group-fields { display: none; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
     body.editing .group-fields { display: flex; }
-    .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-    .field label { font: 9px/1 var(--mono); letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; }
+    .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .field label { font: 10px/1 var(--mono); color: var(--muted); letter-spacing: 0.06em; }
     .field input, .field select {
-      background: #0b1622; border: 1px solid var(--line-2); color: var(--ink);
-      padding: 7px 9px; font: 12px/1.3 var(--sans); min-width: 0; border-radius: 0;
+      background: #fff; border: 1px solid var(--line-strong); color: var(--ink);
+      padding: 8px 10px; font: 12px/1.3 var(--sans); border-radius: 6px; min-width: 0;
     }
-    .field input:focus, .field select:focus { outline: none; border-color: var(--blue); }
-    .field.grow { flex: 1 1 160px; }
-    .link-editor { position: relative; }
-    body.editing .card { border-style: dashed; border-color: rgba(255, 139, 61, 0.4); }
-    body.editing .card:hover { transform: none; }
-    body.editing .card .arrow { display: none; }
+    .field input:focus, .field select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .field.grow { flex: 1 1 150px; }
+    .inline-check { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
+    body.editing .card { border-style: dashed; cursor: default; }
+    body.editing .card:hover { transform: none; box-shadow: var(--shadow); }
+    body.editing .card-arrow { display: none; }
     body.editing .card .edit-fields { display: flex; }
-    .edit-fields { display: none; flex-direction: column; gap: 6px; margin-top: 4px; }
-    .edit-fields .row { display: flex; gap: 6px; flex-wrap: wrap; }
-    .edit-fields .row .field { flex: 1 1 120px; }
-    .edit-fields .row .field.url { flex: 2 1 220px; }
-    .link-actions { display: none; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .edit-fields { display: none; flex-direction: column; gap: 8px; margin-top: 10px; }
+    .edit-fields .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .edit-fields .row .field { flex: 1 1 110px; }
+    .edit-fields .row .field.grow { flex: 2 1 200px; }
+    .link-actions { display: none; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
     body.editing .link-actions { display: flex; }
-    .link-actions .field { flex: 1 1 140px; }
-    .add-link, .add-group { display: none; }
-    body.editing .add-link, body.editing .add-group { display: flex; }
-    .add-link { margin-top: 10px; }
-    .add-group { margin-top: 4px; }
+    .link-actions .field { flex: 1 1 150px; }
+    .add-row { display: none; margin-top: 10px; }
+    body.editing .add-row { display: flex; }
+
+    /* —— 弹窗 / 提示 —— */
     .modal {
-      position: fixed; inset: 0; z-index: 20; display: none;
+      position: fixed; inset: 0; z-index: 30; display: none;
       align-items: center; justify-content: center; padding: 20px;
-      background: rgba(4, 10, 16, 0.78);
+      background: rgba(22, 31, 44, 0.4);
     }
     .modal.open { display: flex; }
     .modal-box {
-      width: 100%; max-width: 420px; padding: 24px;
-      background: var(--panel); border: 1px solid var(--orange);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      width: 100%; max-width: 400px; padding: 26px; background: var(--surface);
+      border-radius: 14px; box-shadow: 0 20px 60px rgba(22, 31, 44, 0.22);
     }
-    .modal-box h3 { font: 600 13px/1.4 var(--mono); letter-spacing: 0.16em; color: var(--orange); margin-bottom: 12px; }
-    .modal-box p { font-size: 12px; line-height: 1.7; color: var(--muted); margin-bottom: 16px; }
-    .modal-box .field { margin-bottom: 12px; }
+    .modal-box h3 { font-size: 17px; font-weight: 650; margin-bottom: 8px; }
+    .modal-box p { font-size: 12.5px; line-height: 1.7; color: var(--ink-2); margin-bottom: 18px; }
+    .modal-box .field { margin-bottom: 14px; }
     .modal-box input { width: 100%; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
     .toast {
-      position: fixed; left: 50%; bottom: 28px; z-index: 30;
-      transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
-      padding: 10px 16px; background: var(--panel-hi); border: 1px solid var(--go);
-      color: var(--go); font: 11px/1.4 var(--mono); letter-spacing: 0.08em;
+      position: fixed; left: 50%; bottom: 28px; z-index: 40;
+      transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
+      padding: 11px 17px; background: #1d2430; color: #fff;
+      border-radius: 8px; font-size: 12.5px; box-shadow: 0 8px 24px rgba(22,31,44,0.2);
       transition: opacity 0.2s, transform 0.2s; max-width: 90vw;
     }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
-    .toast.error { border-color: #ff7a7a; color: #ff9b9b; }
+    .toast.error { background: var(--danger); }
+
+    .footer {
+      max-width: 1080px; margin: 0 auto; padding: 20px 24px 40px;
+      border-top: 1px solid var(--line); color: var(--muted); font-size: 11.5px;
+      display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
 
     @media (max-width: 640px) {
-      .shell { padding: 30px 15px 52px; }
-      .topbar { margin-bottom: 28px; letter-spacing: 0.08em; }
-      .grid, .grid.compact { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
-      .card { min-height: 108px; padding: 13px 13px 17px; }
-      .card.compact { min-height: 100px; }
-      .hint, .section-head .sub, .traj-tag, .frame-tag { display: none; }
-      h1 { font-size: 2rem; }
-      h1 sup { font-size: 10px; padding: 5px 6px; margin-left: 8px; }
-      .edit-group { padding: 8px; }
-      .field input, .field select { font-size: 16px; }
+      .topbar-inner, .shell, .footer { padding-left: 16px; padding-right: 16px; }
+      .overview { grid-template-columns: 1fr; align-items: start; }
+      .overview h1 { font-size: 23px; }
+      .stats { flex-wrap: wrap; }
+      .grid, .grid.compact { grid-template-columns: 1fr; }
+      .clock { display: none; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -283,80 +235,68 @@
   </style>
 </head>
 <body>
-  <div class="hazard" aria-hidden="true"></div>
-  <div class="earth" aria-hidden="true"></div>
-  <div class="frame" aria-hidden="true">
-    <i></i><i></i><i></i><i></i>
-    <span class="frame-tag">LEO / 408 KM &middot; MZ-01</span>
-  </div>
-
-  <div class="shell">
-    <div class="topbar">
-      <div class="sys"><b>MZ-01</b> <span class="sep">//</span> MISSION CONTROL <span class="sep">/</span> 主控站</div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">蚂</div>
+        <span class="brand-name">蚂蚱导航</span>
+        <span class="brand-sub">工作台</span>
+      </div>
       <div class="topbar-right">
-        <span class="status"><i class="go-dot"></i> ALL SYSTEMS GO</span>
-        <span class="clock" id="utcClock">--:--:-- UTC</span>
-        <span class="build">FLIGHT 2026.11</span>
-        <button type="button" class="edit-toggle" id="editToggle">EDIT LAYOUT</button>
+        <span class="clock" id="localClock">--:--:--</span>
+        <button type="button" class="btn" id="editToggle">编辑布局</button>
       </div>
     </div>
+  </header>
 
-    <div class="edit-banner" id="editBanner">
-      <span>EDIT MODE / 编辑布局</span>
+  <div class="shell">
+    <div class="edit-bar" id="editBar">
+      <span class="tag">EDIT MODE</span>
+      <span style="font-size:12px;color:var(--ink-2);">直接修改分组与导航，保存后写入仓库</span>
       <span class="spacer"></span>
       <button type="button" class="btn" id="addGroupTopBtn">+ 新建组别</button>
       <button type="button" class="btn" id="cancelBtn">取消</button>
-      <button type="button" class="btn primary" id="saveBtn">保存到仓库</button>
+      <button type="button" class="btn primary" id="saveBtn">保存更改</button>
     </div>
 
-    <header class="hero">
-      <div class="kicker"><i></i> MISSION 00 &middot; GROUND STATION / 地面站</div>
-      <h1>蚂蚱<span>导航</span><sup>SEQ 01</sup></h1>
-      <p class="lede">常用入口按舱段编组，点击任意载荷模块即可接入对应系统。</p>
-      <div class="telemetry">
-        <span><b>PAYLOADS</b> <span id="payloadCount">--</span></span>
-        <span><b>GROUPS</b> <span id="groupCount">--</span></span>
-        <span><b>ORBIT</b> LEO</span>
-        <span><b>UPLINK</b> NOMINAL</span>
-        <span><b>BUILD</b> STATIC</span>
+    <div class="overview">
+      <div>
+        <h1>我的工作台</h1>
+        <p>常用入口集中在这里，按分组管理，点击即可打开。</p>
       </div>
-      <div class="traj" aria-hidden="true">
-        <span class="traj-tag">ASCENT PROFILE / T+00:00 &rarr; T+08:00</span>
-        <svg viewBox="0 0 960 96" preserveAspectRatio="none" role="presentation">
-          <defs>
-            <linearGradient id="trajGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#6fb6e8" stop-opacity="0.1"></stop>
-              <stop offset="0.55" stop-color="#6fb6e8" stop-opacity="0.65"></stop>
-              <stop offset="1" stop-color="#ff8b3d" stop-opacity="0.95"></stop>
-            </linearGradient>
-          </defs>
-          <path d="M0 88 C 240 88 300 74 460 48 C 640 20 760 14 960 8" fill="none" stroke="url(#trajGrad)" stroke-width="1.6" vector-effect="non-scaling-stroke"></path>
-          <path d="M0 88 C 240 88 300 74 460 48 C 640 20 760 14 960 8" fill="none" stroke="rgba(142,166,187,0.25)" stroke-width="1" stroke-dasharray="2 7" transform="translate(0,7)" vector-effect="non-scaling-stroke"></path>
-          <line x1="0" y1="95" x2="960" y2="95" stroke="rgba(160,198,228,0.28)" stroke-width="1" vector-effect="non-scaling-stroke"></line>
-          <circle cx="460" cy="48" r="4" fill="#ff8b3d"></circle>
-          <circle cx="460" cy="48" r="9" fill="none" stroke="rgba(255,139,61,0.45)" stroke-width="1" vector-effect="non-scaling-stroke"></circle>
+      <div class="stats">
+        <div class="stat"><b id="navCount">0</b><span>导航入口</span></div>
+        <div class="stat"><b id="groupCount">0</b><span>分组</span></div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line>
         </svg>
-        <div class="ruler"></div>
+        <input type="search" id="searchInput" placeholder="搜索名称、说明或链接…" autocomplete="off">
       </div>
-    </header>
+      <span class="toolbar-hint" id="searchHint"></span>
+    </div>
 
     <main id="navRoot" aria-live="polite"></main>
-
-    <div class="footer">
-      <span>MZ-01 / FLIGHT DECK &middot; 2026</span>
-      <span id="footerMeta">STATIC BUILD &middot; NO TRACKING</span>
-    </div>
   </div>
+
+  <footer class="footer">
+    <span>蚂蚱导航 · 静态站点</span>
+    <span id="footerMeta">NO TRACKING</span>
+  </footer>
 
   <div class="modal" id="unlockModal" role="dialog" aria-modal="true" aria-labelledby="unlockTitle">
     <div class="modal-box">
       <h3 id="unlockTitle">解锁写权限</h3>
-      <p>与 Pages 交易台、蚂蚱记忆共用同一套保险库密码。解锁后可将导航分组保存到仓库。</p>
+      <p>与 Pages 交易台、蚂蚱记忆共用同一套保险库密码。解锁后方可把导航配置保存到仓库。</p>
       <div class="field">
         <label for="unlockPass">解密密码</label>
         <input type="password" id="unlockPass" autocomplete="current-password" placeholder="输入密码">
       </div>
-      <label style="font:11px/1.4 var(--mono);color:var(--muted);display:flex;gap:8px;align-items:center;margin-bottom:4px;">
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2);">
         <input type="checkbox" id="rememberPass" checked>
         记住密码（下次自动解锁）
       </label>
@@ -372,11 +312,11 @@
   <script src="github-token-vault.js"></script>
   <script src="nav-admin.js"></script>
   <script>
-    // 任务时钟：显示 UTC，纯展示、无网络请求。
+    // 本地时钟，纯展示。
     (function () {
-      var el = document.getElementById("utcClock");
+      var el = document.getElementById("localClock");
       function tick() {
-        if (el) el.textContent = new Date().toISOString().slice(11, 19) + " UTC";
+        if (el) el.textContent = new Date().toLocaleTimeString("zh-CN", { hour12: false });
       }
       tick();
       setInterval(tick, 1000);
@@ -388,18 +328,25 @@
       var FALLBACK = {
         version: 1,
         groups: [
-          { id: "g-core", title: "Core Payloads", sub: "主载荷", compact: false, links: [
-            { id: "pl-01", code: "PL-01 / MEMORY", label: "蚂蚱记忆", hint: "数字记忆本 · 便签与归档", url: "https://betterma.github.io/memory" },
-            { id: "pl-02", code: "PL-02 / PLAN", label: "蚂蚱计划", hint: "健身计划 · 长图浏览", url: "https://betterma.github.io/body" }
+          { id: "g-core", title: "常用", sub: "高频入口", compact: false, links: [
+            { id: "pl-01", code: "MEMORY", label: "蚂蚱记忆", hint: "数字记忆本 · 便签与归档", url: "https://betterma.github.io/memory" },
+            { id: "pl-02", code: "PLAN", label: "蚂蚱计划", hint: "健身计划 · 长图浏览", url: "https://betterma.github.io/body" }
           ]},
-          { id: "g-extended", title: "Extended", sub: "扩展载荷", compact: true, links: [
-            { id: "pl-07", code: "PL-07 / CIPHER", label: "加MI工具", hint: "字母轮转工具", url: "encry/index.html" }
+          { id: "g-extended", title: "工具", sub: "效率与资源", compact: true, links: [
+            { id: "pl-07", code: "CIPHER", label: "加MI工具", hint: "字母轮转工具", url: "encry/index.html" }
           ]}
         ]
       };
 
+      var PALETTE = [
+        ["#eef2ff", "#4f46e5"], ["#e8f7f0", "#16855c"], ["#fff1e8", "#c2622a"],
+        ["#eaf3ff", "#2b6cb0"], ["#f3edff", "#7c3aed"], ["#fdeef3", "#c13d6b"]
+      ];
+
       var root = document.getElementById("navRoot");
       var editToggle = document.getElementById("editToggle");
+      var searchInput = document.getElementById("searchInput");
+      var searchHint = document.getElementById("searchHint");
       var unlockModal = document.getElementById("unlockModal");
       var toastEl = document.getElementById("toast");
       var config = null;
@@ -424,10 +371,21 @@
         try {
           var parsed = new URL(value, document.baseURI);
           if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
-          return { href: parsed.href, external: parsed.origin !== location.origin };
-        } catch (_) {
-          return null;
-        }
+          return parsed.href;
+        } catch (_) { return null; }
+      }
+
+      function iconStyle(link) {
+        var key = String(link.id || link.label || "");
+        var hash = 0;
+        for (var i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) | 0;
+        var pair = PALETTE[Math.abs(hash) % PALETTE.length];
+        return "background:" + pair[0] + ";color:" + pair[1];
+      }
+
+      function iconChar(label) {
+        var text = String(label || "?").trim();
+        return text ? text.charAt(0).toUpperCase() : "?";
       }
 
       function normalize(data) {
@@ -438,13 +396,13 @@
           groups: raw.groups.map(function (group) {
             return {
               id: group.id || uid("g"),
-              title: String(group.title || "New Group"),
-              sub: String(group.sub || "新组别"),
+              title: String(group.title || "新分组"),
+              sub: String(group.sub || ""),
               compact: !!group.compact,
               links: (Array.isArray(group.links) ? group.links : []).map(function (link) {
                 return {
                   id: link.id || uid("pl"),
-                  code: String(link.code || "PL / LINK"),
+                  code: String(link.code || "LINK"),
                   label: String(link.label || "新导航"),
                   hint: String(link.hint || ""),
                   url: String(link.url || "")
@@ -460,171 +418,161 @@
         wrap.className = "field";
         var label = document.createElement("label");
         label.textContent = labelText;
-        wrap.appendChild(label);
-        wrap.appendChild(input);
+        wrap.appendChild(label); wrap.appendChild(input);
         return wrap;
       }
-
       function makeInput(type, value, placeholder) {
         var input = document.createElement("input");
-        input.type = type;
-        input.value = value || "";
+        input.type = type; input.value = value || "";
         if (placeholder) input.placeholder = placeholder;
         return input;
       }
-
       function makeButton(text, className, onClick) {
         var btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = className || "btn";
-        btn.textContent = text;
+        btn.type = "button"; btn.className = className || "btn"; btn.textContent = text;
         if (onClick) btn.addEventListener("click", onClick);
         return btn;
       }
-
       function bindLive(input, target, key) {
         input.addEventListener("input", function () { target[key] = input.value; });
+      }
+
+      function matches(link, query) {
+        if (!query) return true;
+        return [link.label, link.hint, link.code, link.url]
+          .join(" ").toLowerCase().indexOf(query) !== -1;
       }
 
       function render() {
         if (!root) return;
         root.innerHTML = "";
-        var count = 0;
+        var query = (searchInput && !editing ? searchInput.value.trim().toLowerCase() : "");
+        var total = 0, shown = 0;
 
         config.groups.forEach(function (group) {
-          count += group.links.length;
+          var links = group.links.filter(function (link) { return matches(link, query); });
+          total += group.links.length;
+          shown += links.length;
+          if (query && !links.length) return;
+
           var section = document.createElement("section");
-          section.className = "section";
+          section.className = "group";
 
           var head = document.createElement("div");
-          head.className = "section-head";
-          var idx = document.createElement("span");
-          idx.className = "idx";
-          var title = document.createElement("h2");
-          title.textContent = group.title;
+          head.className = "group-head";
+          var dot = document.createElement("span");
+          dot.className = "group-dot";
+          var title = document.createElement("span");
+          title.className = "group-title"; title.textContent = group.title;
           var sub = document.createElement("span");
-          sub.className = "sub";
-          sub.textContent = group.sub;
-          var rule = document.createElement("span");
-          rule.className = "rule";
-          var countEl = document.createElement("span");
-          countEl.className = "count";
-          countEl.textContent = String(group.links.length).padStart(2, "0") + " MODULES";
-          head.appendChild(idx); head.appendChild(title); head.appendChild(sub);
-          head.appendChild(rule); head.appendChild(countEl);
+          sub.className = "group-sub"; sub.textContent = group.sub;
+          var line = document.createElement("span");
+          line.className = "group-line";
+          var count = document.createElement("span");
+          count.className = "group-count";
+          count.textContent = String(group.links.length) + " 项";
+          head.appendChild(dot); head.appendChild(title); head.appendChild(sub);
+          head.appendChild(line); head.appendChild(count);
           section.appendChild(head);
 
           var editor = document.createElement("div");
           editor.className = "edit-group";
 
-          var groupFields = document.createElement("div");
-          groupFields.className = "group-fields";
-          var titleIn = makeInput("text", group.title, "组别名称");
-          titleIn.className = "grow";
-          var subIn = makeInput("text", group.sub, "中文说明");
-          subIn.className = "grow";
-          bindLive(titleIn, group, "title");
-          bindLive(subIn, group, "sub");
-          var compactLabel = document.createElement("label");
-          compactLabel.style.cssText = "font:10px/1.4 var(--mono);color:var(--muted);display:flex;align-items:center;gap:6px;";
-          var compactIn = document.createElement("input");
-          compactIn.type = "checkbox";
-          compactIn.checked = !!group.compact;
-          compactIn.addEventListener("change", function () { group.compact = compactIn.checked; render(); });
-          compactLabel.appendChild(compactIn);
-          compactLabel.appendChild(document.createTextNode("紧凑卡片"));
-          groupFields.appendChild(makeField("组别", titleIn));
-          groupFields.appendChild(makeField("副标题", subIn));
-          groupFields.appendChild(compactLabel);
-          groupFields.appendChild(makeButton("删除组别", "btn danger", function () {
-            if (config.groups.length <= 1) { toast("至少保留一个组别", true); return; }
-            if (!window.confirm("删除组别「" + group.title + "」？组内导航将一并删除。")) return;
-            config.groups = config.groups.filter(function (g) { return g.id !== group.id; });
-            render();
-          }));
-          editor.appendChild(groupFields);
+          if (editing) {
+            var gf = document.createElement("div");
+            gf.className = "group-fields";
+            var titleIn = makeInput("text", group.title, "分组名称"); titleIn.className = "grow";
+            var subIn = makeInput("text", group.sub, "说明"); subIn.className = "grow";
+            bindLive(titleIn, group, "title"); bindLive(subIn, group, "sub");
+            var compactLabel = document.createElement("label");
+            compactLabel.className = "inline-check";
+            var compactIn = document.createElement("input");
+            compactIn.type = "checkbox"; compactIn.checked = !!group.compact;
+            compactIn.addEventListener("change", function () { group.compact = compactIn.checked; render(); });
+            compactLabel.appendChild(compactIn);
+            compactLabel.appendChild(document.createTextNode("紧凑布局"));
+            gf.appendChild(makeField("分组名称", titleIn));
+            gf.appendChild(makeField("说明", subIn));
+            gf.appendChild(compactLabel);
+            gf.appendChild(makeButton("删除分组", "btn ghost-danger", function () {
+              if (config.groups.length <= 1) { toast("至少保留一个分组", true); return; }
+              if (!window.confirm("删除分组「" + group.title + "」？组内导航会一并移除。")) return;
+              config.groups = config.groups.filter(function (g) { return g.id !== group.id; });
+              render();
+            }));
+            editor.appendChild(gf);
+          }
 
           var grid = document.createElement("div");
           grid.className = "grid" + (group.compact ? " compact" : "");
 
-          group.links.forEach(function (link) {
-            var safe = safeUrl(link.url);
-            var card = document.createElement(safe ? "a" : "div");
+          links.forEach(function (link) {
+            var href = safeUrl(link.url);
+            var card = document.createElement(href ? "a" : "div");
             card.className = "card" + (group.compact ? " compact" : "");
-            if (safe) {
-              card.href = safe.href;
-              card.target = "_blank";
-              card.rel = "noopener noreferrer";
+            if (href) {
+              card.href = href; card.target = "_blank"; card.rel = "noopener noreferrer";
             } else {
               card.setAttribute("data-invalid-url", "1");
             }
 
-            var cardTop = document.createElement("span");
-            cardTop.className = "card-top";
-            var num = document.createElement("span");
-            num.className = "num";
-            num.textContent = link.code;
-            var go = document.createElement("span");
-            go.className = "go";
-            go.textContent = "GO";
-            cardTop.appendChild(num); cardTop.appendChild(go);
+            var icon = document.createElement("span");
+            icon.className = "card-icon";
+            icon.setAttribute("style", iconStyle(link));
+            icon.textContent = iconChar(link.label);
+            var body = document.createElement("span");
+            body.className = "card-body";
+            var code = document.createElement("span");
+            code.className = "card-code"; code.textContent = link.code;
             var label = document.createElement("span");
-            label.className = "label";
-            label.textContent = link.label;
+            label.className = "card-label"; label.textContent = link.label;
             var hint = document.createElement("span");
-            hint.className = "hint";
-            hint.textContent = link.hint;
-            card.appendChild(cardTop); card.appendChild(label); card.appendChild(hint);
-            if (!editing && safe) {
+            hint.className = "card-hint"; hint.textContent = link.hint;
+            body.appendChild(code); body.appendChild(label); body.appendChild(hint);
+            card.appendChild(icon); card.appendChild(body);
+            if (!editing && href) {
               var arrow = document.createElement("span");
-              arrow.className = "arrow";
-              arrow.textContent = "\u2197";
+              arrow.className = "card-arrow"; arrow.textContent = "↗";
               card.appendChild(arrow);
             }
 
             if (editing) {
               var fields = document.createElement("span");
               fields.className = "edit-fields";
-              var row1 = document.createElement("span");
-              row1.className = "row";
-              var codeIn = makeInput("text", link.code, "编号");
+              var r1 = document.createElement("span"); r1.className = "row";
+              var codeIn = makeInput("text", link.code, "标识");
               var labelIn = makeInput("text", link.label, "名称");
-              bindLive(codeIn, link, "code");
-              bindLive(labelIn, link, "label");
-              row1.appendChild(makeField("编号", codeIn));
-              row1.appendChild(makeField("名称", labelIn));
-              var row2 = document.createElement("span");
-              row2.className = "row";
-              var hintIn = makeInput("text", link.hint, "说明");
-              var urlIn = makeInput("url", link.url, "https://...");
-              urlIn.className = "url";
-              bindLive(hintIn, link, "hint");
-              bindLive(urlIn, link, "url");
-              row2.appendChild(makeField("说明", hintIn));
-              row2.appendChild(makeField("链接", urlIn));
-              fields.appendChild(row1); fields.appendChild(row2);
+              bindLive(codeIn, link, "code"); bindLive(labelIn, link, "label");
+              r1.appendChild(makeField("标识", codeIn));
+              r1.appendChild(makeField("名称", labelIn));
+              var r2 = document.createElement("span"); r2.className = "row";
+              var hintIn = makeInput("text", link.hint, "说明"); hintIn.className = "grow";
+              var urlIn = makeInput("url", link.url, "https://…"); urlIn.className = "grow";
+              bindLive(hintIn, link, "hint"); bindLive(urlIn, link, "url");
+              r2.appendChild(makeField("说明", hintIn));
+              r2.appendChild(makeField("链接", urlIn));
+              fields.appendChild(r1); fields.appendChild(r2);
               card.appendChild(fields);
 
               var actions = document.createElement("span");
               actions.className = "link-actions";
-              var moveIn = document.createElement("select");
+              var move = document.createElement("select");
               config.groups.forEach(function (g) {
-                var option = document.createElement("option");
-                option.value = g.id;
-                option.textContent = "移至：" + g.title;
-                if (g.id === group.id) option.selected = true;
-                moveIn.appendChild(option);
+                var opt = document.createElement("option");
+                opt.value = g.id; opt.textContent = "移至：" + g.title;
+                if (g.id === group.id) opt.selected = true;
+                move.appendChild(opt);
               });
-              moveIn.addEventListener("change", function () {
-                var target = config.groups.find(function (g) { return g.id === moveIn.value; });
+              move.addEventListener("change", function () {
+                var target = config.groups.find(function (g) { return g.id === move.value; });
                 if (!target || target.id === group.id) return;
                 group.links = group.links.filter(function (l) { return l.id !== link.id; });
                 target.links.push(link);
                 render();
                 toast("已移至「" + target.title + "」");
               });
-              actions.appendChild(makeField("归属组别", moveIn));
-              actions.appendChild(makeButton("删除", "btn danger", function () {
+              actions.appendChild(makeField("所属分组", move));
+              actions.appendChild(makeButton("删除", "btn ghost-danger", function () {
                 if (!window.confirm("删除导航「" + link.label + "」？")) return;
                 group.links = group.links.filter(function (l) { return l.id !== link.id; });
                 render();
@@ -634,16 +582,20 @@
             grid.appendChild(card);
           });
 
+          if (!links.length && !editing) {
+            var empty = document.createElement("div");
+            empty.className = "empty"; empty.textContent = "没有匹配的导航";
+            grid.appendChild(empty);
+          }
+
           if (editing) {
-            var addLink = document.createElement("div");
-            addLink.className = "add-link";
-            addLink.appendChild(makeButton("+ 在此组别新建导航", "btn", function () {
-              group.links.push({
-                id: uid("pl"), code: "PL / LINK", label: "新导航", hint: "说明", url: "https://"
-              });
+            var add = document.createElement("div");
+            add.className = "add-row";
+            add.appendChild(makeButton("+ 在此分组新建导航", "btn", function () {
+              group.links.push({ id: uid("pl"), code: "LINK", label: "新导航", hint: "说明", url: "https://" });
               render();
             }));
-            editor.appendChild(addLink);
+            editor.appendChild(add);
           }
 
           editor.appendChild(grid);
@@ -652,29 +604,29 @@
         });
 
         if (editing) {
-          var addGroupBottom = document.createElement("div");
-          addGroupBottom.className = "add-group";
-          addGroupBottom.appendChild(makeButton("+ 新建组别", "btn", function () {
-            config.groups.push({ id: uid("g"), title: "New Group", sub: "新组别", compact: false, links: [] });
-            render();
-          }));
-          root.appendChild(addGroupBottom);
+          var addGroup = document.createElement("div");
+          addGroup.className = "add-row";
+          addGroup.appendChild(makeButton("+ 新建分组", "btn", pushGroup));
+          root.appendChild(addGroup);
         }
 
-        var pc = document.getElementById("payloadCount");
+        var nc = document.getElementById("navCount");
         var gc = document.getElementById("groupCount");
-        if (pc) pc.textContent = String(count);
+        if (nc) nc.textContent = String(total);
         if (gc) gc.textContent = String(config.groups.length);
         var fm = document.getElementById("footerMeta");
-        if (fm) fm.textContent = String(count) + " LINKS · " + String(config.groups.length) + " GROUPS · NO TRACKING";
+        if (fm) fm.textContent = total + " 个入口 · " + config.groups.length + " 个分组 · 无追踪";
+        if (searchHint) searchHint.textContent = query ? ("匹配 " + shown + " / " + total + " 项") : "";
       }
 
       function setEditing(next) {
         editing = next;
         document.body.classList.toggle("editing", editing);
-        if (editToggle) {
-          editToggle.textContent = editing ? "EXIT EDIT" : "EDIT LAYOUT";
-          editToggle.classList.toggle("active", editing);
+        if (editToggle) editToggle.textContent = editing ? "完成编辑" : "编辑布局";
+        if (searchInput) {
+          searchInput.value = "";
+          searchInput.disabled = editing;
+          searchInput.placeholder = editing ? "编辑模式下暂不可搜索" : "搜索名称、说明或链接…";
         }
         render();
       }
@@ -689,9 +641,14 @@
         if (unlockModal) unlockModal.classList.remove("open");
       }
 
+      function pushGroup() {
+        config.groups.push({ id: uid("g"), title: "新分组", sub: "说明", compact: false, links: [] });
+        render();
+      }
+
       async function onSave() {
         var saveBtn = document.getElementById("saveBtn");
-        if (!window.NavAdmin) { toast("导航管理脚本未加载", true); return; }
+        if (!window.NavAdmin) { toast("导航配置脚本未加载", true); return; }
         if (!window.NavAdmin.isUnlocked()) {
           var auto = await window.NavAdmin.tryAutoUnlock();
           if (!auto) { openUnlock(); return; }
@@ -700,7 +657,7 @@
         try {
           config.updatedAt = new Date().toISOString().slice(0, 10);
           await window.NavAdmin.save(config);
-          toast("已保存到仓库，Pages 部署约需 1 分钟");
+          toast("已保存，站点更新约需 1 分钟");
           setEditing(false);
         } catch (e) {
           toast((e && e.message) || "保存失败", true);
@@ -710,15 +667,14 @@
       }
 
       async function init() {
-        var loaded = null;
-        if (window.NavAdmin) loaded = await window.NavAdmin.loadStatic();
+        var loaded = window.NavAdmin ? await window.NavAdmin.loadStatic() : null;
         config = normalize(loaded || FALLBACK);
-        if (!loaded) toast("静态配置读取失败，已使用内置兜底数据", true);
+        if (!loaded) toast("配置读取失败，已使用默认数据", true);
         render();
 
         if (editToggle) editToggle.addEventListener("click", function () {
-          if (editing) { if (window.NavAdmin) window.NavAdmin.lock(); setEditing(false); toast("已退出编辑并锁定"); }
-          else { setEditing(true); toast("编辑模式：可直接修改卡片与组别"); }
+          if (editing) { if (window.NavAdmin) window.NavAdmin.lock(); setEditing(false); }
+          else setEditing(true);
         });
         var cancelBtn = document.getElementById("cancelBtn");
         if (cancelBtn) cancelBtn.addEventListener("click", async function () {
@@ -730,12 +686,9 @@
         });
         var saveBtn = document.getElementById("saveBtn");
         if (saveBtn) saveBtn.addEventListener("click", function () { void onSave(); });
-        function pushGroup() {
-          config.groups.push({ id: uid("g"), title: "New Group", sub: "新组别", compact: false, links: [] });
-          render();
-        }
         var addGroupTop = document.getElementById("addGroupTopBtn");
         if (addGroupTop) addGroupTop.addEventListener("click", pushGroup);
+        if (searchInput) searchInput.addEventListener("input", render);
 
         var unlockCancel = document.getElementById("unlockCancel");
         var unlockSubmit = document.getElementById("unlockSubmit");
@@ -761,10 +714,8 @@
       }
 
       void init();
-    })();
 
-    // 只清理根作用域可能残留的旧 Service Worker，不动同源其它应用的注册与 CacheStorage。
-    (function () {
+      // 仅注销根作用域残留的旧 Service Worker，不影响其它应用。
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.getRegistrations().then(function (list) {
           list.forEach(function (item) {
