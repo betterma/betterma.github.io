@@ -160,33 +160,55 @@
     .edit-bar .tag { font: 600 12px/1 var(--mono); color: var(--accent); letter-spacing: 0.05em; }
     .edit-bar .spacer { flex: 1; }
     .edit-group {
-      border: 1px dashed var(--line-strong); border-radius: var(--radius);
-      padding: 14px; margin-bottom: 12px; background: rgba(255,255,255,0.6);
+      border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 14px; margin-bottom: 16px; background: #fbfbfd;
     }
     body:not(.editing) .edit-group { display: contents; }
-    .group-fields { display: none; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .group-fields {
+      display: none; align-items: end; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--line);
+    }
     body.editing .group-fields { display: flex; }
     .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
     .field label { font: 10px/1 var(--mono); color: var(--muted); letter-spacing: 0.06em; }
     .field input, .field select {
+      box-sizing: border-box; width: 100%;
       background: #fff; border: 1px solid var(--line-strong); color: var(--ink);
       padding: 8px 10px; font: 12px/1.3 var(--sans); border-radius: 6px; min-width: 0;
     }
     .field input:focus, .field select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
     .field.grow { flex: 1 1 150px; }
-    .inline-check { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); }
-    body.editing .card { border-style: dashed; cursor: default; }
-    body.editing .card:hover { transform: none; box-shadow: var(--shadow); }
+    .inline-check { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); padding-bottom: 8px; }
+    .inline-check input[type=checkbox] { width: auto; }
+
+    /* 编辑卡片：与浏览卡片彻底分离，纯表单结构，不设 href，点击不跳转 */
+    body.editing .grid,
+    body.editing .grid.compact { grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); gap: 14px; }
+    body.editing .card {
+      display: block; min-height: 0; padding: 0; cursor: default;
+      border-style: solid; border-color: var(--line); overflow: hidden;
+    }
+    body.editing .card:hover { transform: none; box-shadow: var(--shadow); border-color: var(--line); }
     body.editing .card-arrow { display: none; }
-    body.editing .card .edit-fields { display: flex; }
-    .edit-fields { display: none; flex-direction: column; gap: 8px; margin-top: 10px; }
-    .edit-fields .row { display: flex; gap: 8px; flex-wrap: wrap; }
-    .edit-fields .row .field { flex: 1 1 110px; }
-    .edit-fields .row .field.grow { flex: 2 1 200px; }
-    .link-actions { display: none; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-    body.editing .link-actions { display: flex; }
-    .link-actions .field { flex: 1 1 150px; }
-    .add-row { display: none; margin-top: 10px; }
+    .edit-card-head {
+      display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+      background: #f8f9fb; border-bottom: 1px solid var(--line);
+    }
+    .edit-card-head .badge {
+      width: 30px; height: 30px; border-radius: 8px; flex: 0 0 auto;
+      display: grid; place-items: center; font: 600 13px/1 var(--mono);
+    }
+    .edit-card-head .head-titles { min-width: 0; }
+    .edit-card-head .head-code { display: block; font: 10px/1.2 var(--mono); color: var(--muted); margin-bottom: 2px; }
+    .edit-card-head .head-name { display: block; font-size: 13px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .edit-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; padding: 14px; }
+    .edit-fields .field.full { grid-column: 1 / -1; }
+    .edit-card-foot {
+      display: flex; align-items: end; gap: 10px; padding: 12px 14px;
+      border-top: 1px solid var(--line); background: #fcfcfd;
+    }
+    .edit-card-foot .field { flex: 1; }
+    .add-row { display: none; margin-top: 12px; }
     body.editing .add-row { display: flex; }
 
     /* —— 弹窗 / 提示 —— */
@@ -507,6 +529,76 @@
           grid.className = "grid" + (group.compact ? " compact" : "");
 
           links.forEach(function (link) {
+            // 编辑态：纯 div 表单卡片，绝不使用 <a>，从根源上屏蔽点击跳转
+            if (editing) {
+              var card = document.createElement("div");
+              card.className = "card";
+
+              var head = document.createElement("div");
+              head.className = "edit-card-head";
+              var badge = document.createElement("span");
+              badge.className = "badge";
+              badge.setAttribute("style", iconStyle(link));
+              badge.textContent = iconChar(link.label);
+              var titles = document.createElement("span");
+              titles.className = "head-titles";
+              var headCode = document.createElement("span");
+              headCode.className = "head-code"; headCode.textContent = link.code;
+              var headName = document.createElement("span");
+              headName.className = "head-name"; headName.textContent = link.label;
+              titles.appendChild(headCode); titles.appendChild(headName);
+              head.appendChild(badge); head.appendChild(titles);
+              card.appendChild(head);
+
+              var fields = document.createElement("div");
+              fields.className = "edit-fields";
+              var codeIn = makeInput("text", link.code, "如 MEMORY");
+              var labelIn = makeInput("text", link.label, "显示名称");
+              var hintIn = makeInput("text", link.hint, "一句话说明");
+              var urlIn = makeInput("url", link.url, "https://…");
+              bindLive(codeIn, link, "code"); bindLive(labelIn, link, "label");
+              bindLive(hintIn, link, "hint"); bindLive(urlIn, link, "url");
+              // 输入时同步更新卡片头部标题，无需重新渲染（避免输入框失焦）
+              codeIn.addEventListener("input", function () { headCode.textContent = link.code; });
+              labelIn.addEventListener("input", function () { headName.textContent = link.label; });
+              var fCode = makeField("标识", codeIn);
+              var fLabel = makeField("名称", labelIn);
+              var fHint = makeField("说明", hintIn); fHint.classList.add("full");
+              var fUrl = makeField("链接", urlIn); fUrl.classList.add("full");
+              fields.appendChild(fCode); fields.appendChild(fLabel);
+              fields.appendChild(fHint); fields.appendChild(fUrl);
+              card.appendChild(fields);
+
+              var foot = document.createElement("div");
+              foot.className = "edit-card-foot";
+              var move = document.createElement("select");
+              config.groups.forEach(function (g) {
+                var opt = document.createElement("option");
+                opt.value = g.id; opt.textContent = g.title;
+                if (g.id === group.id) opt.selected = true;
+                move.appendChild(opt);
+              });
+              move.addEventListener("change", function () {
+                var target = config.groups.find(function (g) { return g.id === move.value; });
+                if (!target || target.id === group.id) return;
+                group.links = group.links.filter(function (l) { return l.id !== link.id; });
+                target.links.push(link);
+                render();
+                toast("已移至「" + target.title + "」");
+              });
+              foot.appendChild(makeField("所属分组", move));
+              foot.appendChild(makeButton("删除", "btn ghost-danger", function () {
+                if (!window.confirm("删除导航「" + link.label + "」？")) return;
+                group.links = group.links.filter(function (l) { return l.id !== link.id; });
+                render();
+              }));
+              card.appendChild(foot);
+
+              grid.appendChild(card);
+              return;
+            }
+
+            // 浏览态：保留原有可跳转卡片
             var href = safeUrl(link.url);
             var card = document.createElement(href ? "a" : "div");
             card.className = "card" + (group.compact ? " compact" : "");
@@ -530,54 +622,10 @@
             hint.className = "card-hint"; hint.textContent = link.hint;
             body.appendChild(code); body.appendChild(label); body.appendChild(hint);
             card.appendChild(icon); card.appendChild(body);
-            if (!editing && href) {
+            if (href) {
               var arrow = document.createElement("span");
               arrow.className = "card-arrow"; arrow.textContent = "↗";
               card.appendChild(arrow);
-            }
-
-            if (editing) {
-              var fields = document.createElement("span");
-              fields.className = "edit-fields";
-              var r1 = document.createElement("span"); r1.className = "row";
-              var codeIn = makeInput("text", link.code, "标识");
-              var labelIn = makeInput("text", link.label, "名称");
-              bindLive(codeIn, link, "code"); bindLive(labelIn, link, "label");
-              r1.appendChild(makeField("标识", codeIn));
-              r1.appendChild(makeField("名称", labelIn));
-              var r2 = document.createElement("span"); r2.className = "row";
-              var hintIn = makeInput("text", link.hint, "说明"); hintIn.className = "grow";
-              var urlIn = makeInput("url", link.url, "https://…"); urlIn.className = "grow";
-              bindLive(hintIn, link, "hint"); bindLive(urlIn, link, "url");
-              r2.appendChild(makeField("说明", hintIn));
-              r2.appendChild(makeField("链接", urlIn));
-              fields.appendChild(r1); fields.appendChild(r2);
-              card.appendChild(fields);
-
-              var actions = document.createElement("span");
-              actions.className = "link-actions";
-              var move = document.createElement("select");
-              config.groups.forEach(function (g) {
-                var opt = document.createElement("option");
-                opt.value = g.id; opt.textContent = "移至：" + g.title;
-                if (g.id === group.id) opt.selected = true;
-                move.appendChild(opt);
-              });
-              move.addEventListener("change", function () {
-                var target = config.groups.find(function (g) { return g.id === move.value; });
-                if (!target || target.id === group.id) return;
-                group.links = group.links.filter(function (l) { return l.id !== link.id; });
-                target.links.push(link);
-                render();
-                toast("已移至「" + target.title + "」");
-              });
-              actions.appendChild(makeField("所属分组", move));
-              actions.appendChild(makeButton("删除", "btn ghost-danger", function () {
-                if (!window.confirm("删除导航「" + link.label + "」？")) return;
-                group.links = group.links.filter(function (l) { return l.id !== link.id; });
-                render();
-              }));
-              card.appendChild(actions);
             }
             grid.appendChild(card);
           });
