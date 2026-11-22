@@ -7,6 +7,20 @@
       "title": "Core Payloads",
       "sub": "主载荷",
       "compact": false,
+      "links": []
+    },
+    {
+      "id": "g-extended",
+      "title": "Extended",
+      "sub": "扩展载荷",
+      "compact": true,
+      "links": []
+    },
+    {
+      "id": "g-mwrzkxie-errti",
+      "title": "生活",
+      "sub": "LIFE",
+      "compact": true,
       "links": [
         {
           "id": "pl-01",
@@ -39,18 +53,18 @@
       ]
     },
     {
-      "id": "g-extended",
-      "title": "Extended",
-      "sub": "扩展载荷",
+      "id": "g-mwrzkyok-pif8k",
+      "title": "自媒体",
+      "sub": "自媒体之路",
+      "compact": true,
+      "links": []
+    },
+    {
+      "id": "g-mwrzkzop-bvroz",
+      "title": "技术革命",
+      "sub": "技术与工具",
       "compact": true,
       "links": [
-        {
-          "id": "pl-06",
-          "code": "PL-06 / READ",
-          "label": "阅读资源",
-          "hint": "电子书目录",
-          "url": "https://betterma.github.io/book"
-        },
         {
           "id": "pl-07",
           "code": "PL-07 / CIPHER",
@@ -64,7 +78,30 @@
           "label": "IP Check",
           "hint": "网络环境检测",
           "url": "ipcheck/ipcheck.html"
-        },
+        }
+      ]
+    },
+    {
+      "id": "g-mwrzl0k3-3ut9u",
+      "title": "知识",
+      "sub": "星球",
+      "compact": true,
+      "links": [
+        {
+          "id": "pl-06",
+          "code": "PL-06 / READ",
+          "label": "阅读资源",
+          "hint": "电子书目录",
+          "url": "https://betterma.github.io/book"
+        }
+      ]
+    },
+    {
+      "id": "g-mwrzmg9t-9uame",
+      "title": "其他",
+      "sub": "新世界",
+      "compact": true,
+      "links": [
         {
           "id": "pl-09",
           "code": "PL-09 / PAGES",
