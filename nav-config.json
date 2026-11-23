@@ -1,7 +1,22 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-22",
+  "updatedAt": "2026-11-23",
   "groups": [
+    {
+      "id": "g-mwrzkyok-pif8k",
+      "title": "自媒体",
+      "sub": "自媒体之路",
+      "compact": true,
+      "links": [
+        {
+          "id": "pl-mws2eduk-plph8",
+          "code": "LINK-wechat",
+          "label": "公众号",
+          "hint": "说明",
+          "url": "https://mp.weixin.qq.com/"
+        }
+      ]
+    },
     {
       "id": "g-mwrzkxie-errti",
       "title": "生活",
@@ -35,21 +50,6 @@
           "label": "葫芦包日记",
           "hint": "日记与对话记录",
           "url": "https://betterma.github.io/pages/babyChat/"
-        }
-      ]
-    },
-    {
-      "id": "g-mwrzkyok-pif8k",
-      "title": "自媒体",
-      "sub": "自媒体之路",
-      "compact": true,
-      "links": [
-        {
-          "id": "pl-mws2eduk-plph8",
-          "code": "LINK-wechat",
-          "label": "公众号",
-          "hint": "说明",
-          "url": "https://mp.weixin.qq.com/"
         }
       ]
     },
