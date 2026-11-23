@@ -516,6 +516,17 @@
             gf.appendChild(makeField("分组名称", titleIn));
             gf.appendChild(makeField("说明", subIn));
             gf.appendChild(compactLabel);
+            var groupIndex = config.groups.findIndex(function (g) { return g.id === group.id; });
+            var pinBtn = makeButton("↑ 置顶", "btn", function () {
+              var i = config.groups.findIndex(function (g) { return g.id === group.id; });
+              if (i <= 0) return;
+              var moved = config.groups.splice(i, 1)[0];
+              config.groups.unshift(moved);
+              render();
+              toast("「" + group.title + "」已移到第一组");
+            });
+            if (groupIndex === 0) pinBtn.disabled = true;
+            gf.appendChild(pinBtn);
             gf.appendChild(makeButton("删除分组", "btn ghost-danger", function () {
               if (config.groups.length <= 1) { toast("至少保留一个分组", true); return; }
               if (!window.confirm("删除分组「" + group.title + "」？组内导航会一并移除。")) return;
